@@ -190,10 +190,46 @@
     setupSoundToggle();
     renderAll();
     initComparatorTool();
+    initDockAutoHide();
     if (window.lucide) {
       lucide.createIcons();
     }
   }
+
+  // --- AUTO-HIDE BOTTOM DOCK ON SCROLL ---
+  function initDockAutoHide() {
+    const scrollArea = document.querySelector('.neo-main-content');
+    const dock = document.querySelector('.neo-bottom-dock');
+    if (!scrollArea || !dock) return;
+
+    let lastScrollY = 0;
+    let ticking = false;
+
+    scrollArea.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const currentY = scrollArea.scrollTop;
+          const delta = currentY - lastScrollY;
+
+          // Selalu tampil di paling atas
+          if (currentY <= 10) {
+            dock.classList.remove('dock-hidden');
+          } else if (delta > 5) {
+            // Scroll ke BAWAH → sembunyikan dock
+            dock.classList.add('dock-hidden');
+          } else if (delta < -5) {
+            // Scroll ke ATAS → tampilkan dock
+            dock.classList.remove('dock-hidden');
+          }
+
+          lastScrollY = currentY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
 
   // --- STORAGE ---
   function loadDataFromStorage() {
