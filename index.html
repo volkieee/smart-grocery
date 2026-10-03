@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Smart Grocery & Budget Safety Tracker - Rian</title>
+  
+  <!-- PWA Settings -->
+  <link rel="manifest" href="manifest.json?v=3.1">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="SmartGrocery">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Supabase SDK, Lucide Icons & Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Cache busted stylesheet -->
+  <link rel="stylesheet" href="styles.css?v=3.2.0">
+</head>
+<body class="neo-cyber-theme">
+
+  <!-- Mobile Viewport Container (Centered 430px) -->
+  <div class="mobile-viewport-container">
+    <div class="neo-mobile-frame" id="appFrame">
+      
+      <!-- TOP STATUS BAR / BRAND HEADER -->
+      <header class="neo-header">
+        <div class="neo-header-top">
+          <div class="brand-tag-unit">
+            <div class="brand-dot-indicator connected" id="cloudStatusDot" title="Status Cloud: Terhubung ke Supabase"></div>
+            <div class="brand-text-block">
+              <span class="brand-sub">KOS 3X3 • SMART GROCERY</span>
+              <h1 class="brand-name">RIAN<strong>MART</strong> <span class="badge-volt" id="cloudStatusTag">CLOUD</span></h1>
+            </div>
+          </div>
+
+          <div class="header-util-group">
+            <button id="btnSyncCloudHeader" class="neo-icon-btn active" title="Sinkronkan Cloud Supabase">
+              <i data-lucide="cloud"></i>
+            </button>
+            <button id="btnSoundToggle" class="neo-icon-btn active" title="Toggle Sound">
+              <i data-lucide="volume-2" id="soundIcon"></i>
+            </button>
+            <button id="btnQuickCompareHeader" class="neo-icon-btn" title="Kalkulator Promo">
+              <i data-lucide="scale"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- F-05: PENGENDALI ANGGARAN (NEO-BENTO SAFETY HUD) -->
+        <div class="neo-hud-card status-safe" id="budgetHudCard">
+          <div class="hud-top-meta">
+            <div class="hud-label-pill">
+              <span class="live-pulse"></span>
+              <span>BUDGET SAFETY CAP</span>
+            </div>
+            <div class="hud-wallet-pill" id="btnEditBudgetTrigger" title="Ketuk untuk ubah batas dompet">
+              <span class="lbl">DOMPET:</span>
+              <strong id="hudBudgetLimit">Rp 350.000</strong>
+              <i data-lucide="edit-2" class="ico-edit"></i>
+            </div>
+          </div>
+
+          <div class="hud-spending-main">
+            <div class="spending-block">
+              <span class="curr-unit">IDR</span>
+              <span class="spending-number" id="hudTotalSpending">0</span>
+            </div>
+            <div class="cap-metric-tag" id="budgetPercentLabel">0% CAP</div>
+          </div>
+
+          <!-- Segmented Precision Progress Meter -->
+          <div class="hud-meter-wrap">
+            <div class="hud-meter-track">
+              <div class="hud-meter-fill status-safe" id="budgetProgressBar" style="width: 0%;"></div>
+              <div class="hud-marker-warn" style="left: 80%;" title="80% Waspada"></div>
+            </div>
+          </div>
+
+          <!-- Live Status Row -->
+          <div class="hud-status-bottom">
+            <div class="hud-status-chip status-safe" id="hudStatusBadge">
+              <i data-lucide="shield-check" id="hudStatusIcon"></i>
+              <span id="hudStatusText">AMAN • SIAP KASIR</span>
+            </div>
+            <div class="hud-remaining-box" id="hudRemainingText">
+              SISA: <strong>Rp 350.000</strong>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN SCROLLABLE VIEW -->
+      <main class="neo-main-content" id="mainContent">
+
+        <!-- ================= TAB 1: BELANJA (KERANJANG AKTIF) ================= -->
+        <section id="tabCart" class="tab-pane active">
+          
+          <!-- Category Segmented Filters -->
+          <div class="neo-category-scroll">
+            <button class="neo-cat-chip active" data-category="ALL">
+              <span>ALL</span>
+              <span class="neo-chip-count" id="countAll">0</span>
+            </button>
+            <button class="neo-cat-chip" data-category="Bahan Pokok">
+              <span>🌾 POKOK</span>
+            </button>
+            <button class="neo-cat-chip" data-category="Makanan & Minuman">
+              <span>🍜 MAKAN</span>
+            </button>
+            <button class="neo-cat-chip" data-category="Kebersihan">
+              <span>🧼 BERSIH</span>
+            </button>
+            <button class="neo-cat-chip" data-category="Dapur & Bumbu">
+              <span>🧂 DAPUR</span>
+            </button>
+            <button class="neo-cat-chip" data-category="Lainnya">
+              <span>📦 LAIN</span>
+            </button>
+          </div>
+
+          <!-- Search & Add Bar -->
+          <div class="neo-search-deck">
+            <div class="neo-search-input-wrap">
+              <i data-lucide="search" class="search-ico"></i>
+              <input type="text" id="searchCartInput" placeholder="Cari item di troli..." autocomplete="off">
+              <button id="btnClearSearch" class="btn-search-clear hidden">
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+            <button id="btnOpenAddModal" class="btn-neo-volt" title="Tambah Barang Baru">
+              <i data-lucide="plus"></i>
+              <span>TAMBAH</span>
+            </button>
+          </div>
+
+          <!-- Over Budget Warning Banner -->
+          <div class="neo-alert-overbudget hidden" id="overBudgetBanner">
+            <div class="alert-top-row">
+              <span class="badge-alert-danger">
+                <i data-lucide="triangle-alert"></i> DANGER: DEFISIT
+              </span>
+              <span class="alert-limit-msg">TOTAL LEBIHI UANG SAKU</span>
+            </div>
+            <p class="alert-p">Keluarkan barang non-pokok sebelum ke meja kasir agar tidak canggung!</p>
+            <button id="btnSuggestTrim" class="btn-neo-trim">
+              <i data-lucide="scissors"></i> Buka Saran Pangkas Belanjaan
+            </button>
+          </div>
+
+          <!-- CART ITEMS LIST CONTAINER -->
+          <div class="neo-items-stack" id="cartItemsList">
+            <!-- Rendered by JavaScript -->
+          </div>
+
+          <!-- Empty Cart State -->
+          <div class="neo-empty-box hidden" id="emptyCartState">
+            <div class="empty-glyph">🛒</div>
+            <h3>Troli Belanja Kosong</h3>
+            <p>Rian belum memasukkan barang pokok ke troli belanjaan supermarket.</p>
+            <div class="empty-btn-group">
+              <button class="btn-neo-secondary" id="btnLoadSampleData">
+                <i data-lucide="sparkles"></i> Muat Data Kebutuhan Rian
+              </button>
+              <button class="btn-neo-volt full-w" id="btnEmptyAdd">
+                <i data-lucide="plus"></i> Tambah Barang Manual
+              </button>
+            </div>
+          </div>
+
+          <!-- Shopping Summary Bottom Card -->
+          <div class="neo-summary-bar" id="cartSummaryBottom">
+            <div class="summary-metrics-grid">
+              <div class="metric-cell">
+                <span class="m-lbl">TOTAL BARANG</span>
+                <strong class="m-val" id="summaryTotalItems">0 Jenis (0 Pcs)</strong>
+              </div>
+              <div class="metric-cell right">
+                <span class="m-lbl">PENGHEMATAN</span>
+                <strong class="m-val text-volt" id="summaryTotalSaved">Hemat Rp 0</strong>
+              </div>
+            </div>
+            <button id="btnFinishShopping" class="btn-neo-checkout">
+              <i data-lucide="check-circle-2"></i>
+              <span>SELESAIKAN BELANJA & KASIR</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ================= TAB 2: PROMO & SMART COMPARATOR ================= -->
+        <section id="tabCompare" class="tab-pane">
+          <div class="neo-section-title">
+            <span class="neo-kicker">ANALISIS RAK SUPERMARKET</span>
+            <h2>Kalkulator Promo & Kemasan</h2>
+            <p>Hitung diskon bertingkat (50%+20%) dan perbandingan kemasan jerigen vs pouch.</p>
+          </div>
+
+          <!-- TOOL 1: KALKULATOR DISKON BERTINGKAT & PROMO -->
+          <div class="neo-bento-card">
+            <div class="card-header-line">
+              <div class="header-icon-box">
+                <i data-lucide="percent"></i>
+              </div>
+              <div>
+                <h3>Kalkulator Diskon Bertumpuk</h3>
+                <span>Hitung promo 50%+20%, 30%, atau potongan Rp langsung</span>
+              </div>
+            </div>
+
+            <div class="card-body-content">
+              <div class="neo-form-group">
+                <label>HARGA ASLI DI RAK (RP)</label>
+                <div class="neo-input-affix-wrap">
+                  <span class="affix">RP</span>
+                  <input type="number" id="calcOrigPrice" placeholder="100000" inputmode="numeric">
+                </div>
+              </div>
+
+              <div class="neo-form-group">
+                <label>FORMAT DISKON / PROMO</label>
+                <div class="neo-chip-pills">
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('50+20')">50% + 20%</button>
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('70+10')">70% + 10%</button>
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('30')">30%</button>
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('Buy 2 Get 1')">Beli 2 Gratis 1</button>
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('15000')">-Rp 15rb</button>
+                </div>
+                <div class="neo-input-affix-wrap no-affix">
+                  <input type="text" id="calcDiscountInput" placeholder="Ketik rumus (contoh: 50+20 atau 25% atau 15000)">
+                </div>
+              </div>
+
+              <div class="neo-calc-display-box" id="calcDiscountResult">
+                <div class="display-row-top">
+                  <div>
+                    <span class="d-caption">HARGA AKHIR:</span>
+                    <div class="d-price-huge" id="calcFinalPrice">Rp 0</div>
+                  </div>
+                  <div class="savings-tag-volt" id="calcSavedAmount">Hemat Rp 0</div>
+                </div>
+                <div class="d-formula-code" id="calcFormulaBreakdown">
+                  Masukkan harga dan diskon di atas.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOOL 2: SMART UNIT PRICE COMPARATOR (Value for Money) -->
+          <div class="neo-bento-card">
+            <div class="card-header-line">
+              <div class="header-icon-box">
+                <i data-lucide="scale"></i>
+              </div>
+              <div>
+                <h3>Perbandingan Kemasan (Unit Price)</h3>
+                <span>Contoh: Minyak 1L Rp 18.000 vs Jerigen 5L Rp 85.000</span>
+              </div>
+            </div>
+
+            <div class="card-body-content">
+              <div class="dual-compare-grid">
+                <!-- Option A -->
+                <div class="compare-sub-box" id="colOptionA">
+                  <div class="sub-box-title">OPSI A (KEMASAN 1)</div>
+                  <div class="form-micro">
+                    <label>UKURAN / VOLUME</label>
+                    <div class="dual-unit-field">
+                      <input type="number" id="cmpSizeA" placeholder="1" value="1" step="any">
+                      <select id="cmpUnitA">
+                        <option value="liter">Liter</option>
+                        <option value="ml">ml</option>
+                        <option value="kg">kg</option>
+                        <option value="gram">gram</option>
+                        <option value="pcs">pcs</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-micro">
+                    <label>HARGA (RP)</label>
+                    <div class="neo-input-affix-wrap mini">
+                      <span class="affix mini">RP</span>
+                      <input type="number" id="cmpPriceA" placeholder="18000" value="18000" inputmode="numeric">
+                    </div>
+                  </div>
+                  <div class="unit-price-pill" id="unitCostA">
+                    Rp 18.000 / Liter
+                  </div>
+                </div>
+
+                <!-- Option B -->
+                <div class="compare-sub-box" id="colOptionB">
+                  <div class="sub-box-title">OPSI B (KEMASAN 2)</div>
+                  <div class="form-micro">
+                    <label>UKURAN / VOLUME</label>
+                    <div class="dual-unit-field">
+                      <input type="number" id="cmpSizeB" placeholder="5" value="5" step="any">
+                      <select id="cmpUnitB">
+                        <option value="liter">Liter</option>
+                        <option value="ml">ml</option>
+                        <option value="kg">kg</option>
+                        <option value="gram">gram</option>
+                        <option value="pcs">pcs</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-micro">
+                    <label>HARGA (RP)</label>
+                    <div class="neo-input-affix-wrap mini">
+                      <span class="affix mini">RP</span>
+                      <input type="number" id="cmpPriceB" placeholder="85000" value="85000" inputmode="numeric">
+                    </div>
+                  </div>
+                  <div class="unit-price-pill" id="unitCostB">
+                    Rp 17.000 / Liter
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recommendation Verdict Banner -->
+              <div class="neo-verdict-box" id="cmpVerdictBanner">
+                <div class="verdict-dot">
+                  <i data-lucide="check"></i>
+                </div>
+                <div class="verdict-txt">
+                  <strong id="cmpVerdictTitle">Opsi B Lebih Hemat!</strong>
+                  <p id="cmpVerdictDesc">Hemat Rp 1.000/liter (5.56% lebih murah dibanding Opsi A).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 3: ANGGARAN & ANALISIS (BUDGET) ================= -->
+        <section id="tabBudget" class="tab-pane">
+          <div class="neo-section-title">
+            <span class="neo-kicker">KENDALI KEUANGAN KOS</span>
+            <h2>Pengendali & Batas Anggaran</h2>
+            <p>Jaga ketat uang saku kiriman orang tua agar tidak defisit di akhir bulan.</p>
+          </div>
+
+          <!-- Budget Config Card -->
+          <div class="neo-bento-card">
+            <div class="card-header-line">
+              <div class="header-icon-box">
+                <i data-lucide="wallet"></i>
+              </div>
+              <div>
+                <h3>Batas Uang Saku Belanja</h3>
+                <span>Nominal maksimal yang dibawa ke kasir</span>
+              </div>
+            </div>
+            <div class="card-body-content">
+              <div class="neo-form-group">
+                <label>NOMINAL ANGGARAN (RP)</label>
+                <div class="neo-input-affix-wrap">
+                  <span class="affix">RP</span>
+                  <input type="number" id="inputBudgetSetting" placeholder="350000" inputmode="numeric">
+                </div>
+              </div>
+              <div class="neo-chip-pills">
+                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(250000)">Rp 250rb</button>
+                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(350000)">Rp 350rb</button>
+                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(500000)">Rp 500rb</button>
+                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(750000)">Rp 750rb</button>
+              </div>
+              <button id="btnSaveBudgetSetting" class="btn-neo-volt full-w">
+                <i data-lucide="save"></i> SIMPAN BATAS ANGGARAN
+              </button>
+            </div>
+          </div>
+
+          <!-- Spending Category Breakdown -->
+          <div class="neo-bento-card">
+            <div class="card-header-line">
+              <div class="header-icon-box">
+                <i data-lucide="pie-chart"></i>
+              </div>
+              <div>
+                <h3>Distribusi Kategori Belanja</h3>
+                <span>Alokasi pengeluaran barang saat ini</span>
+              </div>
+            </div>
+            <div class="card-body-content">
+              <div class="neo-category-breakdown" id="categoryBreakdownList">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Guidelines -->
+          <div class="neo-rules-card">
+            <div class="rules-header">
+              <i data-lucide="info"></i>
+              <strong>STRATEGI BELANJA HEMAT RIAN</strong>
+            </div>
+            <ul class="rules-list">
+              <li><strong>Bahan Pokok Duluan:</strong> Pastikan beras, minyak, dan sabun cuci sudah masuk troli.</li>
+              <li><strong>Cek Sinyal Harga:</strong> Jika panah merah naik (↑), bandingkan dengan merek lain.</li>
+              <li><strong>Safety Cap HUD:</strong> Jangan pernah melangkah ke kasir jika status menyala merah.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ================= TAB 4: RIWAYAT & DATABASE HARGA (HISTORY) ================= -->
+        <section id="tabHistory" class="tab-pane">
+          <div class="neo-section-title">
+            <span class="neo-kicker">BELANJA SAYA</span>
+            <h2>Riwayat Belanja</h2>
+            <p>Semua struk tersimpan otomatis. Tap untuk lihat rincian.</p>
+          </div>
+
+          <!-- Hidden cloud IDs (JS-only) -->
+          <div class="hidden" id="cloudBannerBox">
+            <div class="cloud-indicator-circle connected" id="cloudIndicatorIcon"></div>
+            <strong id="cloudStatusTitle"></strong>
+            <span id="cloudStatusSubtitle"></span>
+            <button id="btnSyncNow"></button>
+          </div>
+
+          <div class="neo-segmented-tabs">
+            <button class="neo-tab-btn active" id="btnSubHistory" data-sub="history">
+              <i data-lucide="receipt"></i> STRUK BELANJA
+            </button>
+            <button class="neo-tab-btn" id="btnSubMaster" data-sub="master">
+              <i data-lucide="bar-chart-2"></i> ACUAN HARGA
+            </button>
+          </div>
+
+          <!-- SUB-VIEW: STRUK RIWAYAT BELANJA -->
+          <div id="subViewHistory" class="sub-view-pane active">
+            <div class="neo-history-deck" id="historyListContainer">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: MASTER DATABASE HARGA ACUAN -->
+          <div id="subViewMaster" class="sub-view-pane">
+            <div class="neo-master-bar">
+              <div class="neo-search-input-wrap mini">
+                <i data-lucide="search" class="search-ico"></i>
+                <input type="text" id="searchMasterInput" placeholder="Cari acuan harga...">
+              </div>
+              <button id="btnAddMasterItem" class="btn-neo-secondary mini">
+                <i data-lucide="plus"></i> Tambah
+              </button>
+            </div>
+
+            <div class="neo-master-records" id="masterItemsList">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Hidden dev-only actions (JS logic preserved, not displayed) -->
+          <input type="file" id="importFileInput" accept=".json" class="hidden">
+          <button id="btnExportData" class="hidden"></button>
+          <button id="btnImportDataTrigger" class="hidden"></button>
+          <button id="btnResetToDefaults" class="hidden"></button>
+
+        </section>
+
+      </main>
+
+      <!-- ================= BOTTOM DOCK NAVIGATION ================= -->
+      <nav class="neo-bottom-dock">
+        <div class="dock-frame">
+          <button class="dock-tab active" data-tab="tabCart" id="navBtnCart">
+            <div class="dock-tab-glyph">
+              <i data-lucide="shopping-bag"></i>
+              <span class="dock-bubble-tag" id="navCartBadge">0</span>
+            </div>
+            <span class="dock-txt">Troli</span>
+          </button>
+
+          <button class="dock-tab" data-tab="tabCompare" id="navBtnCompare">
+            <div class="dock-tab-glyph">
+              <i data-lucide="scale"></i>
+            </div>
+            <span class="dock-txt">Kalkulator</span>
+          </button>
+
+          <button class="dock-tab" data-tab="tabBudget" id="navBtnBudget">
+            <div class="dock-tab-glyph">
+              <i data-lucide="pie-chart"></i>
+            </div>
+            <span class="dock-txt">Anggaran</span>
+          </button>
+
+          <button class="dock-tab" data-tab="tabHistory" id="navBtnHistory">
+            <div class="dock-tab-glyph">
+              <i data-lucide="receipt"></i>
+            </div>
+            <span class="dock-txt">Riwayat</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- ================= BOTTOM DOCK NAVIGATION ================= -->
+
+      <!-- ================= MODAL: TAMBAH / EDIT ITEM BELANJA ================= -->
+      <div class="modal-backdrop hidden" id="modalItemBackdrop">
+        <div class="neo-modal-sheet" id="modalItemSheet">
+          <div class="sheet-notch"></div>
+          
+          <div class="neo-sheet-header">
+            <div>
+              <span class="sheet-kicker">INPUT PRODUK</span>
+              <h3 id="modalItemTitle">Tambah ke Troli</h3>
+            </div>
+            <button class="neo-btn-close" id="btnCloseItemModal">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+
+          <form id="formItemModal" class="neo-sheet-form">
+            <input type="hidden" id="modalItemId">
+
+            <!-- F-01: Nama Barang & Autocomplete -->
+            <div class="neo-form-group">
+              <label for="inputItemName">NAMA PRODUK <span class="req">*</span></label>
+              <div class="neo-input-affix-wrap no-affix">
+                <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required autocomplete="off">
+              </div>
+              <div class="neo-autocomplete-dropdown hidden" id="autoSuggestContainer"></div>
+            </div>
+
+            <div class="neo-dual-grid">
+              <!-- F-01: Kategori -->
+              <div class="neo-form-group">
+                <label for="selectItemCategory">KATEGORI</label>
+                <div class="neo-select-wrap">
+                  <select id="selectItemCategory">
+                    <option value="Bahan Pokok">Bahan Pokok</option>
+                    <option value="Makanan & Minuman">Makanan & Minum</option>
+                    <option value="Kebersihan">Kebersihan</option>
+                    <option value="Dapur & Bumbu">Dapur & Bumbu</option>
+                    <option value="Lainnya">Lainnya</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- F-01: Satuan -->
+              <div class="neo-form-group">
+                <label for="selectItemUnit">KEMASAN/SATUAN</label>
+                <div class="neo-select-wrap">
+                  <select id="selectItemUnit">
+                    <option value="pcs">pcs (buah)</option>
+                    <option value="kg">kg (kilogram)</option>
+                    <option value="liter">liter</option>
+                    <option value="pack">pack</option>
+                    <option value="pouch">pouch</option>
+                    <option value="botol">botol</option>
+                    <option value="kaleng">kaleng</option>
+                    <option value="sachet">sachet</option>
+                    <option value="dus">dus</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- F-02: Kuantitas Beli (Neo Stepper) -->
+            <div class="neo-form-group">
+              <label>KUANTITAS PEMBELIAN (QTY)</label>
+              <div class="neo-stepper-touch">
+                <button type="button" class="stepper-tap-btn" id="btnModalQtyMinus">
+                  <i data-lucide="minus"></i>
+                </button>
+                <input type="number" id="inputItemQty" value="1" min="1" step="1" inputmode="numeric" required>
+                <button type="button" class="stepper-tap-btn" id="btnModalQtyPlus">
+                  <i data-lucide="plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="neo-dual-grid">
+              <!-- F-01: Harga Satuan Saat Ini -->
+              <div class="neo-form-group">
+                <label for="inputItemPrice">HARGA SATUAN (RP) <span class="req">*</span></label>
+                <div class="neo-input-affix-wrap">
+                  <span class="affix">RP</span>
+                  <input type="number" id="inputItemPrice" placeholder="18000" required inputmode="numeric">
+                </div>
+              </div>
+
+              <!-- F-01: Harga Riwayat Bulan Lalu -->
+              <div class="neo-form-group">
+                <label for="inputItemLastMonthPrice">HARGA BULAN LALU (RP)</label>
+                <div class="neo-input-affix-wrap">
+                  <span class="affix">RP</span>
+                  <input type="number" id="inputItemLastMonthPrice" placeholder="Otomatis" inputmode="numeric">
+                </div>
+              </div>
+            </div>
+
+            <!-- F-04: LIVE PRICE COMPARISON BADGE IN MODAL -->
+            <div class="neo-comparison-pill-box" id="modalPriceComparisonBox">
+              <div class="neo-badge-indicator status-neutral" id="modalComparePill">
+                <i data-lucide="minus" class="cmp-icon"></i>
+                <span id="modalCompareText">Masukkan harga untuk cek fluktuasi</span>
+              </div>
+            </div>
+
+            <!-- F-03: Diskon Bertingkat Input -->
+            <div class="neo-form-group">
+              <div class="label-split-line">
+                <label for="inputItemDiscount">DISKON / PROMO RAK</label>
+                <span class="pill-discount-hint">Support: 50+20% atau Rp 15rb</span>
+              </div>
+              <div class="neo-input-affix-wrap no-affix">
+                <input type="text" id="inputItemDiscount" placeholder="Contoh: 50+20 atau 25% atau 15000">
+              </div>
+              <div class="neo-discount-live-box hidden" id="modalDiscountPreview">
+                <span id="modalDiscountPreviewText">Harga Promo: Rp 0 (Hemat Rp 0)</span>
+              </div>
+            </div>
+
+            <!-- Live Item Line Total Preview -->
+            <div class="neo-total-banner-box">
+              <span class="banner-lbl">SUBTOTAL BARIS:</span>
+              <strong class="banner-digits" id="modalLineTotal">Rp 0</strong>
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="neo-sheet-actions">
+              <button type="button" class="btn-neo-secondary" id="btnCancelModalItem">Batal</button>
+              <button type="submit" class="btn-neo-volt" id="btnSubmitModalItem">
+                <i data-lucide="plus"></i>
+                <span id="btnSubmitItemText">SIMPAN KE TROLI</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ================= MODAL: EDIT BATAS ANGGARAN ================= -->
+      <div class="modal-backdrop hidden" id="modalBudgetBackdrop">
+        <div class="neo-modal-sheet" id="modalBudgetSheet">
+          <div class="sheet-notch"></div>
+          <div class="neo-sheet-header">
+            <div>
+              <span class="sheet-kicker">KENDALI DOMPET</span>
+              <h3>Atur Batas Anggaran</h3>
+            </div>
+            <button class="neo-btn-close" id="btnCloseBudgetModal">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="neo-sheet-form">
+            <p class="sheet-p-desc">Atur batas uang tunai di dompet agar total tagihan di kasir pas dengan isi dompet:</p>
+            <div class="neo-form-group">
+              <label>NOMINAL BUDGET (RP)</label>
+              <div class="neo-input-affix-wrap">
+                <span class="affix">RP</span>
+                <input type="number" id="inputQuickBudget" value="350000" inputmode="numeric">
+              </div>
+            </div>
+            <div class="neo-chip-pills">
+              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(200000)">Rp 200rb</button>
+              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(350000)">Rp 350rb</button>
+              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(500000)">Rp 500rb</button>
+              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(750000)">Rp 750rb</button>
+            </div>
+            <div class="neo-sheet-actions">
+              <button type="button" class="btn-neo-secondary" id="btnCancelQuickBudget">Batal</button>
+              <button type="button" class="btn-neo-volt" id="btnSaveQuickBudget">
+                <i data-lucide="check"></i> Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= MODAL: SARAN PANGKAS BARANG ================= -->
+      <div class="modal-backdrop hidden" id="modalTrimBackdrop">
+        <div class="neo-modal-sheet" id="modalTrimSheet">
+          <div class="sheet-notch"></div>
+          <div class="neo-sheet-header">
+            <div>
+              <span class="sheet-kicker text-danger">PENYELAMAT KASIR</span>
+              <h3>Saran Pangkas Belanjaan</h3>
+            </div>
+            <button class="neo-btn-close" id="btnCloseTrimModal">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="neo-sheet-form">
+            <div class="neo-alert-overbudget" style="margin-top: 0;">
+              <div class="alert-top-row">
+                <span class="badge-alert-danger">
+                  DEFISIT: <span id="trimDeficitAmount">Rp 0</span>
+                </span>
+              </div>
+              <p class="alert-p">Kurangi kuantitas atau batalkan barang non-pokok berikut:</p>
+            </div>
+            <div class="neo-trim-deck" id="trimSuggestionsList">
+              <!-- Rendered dynamically -->
+            </div>
+            <button type="button" class="btn-neo-volt full-w" id="btnCloseTrimDone">
+              Selesai Menata Ulang
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= MODAL: DETAIL STRUK DIGITAL ================= -->
+      <div class="modal-backdrop hidden" id="modalReceiptBackdrop">
+        <div class="neo-modal-sheet" id="modalReceiptSheet">
+          <div class="sheet-notch"></div>
+          <div class="neo-sheet-header">
+            <div>
+              <span class="sheet-kicker">STRUK DIGITAL ANTI-PUDAR</span>
+              <h3>Struk Belanja Supermarket</h3>
+            </div>
+            <button class="neo-btn-close" id="btnCloseReceiptModal">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="neo-sheet-form" id="receiptModalBody">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+      <div class="toast-container" id="toastContainer"></div>
+
+    </div>
+  </div>
+
+  <script src="app.js?v=3.2.0"></script>
+</body>
+</html>
