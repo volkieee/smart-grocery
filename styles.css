@@ -1677,6 +1677,15 @@ body.neo-cyber-theme {
   background: #000000;
   border-top: 1px solid var(--border-card);
   z-index: 40;
+  transform: translateY(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s ease;
+  opacity: 1;
+}
+
+.neo-bottom-dock.dock-hidden {
+  transform: translateY(100%);
+  opacity: 0;
 }
 
 .dock-frame {
