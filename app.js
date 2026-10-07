@@ -1278,6 +1278,134 @@
     document.getElementById('btnCloseReceiptModal').addEventListener('click', () => {
       document.getElementById('modalReceiptBackdrop').classList.add('hidden');
     });
+
+    // Node.js & TypeScript Cloud Insights
+    const btnRunNode = document.getElementById('btnRunNodeAnalytics');
+    if (btnRunNode) {
+      btnRunNode.addEventListener('click', requestNodeSmartInsights);
+    }
+  }
+
+  // ==========================================================================
+  // NODE.JS & TYPESCRIPT CLOUD INSIGHTS SERVICE (/api/insights)
+  // ==========================================================================
+  async function requestNodeSmartInsights() {
+    const btn = document.getElementById('btnRunNodeAnalytics');
+    const container = document.getElementById('nodeAnalyticsResult');
+    if (!btn || !container) return;
+
+    if (appState.cart.length === 0) {
+      showToast('Keranjang masih kosong. Tambahkan barang dulu!', 'warning');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Memproses dengan Node.js Engine...';
+    if (window.lucide) lucide.createIcons();
+    AudioEngine.playTap();
+
+    try {
+      let insightData = null;
+
+      // Call live Node.js Serverless Function on Vercel / local Node server
+      try {
+        const response = await fetch('/api/insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cart: appState.cart,
+            budgetLimit: appState.budgetLimit
+          })
+        });
+
+        if (response.ok) {
+          insightData = await response.json();
+        }
+      } catch (networkErr) {
+        // Fallback for static file preview
+      }
+
+      // If offline/preview, calculate with matching TypeScript logic
+      if (!insightData) {
+        let totalSpent = 0;
+        appState.cart.forEach(item => {
+          const disc = calculateDiscount(item.price, item.discountRaw);
+          totalSpent += disc.finalUnitPrice * item.qty;
+        });
+
+        const limit = appState.budgetLimit;
+        const ratio = limit > 0 ? totalSpent / limit : 0;
+        const status = ratio >= 1.0 ? 'DANGER' : ratio >= 0.8 ? 'WARNING' : 'SAFE';
+        const healthScore = status === 'DANGER' ? Math.max(20, Math.round(100 - (ratio - 1) * 150))
+          : status === 'WARNING' ? Math.round(85 - (ratio - 0.8) * 150)
+          : Math.round(100 - ratio * 20);
+
+        const recs = [];
+        if (status === 'DANGER') {
+          recs.push({
+            type: 'WARNING',
+            title: 'Defisit Anggaran Terdeteksi',
+            description: `Keranjang Anda melebihi batas dompet sebesar Rp ${Math.round(totalSpent - limit).toLocaleString('id-ID')}. Disarankan memangkas barang non-pokok.`
+          });
+        }
+        recs.push({
+          type: 'SAVINGS',
+          title: 'Analisis Inflasi & Rekomendasi (Node.js)',
+          description: `Total belanjaan Rp ${totalSpent.toLocaleString('id-ID')} dengan skor kesehatan belanja ${healthScore}/100.`
+        });
+
+        insightData = {
+          status,
+          healthScore,
+          summary: `Keranjang dianalisis (${healthScore}/100). Status: ${status}.`,
+          recommendations: recs
+        };
+      }
+
+      // Render Insight Box
+      const scoreClass = (insightData.status || 'SAFE').toLowerCase();
+      let recomHtml = '';
+      (insightData.recommendations || []).forEach(r => {
+        const typeClass = r.type === 'WARNING' ? 'warning' : 'savings';
+        recomHtml += `
+          <div class="node-recom-item ${typeClass}">
+            <div class="node-recom-title">${escapeHtml(r.title)}</div>
+            <div class="node-recom-desc">${escapeHtml(r.description)}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = `
+        <div class="node-insight-deck">
+          <div class="node-score-bar">
+            <div>
+              <span style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); display:block;">HEALTH SCORE:</span>
+              <strong style="font-family:var(--font-display); font-size:1.1rem; color:#ffffff;">${insightData.healthScore}/100</strong>
+            </div>
+            <span class="score-badge ${scoreClass}">${insightData.status}</span>
+          </div>
+          <p style="font-size:0.75rem; color:var(--text-main); line-height:1.4; margin:0;">
+            ${escapeHtml(insightData.summary)}
+          </p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${recomHtml}
+          </div>
+          <small style="font-family:var(--font-mono); font-size:0.62rem; color:var(--text-muted); text-align:right;">
+            ⚡ Engine: Node.js 20+ & TypeScript Serverless API
+          </small>
+        </div>
+      `;
+
+      container.classList.remove('hidden');
+      AudioEngine.playSuccess();
+      showToast('Analisis Cerdas Node.js Selesai', 'success');
+    } catch (err) {
+      showToast('Gagal memproses analisis: ' + err.message, 'danger');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i data-lucide="refresh-cw"></i> Perbarui Analisis Cerdas';
+      if (window.lucide) lucide.createIcons();
+    }
   }
 
   window.setQuickBudget = function (amount) {

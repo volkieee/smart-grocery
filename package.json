@@ -1,0 +1,27 @@
+{
+  "name": "smart-grocery-pro",
+  "version": "4.0.0",
+  "description": "Smart Grocery & Budget Safety Tracker - Fullstack Node.js & TypeScript Cloud Edition",
+  "type": "module",
+  "scripts": {
+    "start": "node api/server-local.js",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "keywords": [
+    "grocery",
+    "budget-tracker",
+    "pwa",
+    "nodejs",
+    "typescript",
+    "supabase",
+    "vercel"
+  ],
+  "author": "Joshua Rafael",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vercel/node": "^3.2.29",
+    "typescript": "^5.7.2"
+  }
+}
