@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Smart Grocery & Budget Safety Tracker - Rian</title>
-  
+
   <!-- PWA Settings -->
   <link rel="manifest" href="manifest.json?v=3.1">
   <meta name="theme-color" content="#000000">
@@ -15,30 +17,35 @@
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Supabase SDK, Lucide Icons & Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Cache busted stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=3.2.0">
+  <link rel="stylesheet" href="styles.css?v=3.2.1">
 </head>
+
 <body class="neo-cyber-theme">
 
   <!-- Mobile Viewport Container (Centered 430px) -->
   <div class="mobile-viewport-container">
     <div class="neo-mobile-frame" id="appFrame">
-      
+
       <!-- TOP STATUS BAR / BRAND HEADER -->
       <header class="neo-header">
         <div class="neo-header-top">
           <div class="brand-tag-unit">
-            <div class="brand-dot-indicator connected" id="cloudStatusDot" title="Status Cloud: Terhubung ke Supabase"></div>
+            <div class="brand-dot-indicator connected" id="cloudStatusDot" title="Status Cloud: Terhubung ke Supabase">
+            </div>
             <div class="brand-text-block">
               <span class="brand-sub">KOS 3X3 • SMART GROCERY</span>
-              <h1 class="brand-name">RIAN<strong>MART</strong> <span class="badge-volt" id="cloudStatusTag">CLOUD</span></h1>
+              <h1 class="brand-name">RIAN<strong>MART</strong> <span class="badge-volt" id="cloudStatusTag">CLOUD</span>
+              </h1>
             </div>
           </div>
 
@@ -103,7 +110,7 @@
 
         <!-- ================= TAB 1: BELANJA (KERANJANG AKTIF) ================= -->
         <section id="tabCart" class="tab-pane active">
-          
+
           <!-- Category Segmented Filters -->
           <div class="neo-category-scroll">
             <button class="neo-cat-chip active" data-category="ALL">
@@ -230,11 +237,13 @@
                   <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('50+20')">50% + 20%</button>
                   <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('70+10')">70% + 10%</button>
                   <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('30')">30%</button>
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('Buy 2 Get 1')">Beli 2 Gratis 1</button>
+                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('Buy 2 Get 1')">Beli 2 Gratis
+                    1</button>
                   <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('15000')">-Rp 15rb</button>
                 </div>
                 <div class="neo-input-affix-wrap no-affix">
-                  <input type="text" id="calcDiscountInput" placeholder="Ketik rumus (contoh: 50+20 atau 25% atau 15000)">
+                  <input type="text" id="calcDiscountInput"
+                    placeholder="Ketik rumus (contoh: 50+20 atau 25% atau 15000)">
                 </div>
               </div>
 
@@ -508,7 +517,7 @@
       <div class="modal-backdrop hidden" id="modalItemBackdrop">
         <div class="neo-modal-sheet" id="modalItemSheet">
           <div class="sheet-notch"></div>
-          
+
           <div class="neo-sheet-header">
             <div>
               <span class="sheet-kicker">INPUT PRODUK</span>
@@ -526,7 +535,8 @@
             <div class="neo-form-group">
               <label for="inputItemName">NAMA PRODUK <span class="req">*</span></label>
               <div class="neo-input-affix-wrap no-affix">
-                <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required autocomplete="off">
+                <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required
+                  autocomplete="off">
               </div>
               <div class="neo-autocomplete-dropdown hidden" id="autoSuggestContainer"></div>
             </div>
@@ -653,7 +663,8 @@
             </button>
           </div>
           <div class="neo-sheet-form">
-            <p class="sheet-p-desc">Atur batas uang tunai di dompet agar total tagihan di kasir pas dengan isi dompet:</p>
+            <p class="sheet-p-desc">Atur batas uang tunai di dompet agar total tagihan di kasir pas dengan isi dompet:
+            </p>
             <div class="neo-form-group">
               <label>NOMINAL BUDGET (RP)</label>
               <div class="neo-input-affix-wrap">
@@ -734,6 +745,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=3.2.0"></script>
+  <script src="app.js?v=3.2.1"></script>
 </body>
+
 </html>

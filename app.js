@@ -134,7 +134,7 @@
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + 0.03);
-      } catch (e) {}
+      } catch (e) { }
     },
     playSuccess() {
       if (!appState.soundEnabled) return;
@@ -154,7 +154,7 @@
           osc.start(now + i * 0.05);
           osc.stop(now + i * 0.05 + 0.15);
         });
-      } catch (e) {}
+      } catch (e) { }
     },
     playAlert() {
       if (!appState.soundEnabled) return;
@@ -173,7 +173,7 @@
         gain.connect(this.ctx.destination);
         osc.start(now);
         osc.stop(now + 0.2);
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -587,22 +587,22 @@
     if (diff > 0) {
       return {
         status: 'up',
-        text: `+Rp ${formatNumber(diff)} (+${pct}%)`,
-        icon: 'trending-up',
+        text: `↑ +Rp ${formatNumber(diff)} (+${pct}%)`,
+        icon: 'arrow-up',
         badgeClass: 'up'
       };
     } else if (diff < 0) {
       return {
         status: 'down',
-        text: `-Rp ${formatNumber(Math.abs(diff))} (${pct}%)`,
-        icon: 'trending-down',
+        text: `↓ -Rp ${formatNumber(Math.abs(diff))} (${pct}%)`,
+        icon: 'arrow-down',
         badgeClass: 'down'
       };
     } else {
       return {
         status: 'stable',
-        text: 'STABIL',
-        icon: 'minus',
+        text: `= Tetap (Rp ${formatNumber(cur)})`,
+        icon: 'equal',
         badgeClass: 'stable'
       };
     }
@@ -1045,7 +1045,7 @@
     if (appState.supabaseClient) {
       appState.supabaseClient.from('master_products').upsert({
         name, category, unit, last_price: price, updated_at: new Date().toISOString()
-      }, { onConflict: 'name' }).then(() => {});
+      }, { onConflict: 'name' }).then(() => { });
     }
   }
 
@@ -1412,7 +1412,7 @@
         item_count: newReceipt.itemCount,
         items: newReceipt.items,
         created_at: new Date().toISOString()
-      }).then(() => {});
+      }).then(() => { });
     }
 
     if (window.confetti) {
@@ -1634,7 +1634,7 @@
       const unitCostB = normSizeB > 0 ? priceB / normSizeB : 0;
 
       const unitName = (cmpUnitA.value === 'ml' || cmpUnitA.value === 'liter') ? 'Liter' :
-                       (cmpUnitA.value === 'gram' || cmpUnitA.value === 'kg') ? 'Kg' : 'pcs';
+        (cmpUnitA.value === 'gram' || cmpUnitA.value === 'kg') ? 'Kg' : 'pcs';
 
       document.getElementById('unitCostA').textContent = `Rp ${formatNumber(Math.round(unitCostA))} / ${unitName}`;
       document.getElementById('unitCostB').textContent = `Rp ${formatNumber(Math.round(unitCostB))} / ${unitName}`;
@@ -1751,8 +1751,8 @@
     toast.className = `toast ${type}`;
 
     const iconName = type === 'success' ? 'check' :
-                     type === 'danger' ? 'alert-triangle' :
-                     type === 'warning' ? 'alert-circle' : 'info';
+      type === 'danger' ? 'alert-triangle' :
+        type === 'warning' ? 'alert-circle' : 'info';
 
     toast.innerHTML = `<i data-lucide="${iconName}"></i> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
