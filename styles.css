@@ -2055,3 +2055,65 @@ body.neo-cyber-theme {
 .full-w { width: 100%; }
 .req { color: var(--status-danger); }
 .text-danger { color: var(--status-danger); }
+
+/* ==========================================================================
+   NODE.JS & TYPESCRIPT CLOUD INSIGHTS HUD
+   ========================================================================== */
+.node-insight-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.node-score-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: #040404;
+  border: 1px solid #1c1c1f;
+  border-radius: 8px;
+}
+
+.score-badge {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.score-badge.safe { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); }
+.score-badge.warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+.score-badge.danger { background: rgba(255, 51, 102, 0.2); color: #ff3366; border: 1px solid rgba(255, 51, 102, 0.4); }
+
+.node-recom-item {
+  padding: 10px;
+  background: #0a0a0c;
+  border-left: 3px solid #38bdf8;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.72rem;
+}
+.node-recom-item.warning { border-left-color: #ff3366; }
+.node-recom-item.savings { border-left-color: #10b981; }
+
+.node-recom-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.node-recom-desc {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+

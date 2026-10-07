@@ -27,7 +27,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Cache busted stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=3.2.1">
+  <link rel="stylesheet" href="styles.css?v=4.0.0">
 </head>
 
 <body class="neo-cyber-theme">
@@ -383,6 +383,31 @@
               <button id="btnSaveBudgetSetting" class="btn-neo-volt full-w">
                 <i data-lucide="save"></i> SIMPAN BATAS ANGGARAN
               </button>
+            </div>
+          </div>
+
+          <!-- NODE.JS & TYPESCRIPT CLOUD INSIGHTS ENGINE -->
+          <div class="neo-bento-card" id="cardNodeInsights">
+            <div class="card-header-line">
+              <div class="header-icon-box" style="color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3);">
+                <i data-lucide="cpu"></i>
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <h3 style="margin: 0;">Analisis Cerdas Keranjang</h3>
+                  <span class="badge-volt" style="font-size: 0.58rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">NODE.JS + TS</span>
+                </div>
+                <span>Deteksi inflasi keranjang & optimasi belanjaan</span>
+              </div>
+            </div>
+            <div class="card-body-content">
+              <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 10px;">
+                Mesin Node.js di cloud menganalisis komposisi keranjang, lonjakan harga vs bulan lalu, dan rekomendasi penghematan cerdas.
+              </p>
+              <button id="btnRunNodeAnalytics" class="btn-neo-secondary full-w" type="button">
+                <i data-lucide="sparkles"></i> Minta Analisis Cerdas (Cloud API)
+              </button>
+              <div id="nodeAnalyticsResult" class="hidden" style="margin-top: 12px;"></div>
             </div>
           </div>
 
@@ -745,7 +770,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=3.2.1"></script>
+  <script src="app.js?v=4.0.0"></script>
 </body>
 
 </html>
