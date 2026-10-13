@@ -1,780 +1,1151 @@
 <!DOCTYPE html>
-<html lang="id">
+<html class="h-full" lang="id">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Smart Grocery & Budget Safety Tracker - Rian</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    name="viewport" />
+  <meta content="mobile_tab" name="shell-type" />
+  <title>Smart Grocery Budget Companion - Rian</title>
 
   <!-- PWA Settings -->
-  <link rel="manifest" href="manifest.json?v=3.1">
-  <meta name="theme-color" content="#040f07">
+  <link rel="manifest" href="manifest.json?v=5.3">
+  <meta name="theme-color" content="#f0fdf1">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SmartGrocery">
 
-  <!-- Typography -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Typography: Hanken Grotesk, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
   <link
-    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet" />
 
-  <!-- Supabase SDK, Lucide Icons & Confetti -->
+  <!-- Tailwind CSS with Stitch Design Theme Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#001d0f",
+            "primary-container": "#113322",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#799c86",
+            "secondary": "#006e2f",
+            "secondary-container": "#6bff8f",
+            "on-secondary": "#ffffff",
+            "on-secondary-container": "#007432",
+            "secondary-fixed": "#6bff8f",
+            "secondary-fixed-dim": "#4ae176",
+            "on-secondary-fixed": "#002109",
+            "on-secondary-fixed-variant": "#005321",
+            "tertiary": "#2b1100",
+            "tertiary-container": "#4a2200",
+            "on-tertiary-container": "#e57600",
+            "tertiary-fixed": "#ffdcc6",
+            "tertiary-fixed-dim": "#ffb784",
+            "on-tertiary-fixed": "#301400",
+            "on-tertiary-fixed-variant": "#713700",
+            "surface": "#f0fdf1",
+            "surface-bright": "#f0fdf1",
+            "surface-dim": "#d0ddd2",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#eaf7ec",
+            "surface-container": "#e4f1e6",
+            "surface-container-high": "#dfebe0",
+            "surface-container-highest": "#d9e6db",
+            "on-surface": "#131e17",
+            "on-surface-variant": "#424843",
+            "outline": "#727973",
+            "outline-variant": "#c1c8c1",
+            "error": "#ba1a1a",
+            "error-container": "#ffdad6",
+            "on-error": "#ffffff",
+            "on-error-container": "#93000a",
+            "background": "#f0fdf1",
+            "on-background": "#131e17",
+            "surface-tint": "#446652"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "gutter-desktop": "1.5rem",
+            "space-2xl": "3rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "margin-desktop": "2.5rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1rem",
+            "margin": "1rem"
+          },
+          fontFamily: {
+            "display-lg": ["Space Grotesk", "sans-serif"],
+            "headline-lg": ["Space Grotesk", "sans-serif"],
+            "headline-md": ["Space Grotesk", "sans-serif"],
+            "headline-sm": ["Space Grotesk", "sans-serif"],
+            "numeric-lg": ["Space Grotesk", "monospace"],
+            "numeric-md": ["Space Grotesk", "monospace"],
+            "label-lg": ["Space Grotesk", "sans-serif"],
+            "label-sm": ["Space Grotesk", "sans-serif"],
+            "body-lg": ["Hanken Grotesk", "sans-serif"],
+            "body-md": ["Hanken Grotesk", "sans-serif"],
+            "body-sm": ["Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
-  <!-- Cache busted stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=5.0.0">
+  <!-- Base Stitch App Styling -->
+  <link rel="stylesheet" href="styles.css?v=5.3.0">
 </head>
 
-<body class="neo-cyber-theme">
+<body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen">
 
-  <!-- Mobile Viewport Container (Centered 430px) -->
-  <div class="mobile-viewport-container">
-    <div class="neo-mobile-frame" id="appFrame">
+  <!-- ================= TOP APP HEADER ================= -->
+  <header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <div class="h-18 px-margin max-w-lg mx-auto flex items-center justify-between gap-space-sm py-2">
+      <div class="flex items-center gap-space-xs">
+        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-md">
+          <span class="material-symbols-outlined text-[20px] text-secondary-fixed">shopping_bag</span>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-1.5">
+            <span class="font-headline-sm text-[18px] text-primary tracking-tight font-bold">KeranjangPintar</span>
+          </div>
+          <button class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors -my-0.5 text-left"
+            id="btnStoreSelector">
+            <span class="material-symbols-outlined text-[15px] text-secondary">store</span>
+            <span class="font-label-sm text-label-sm font-semibold text-primary" id="activeStoreName">GrandLucky SCBD</span>
+            <span class="material-symbols-outlined text-[14px]">expand_more</span>
+          </button>
+        </div>
+      </div>
 
-      <!-- TOP STATUS BAR / BRAND HEADER -->
-      <header class="neo-header">
-        <div class="neo-header-top">
-          <div class="brand-tag-unit">
-            <div class="brand-dot-indicator connected" id="cloudStatusDot" title="Status Cloud: Terhubung ke Supabase">
+      <div class="flex items-center gap-2">
+        <button id="btnSoundToggle" class="w-8 h-8 rounded-full bg-surface-container-low text-secondary flex items-center justify-center border border-outline-variant/30 hover:bg-surface-container cursor-pointer"
+          title="Toggle Suara">
+          <span class="material-symbols-outlined text-[17px]" id="soundIcon">volume_up</span>
+        </button>
+        <button class="flex items-center gap-1 px-space-sm py-1.5 rounded-full bg-surface-container-low text-secondary border border-outline-variant/30 shadow-[0_2px_8px_rgba(17,51,34,0.04)] cursor-pointer"
+          id="btnEditBudgetTrigger" title="Ketuk untuk ubah limit dompet">
+          <span class="material-symbols-outlined text-[14px] text-secondary">account_balance_wallet</span>
+          <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudBudgetLimit">Limit: Rp 350k</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN SCROLLABLE VIEWPORT ================= -->
+  <main class="flex-1 w-full max-w-lg mx-auto bg-surface pt-20 pb-32 px-margin">
+
+    <!-- ==========================================================================
+         TAB 1: TROLI AKTIF (STITCH SCREEN 4)
+         ========================================================================== -->
+    <section id="tabCart" class="tab-pane active flex flex-col w-full">
+
+      <!-- Top Live Gauge Card (Neo-Fintech Safety Cap Dashboard) -->
+      <section class="w-full mb-space-md" id="budgetHudCard">
+        <div class="relative overflow-hidden rounded-[24px] bg-primary-container p-space-md shadow-xl text-on-primary">
+          <div class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-secondary opacity-25 blur-2xl pointer-events-none"></div>
+          <div class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-secondary-fixed opacity-15 blur-2xl pointer-events-none"></div>
+
+          <!-- Top Row: Status Pill & Savings Badge -->
+          <div class="relative z-10 flex items-center justify-between mb-space-sm">
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md" id="hudStatusBadge">
+              <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
+              <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed" id="hudStatusText">Radar Budget Aktif</span>
             </div>
-            <div class="brand-text-block">
-              <span class="brand-sub">KOS 3X3 • SMART GROCERY</span>
-              <h1 class="brand-name">RIAN<strong>MART</strong> <span class="badge-volt" id="cloudStatusTag">CLOUD</span>
-              </h1>
+            <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-container/90 text-tertiary-fixed shadow-sm" id="hudSavingsBadge">
+              <span class="material-symbols-outlined text-[15px] text-tertiary-fixed" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+              <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudTotalSavingsText">Hemat Rp 0</span>
             </div>
           </div>
 
-          <div class="header-util-group">
-            <button id="btnSyncCloudHeader" class="neo-icon-btn active" title="Sinkronkan Cloud Supabase">
-              <i data-lucide="cloud"></i>
+          <!-- Main Numbers Group -->
+          <div class="relative z-10 flex flex-col mb-space-md">
+            <span class="font-label-sm text-label-sm text-on-primary-container uppercase tracking-wider">Total Belanja Berjalan</span>
+            <div class="flex items-baseline justify-between gap-space-xs mt-0.5">
+              <div class="flex items-baseline gap-1">
+                <span class="font-headline-sm text-headline-sm text-secondary-fixed font-light">Rp</span>
+                <span class="font-numeric-lg text-numeric-lg text-on-primary tracking-tight font-bold" id="hudTotalSpending">0</span>
+              </div>
+              <div class="text-right">
+                <span class="font-label-sm text-label-sm text-outline-variant block">Pemakaian Dompet</span>
+                <span class="font-label-lg text-label-lg text-secondary-fixed font-bold" id="budgetPercentLabel">0% CAP</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tactile Gauge Bar -->
+          <div class="relative z-10 space-y-1.5">
+            <div class="flex items-center justify-between font-label-sm text-label-sm">
+              <div class="flex items-center gap-1 text-primary-fixed" id="hudRemainingText">
+                <span class="material-symbols-outlined text-[14px]">shield</span>
+                <span>Sisa Aman: <strong class="text-secondary-fixed font-semibold">Rp 350.000</strong></span>
+              </div>
+              <span class="text-outline-variant font-medium" id="hudStatusIcon">Aman ✅</span>
+            </div>
+            <!-- Progress Track -->
+            <div class="relative w-full h-3 rounded-full bg-primary/70 p-0.5 overflow-hidden shadow-inner">
+              <div class="h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]"
+                id="budgetProgressBar" style="width: 0%;"></div>
+            </div>
+            <!-- Gauge Sub-ticks -->
+            <div class="flex justify-between px-0.5 text-[9px] font-label-sm text-outline-variant/80">
+              <span>Rp 0</span>
+              <span>50%</span>
+              <span class="text-amber-400 font-bold">80% Waspada</span>
+              <span id="hudSubtickMax">Max 350k</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           BAGIAN 1: SHOPPING PLANNER CHECKLIST DI TOKO (DARI RUMAH SEBELUM BELANJA)
+           ====================================================================== -->
+      <section class="w-full mb-space-md" id="sectionPlannerShelfChecklist">
+        <div class="bg-surface-container-lowest rounded-[24px] p-space-md shadow-sm border border-outline-variant/20">
+          <div class="flex items-center justify-between mb-space-xs">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary text-[22px]">checklist</span>
+              <div>
+                <h2 class="font-headline-sm text-headline-sm text-primary font-bold">Rencana Belanja dari Rumah</h2>
+                <p class="font-body-sm text-[12px] text-on-surface-variant">Checklist kebutuhan terencana. Masukkan harga saat barang ditemukan di rak.</p>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant font-label-sm text-label-sm font-bold whitespace-nowrap"
+              id="plannerProgressPill">0/0 Terbeli</span>
+          </div>
+
+          <!-- Container Item Rencana yang Belum Diambil di Rak -->
+          <div class="space-y-2 mt-space-sm" id="plannerPendingItemsList">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div class="mt-space-sm pt-space-xs border-t border-outline-variant/20 flex items-center justify-between">
+            <button class="text-secondary font-label-sm text-label-sm font-bold flex items-center gap-1 hover:underline cursor-pointer"
+              id="btnGoToPlannerTab">
+              <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              <span>+ Atur Daftar Kebutuhan</span>
             </button>
-            <button id="btnSoundToggle" class="neo-icon-btn active" title="Toggle Sound">
-              <i data-lucide="volume-2" id="soundIcon"></i>
+            <span class="font-body-sm text-[11px] text-on-surface-variant">Mencegah belanja impulsif</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           BAGIAN 2: DAFTAR BARANG YANG SUDAH DI TROLI
+           ====================================================================== -->
+      <div class="flex items-center justify-between mb-space-xs px-1">
+        <div class="flex items-center gap-2">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Isi Keranjang Fisik</h3>
+          <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm"
+            id="cartHeaderPillCount">0 Produk</span>
+        </div>
+        <button id="btnOpenAddModal" class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 shadow-sm active:scale-95 transition-transform cursor-pointer"
+          title="Tambah Barang Belanjaan Langsung">
+          <span class="material-symbols-outlined text-[15px]">add</span>
+          <span>Tambah Item</span>
+        </button>
+      </div>
+
+      <!-- Kategori Filter yang Jelas & Ramah Pengguna -->
+      <div class="flex items-center gap-1.5 mb-space-sm overflow-x-auto no-scrollbar py-0.5">
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm active shadow-sm flex items-center gap-1 shrink-0"
+          data-category="ALL">
+          <span>Semua</span>
+          <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]" id="countAll">0</span>
+        </button>
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          data-category="Bahan Pokok">Bahan Pokok</button>
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          data-category="Makanan & Minuman">Makanan & Minuman</button>
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          data-category="Kebersihan">Kebersihan</button>
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          data-category="Dapur & Bumbu">Dapur & Bumbu</button>
+        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          data-category="Lainnya">Lainnya</button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative mb-space-sm">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">search</span>
+        <input class="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-xs border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary"
+          id="searchCartInput" placeholder="Cari barang di troli..." type="text" autocomplete="off" />
+        <button id="btnClearSearch" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline-variant hidden">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+
+      <!-- Over Budget Warning Banner -->
+      <div class="neo-alert-overbudget bg-red-50 border border-red-200 rounded-2xl p-space-sm mb-space-md hidden"
+        id="overBudgetBanner">
+        <div class="flex items-center justify-between">
+          <span class="text-error font-bold font-label-sm text-label-sm flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">warning</span> DEFISIT: <span id="trimDeficitAmount">Rp 0</span>
+          </span>
+          <button id="btnSuggestTrim" class="text-error font-label-sm text-label-sm font-bold underline cursor-pointer">
+            Saran Pangkas
+          </button>
+        </div>
+      </div>
+
+      <!-- Cart Items List Container -->
+      <div class="space-y-space-xs mb-space-lg" id="cartItemsList">
+        <!-- Rendered by JavaScript -->
+      </div>
+
+      <!-- Empty Cart State -->
+      <div class="bg-surface-container-lowest rounded-2xl p-8 text-center shadow-xs border border-outline-variant/20 hidden"
+        id="emptyCartState">
+        <div class="w-16 h-16 rounded-full bg-surface-container-low mx-auto flex items-center justify-center text-secondary mb-3">
+          <span class="material-symbols-outlined text-[32px]">shopping_cart</span>
+        </div>
+        <h3 class="font-headline-sm text-headline-sm text-primary mb-1">Troli Belanja Kosong</h3>
+        <p class="font-body-sm text-body-sm text-on-surface-variant mb-4 max-w-xs mx-auto">
+          Belum ada produk yang dimasukkan harganya. Beli dari rencana belanja di atas atau scan barcode.
+        </p>
+        <div class="flex flex-col gap-2 max-w-xs mx-auto">
+          <button class="w-full py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold cursor-pointer"
+            id="btnLoadSampleData">
+            ✨ Muat Data Kebutuhan Rian
+          </button>
+          <button class="w-full py-2.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold cursor-pointer"
+            id="btnEmptyAdd">
+            + Tambah Produk Manual
+          </button>
+        </div>
+      </div>
+
+      <!-- Sticky Bottom Summary Dock Bar (Stitch Screen 4) -->
+      <div class="sticky bottom-20 z-40 mt-space-md w-full" id="cartSummaryBottom">
+        <div class="bg-surface-container-lowest/95 backdrop-blur-xl rounded-[24px] p-space-sm shadow-[0_12px_36px_rgba(0,29,15,0.18)] flex items-center justify-between gap-space-sm border border-outline-variant/20">
+          <div class="flex flex-col pl-1">
+            <div class="flex items-center gap-1.5">
+              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="summaryTotalItems">0 Jenis (0 Pcs)</span>
+              <span class="w-1 h-1 rounded-full bg-outline"></span>
+              <span class="font-label-sm text-label-sm text-secondary font-bold" id="summaryTotalSaved">Hemat Rp 0</span>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="font-label-sm text-label-sm text-outline">Total</span>
+              <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight" id="cartBottomGrandTotal">Rp 0</span>
+            </div>
+          </div>
+          <button class="px-5 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center gap-2 shadow-[0_4px_16px_rgba(0,29,15,0.25)] active:scale-95 transition-all cursor-pointer"
+            id="btnFinishShopping" type="button">
+            <span class="font-label-lg text-label-lg font-semibold">Cek Kasir</span>
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         TAB 2: SCAN BARCODE & PROMO CALCULATOR (DEDICATED STITCH SCREEN 2)
+         ========================================================================== -->
+    <section id="tabScan" class="tab-pane flex-col w-full hidden">
+      <!-- Live Status & Location Bar -->
+      <div class="flex items-center justify-between mb-space-sm px-1">
+        <div class="flex items-center gap-space-xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed animate-ping"></span>
+          <span class="font-label-sm text-label-sm text-secondary tracking-wide uppercase font-bold">Kamera Pintar Aktif</span>
+        </div>
+        <div class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full shadow-xs">
+          <span class="material-symbols-outlined text-[15px] text-primary">storefront</span>
+          <span class="font-label-sm text-label-sm text-on-surface font-semibold" id="scanViewStoreName">GrandLucky SCBD</span>
+        </div>
+      </div>
+
+      <!-- Mode Selector Segmented Pills -->
+      <div class="flex bg-surface-container-highest p-1 rounded-full mb-space-md shadow-inner gap-1">
+        <button class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 active"
+          id="tab-scan-barcode">
+          <span class="material-symbols-outlined text-[15px]">barcode_scanner</span>
+          <span>Label Rak</span>
+        </button>
+        <button class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
+          id="tab-scan-multibuy">
+          <span class="material-symbols-outlined text-[15px]">inventory_2</span>
+          <span>Bandingkan Kemasan</span>
+        </button>
+        <button class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
+          id="tab-scan-manual">
+          <span class="material-symbols-outlined text-[15px]">calculate</span>
+          <span>Diskon Manual</span>
+        </button>
+      </div>
+
+      <!-- Real Camera Viewport Frame (Stitch Screen 2 Viewfinder) -->
+      <div class="relative w-full h-72 rounded-[32px] overflow-hidden shadow-2xl bg-primary mb-space-md flex items-center justify-center border border-outline-variant/30"
+        id="cameraViewportContainer">
+        <div id="interactiveScannerView" class="absolute inset-0 w-full h-full object-cover"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-primary/80 via-transparent to-primary/95 pointer-events-none"></div>
+
+        <!-- Camera Top Bar Controls -->
+        <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+          <div class="bg-primary/75 backdrop-blur-md px-3 py-1 rounded-full flex items-center gap-1.5 text-on-primary">
+            <span class="material-symbols-outlined text-secondary-fixed text-[16px]">center_focus_strong</span>
+            <span class="font-label-sm text-label-sm">Deteksi: Barcode EAN-13 / QR</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
+              id="btnScannerFlash" title="Toggle Flashlight">
+              <span class="material-symbols-outlined text-[18px]">flash_on</span>
             </button>
-            <button id="btnQuickCompareHeader" class="neo-icon-btn" title="Kalkulator Promo">
-              <i data-lucide="scale"></i>
+            <button class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
+              id="btnScannerFlip" title="Balik Kamera">
+              <span class="material-symbols-outlined text-[18px]">flip_camera_ios</span>
             </button>
           </div>
         </div>
 
-        <!-- F-05: PENGENDALI ANGGARAN (NEO-BENTO SAFETY HUD) -->
-        <div class="neo-hud-card status-safe" id="budgetHudCard">
-          <div class="hud-top-meta">
-            <div class="hud-label-pill">
-              <span class="live-pulse"></span>
-              <span>BUDGET SAFETY CAP</span>
-            </div>
-            <div class="hud-wallet-pill" id="btnEditBudgetTrigger" title="Ketuk untuk ubah batas dompet">
-              <span class="lbl">DOMPET:</span>
-              <strong id="hudBudgetLimit">Rp 350.000</strong>
-              <i data-lucide="edit-2" class="ico-edit"></i>
-            </div>
-          </div>
+        <!-- Viewfinder Corners & Pulsing Laser Line -->
+        <div class="relative w-56 h-40 rounded-2xl p-2 flex flex-col justify-between pointer-events-none">
+          <div class="absolute -top-1 -left-1 w-7 h-7 border-t-4 border-l-4 border-secondary-fixed rounded-tl-xl shadow-sm"></div>
+          <div class="absolute -top-1 -right-1 w-7 h-7 border-t-4 border-r-4 border-secondary-fixed rounded-tr-xl shadow-sm"></div>
+          <div class="absolute -bottom-1 -left-1 w-7 h-7 border-b-4 border-l-4 border-secondary-fixed rounded-bl-xl shadow-sm"></div>
+          <div class="absolute -bottom-1 -right-1 w-7 h-7 border-b-4 border-r-4 border-secondary-fixed rounded-br-xl shadow-sm"></div>
+          <div class="scan-laser-line"></div>
+        </div>
 
-          <div class="hud-spending-main">
-            <div class="spending-block">
-              <span class="curr-unit">IDR</span>
-              <span class="spending-number" id="hudTotalSpending">0</span>
-            </div>
-            <div class="cap-metric-tag" id="budgetPercentLabel">0% CAP</div>
-          </div>
+        <div class="absolute bottom-3 text-center w-full z-10">
+          <p class="font-label-sm text-label-sm text-on-primary/80">Arahkan kamera ke barcode produk di rak</p>
+        </div>
+      </div>
 
-          <!-- Segmented Precision Progress Meter -->
-          <div class="hud-meter-wrap">
-            <div class="hud-meter-track">
-              <div class="hud-meter-fill status-safe" id="budgetProgressBar" style="width: 0%;"></div>
-              <div class="hud-marker-warn" style="left: 80%;" title="80% Waspada"></div>
-            </div>
-          </div>
+      <!-- Quick Supermarket Presets Bar -->
+      <div class="mb-space-md">
+        <div class="flex items-center justify-between mb-space-xs px-1">
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Simulasi Barcode Produk Supermarket:</span>
+          <span class="font-label-sm text-label-sm text-secondary font-bold">8 Sampel EAN-13</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1" id="scannerPresetsList">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
 
-          <!-- Live Status Row -->
-          <div class="hud-status-bottom">
-            <div class="hud-status-chip status-safe" id="hudStatusBadge">
-              <i data-lucide="shield-check" id="hudStatusIcon"></i>
-              <span id="hudStatusText">AMAN • SIAP KASIR</span>
+      <!-- Notification if Matches Shopping Planner -->
+      <div class="hidden p-3 bg-secondary-fixed/30 border border-secondary/30 rounded-2xl mb-space-md flex items-center gap-2" id="scanPlannerMatchBanner">
+        <span class="material-symbols-outlined text-secondary text-[22px]">check_circle</span>
+        <div class="flex-1 min-w-0">
+          <strong class="font-label-md text-label-md text-primary block font-bold">Barang Sesuai Rencana Belanja!</strong>
+          <span class="font-body-sm text-[12px] text-on-surface-variant" id="scanPlannerMatchText">Cocok dengan kebutuhan yang dicatat dari rumah.</span>
+        </div>
+      </div>
+
+      <!-- Scanned Item Card Result (Stitch Screen 2 Card) -->
+      <div class="bg-surface-container-lowest rounded-[28px] p-space-md mb-space-md shadow-md border border-outline-variant/30">
+        <div class="flex items-start gap-space-md mb-space-md">
+          <div class="w-20 h-20 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex items-center justify-center overflow-hidden shrink-0 relative">
+            <img class="w-full h-full object-cover" id="scanProductImg"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr02p4i7QikyTt3l67LStzsEpbx6b5dkONS-XcxxFFfiASKe_AU8nrJelLfQ4dUBxeIKYD4Z5whmp0swAWtI9OkCH3u-4pcEwFjzInLqNc8mlKYPg0ap0BkVxTmAWc2jYP3Gi6ERtirta3o5sY0mX9bVOny3OQpMHvJgMtH7DnZgERkymPK4DwzFOU7142FDkjCh9mmG671eqGR6eQQ6uabRMRB42aiQ1suBXwW0BVRyKQIhIYHnB1Kg"
+              alt="Scan Preview" />
+            <span class="absolute bottom-1 right-1 bg-primary text-secondary-fixed font-label-sm text-[9px] px-1 rounded font-bold"
+              id="scanProductUnit">500ml</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="bg-surface-container-high text-secondary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-bold"
+                id="scanProductCategory">Kategori: Minyak & Bumbu</span>
             </div>
-            <div class="hud-remaining-box" id="hudRemainingText">
-              SISA: <strong>Rp 350.000</strong>
+            <h2 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate font-bold" id="scanProductName">
+              Olive Oil Extra Virgin 500ml</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant truncate" id="scanProductBrand">
+              Borges Mediterranean Craft • Spanyol</p>
+            <div class="flex items-baseline gap-2 mt-1">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">Harga Rak:</span>
+              <span class="font-numeric-md text-numeric-md line-through text-on-surface-variant/70" id="scanShelfPrice">
+                Rp 125.000</span>
             </div>
           </div>
         </div>
-      </header>
 
-      <!-- MAIN SCROLLABLE VIEW -->
-      <main class="neo-main-content" id="mainContent">
-
-        <!-- ================= TAB 1: BELANJA (KERANJANG AKTIF) ================= -->
-        <section id="tabCart" class="tab-pane active">
-
-          <!-- Category Segmented Filters -->
-          <div class="neo-category-scroll">
-            <button class="neo-cat-chip active" data-category="ALL">
-              <span>ALL</span>
-              <span class="neo-chip-count" id="countAll">0</span>
-            </button>
-            <button class="neo-cat-chip" data-category="Bahan Pokok">
-              <span>🌾 POKOK</span>
-            </button>
-            <button class="neo-cat-chip" data-category="Makanan & Minuman">
-              <span>🍜 MAKAN</span>
-            </button>
-            <button class="neo-cat-chip" data-category="Kebersihan">
-              <span>🧼 BERSIH</span>
-            </button>
-            <button class="neo-cat-chip" data-category="Dapur & Bumbu">
-              <span>🧂 DAPUR</span>
-            </button>
-            <button class="neo-cat-chip" data-category="Lainnya">
-              <span>📦 LAIN</span>
-            </button>
-          </div>
-
-          <!-- Search & Add Bar -->
-          <div class="neo-search-deck">
-            <div class="neo-search-input-wrap">
-              <i data-lucide="search" class="search-ico"></i>
-              <input type="text" id="searchCartInput" placeholder="Cari item di troli..." autocomplete="off">
-              <button id="btnClearSearch" class="btn-search-clear hidden">
-                <i data-lucide="x"></i>
-              </button>
+        <!-- Kombinasi Diskon Bertumpuk Checklist (Stitch Screen 2) -->
+        <div class="bg-surface-container-low rounded-2xl p-space-md mb-space-md">
+          <div class="flex items-center justify-between mb-space-sm">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[18px] text-secondary">layers</span>
+              <span class="font-headline-sm text-label-lg text-primary font-bold">Kombinasi Diskon Bertumpuk</span>
             </div>
-            <button id="btnOpenAddModal" class="btn-neo-volt" title="Tambah Barang Baru">
-              <i data-lucide="plus"></i>
-              <span>TAMBAH</span>
-            </button>
+            <span class="font-label-sm text-label-sm text-secondary bg-secondary-fixed/30 px-2 py-0.5 rounded-full font-bold"
+              id="scanActiveDiscountsCount">3 Promo Aktif</span>
           </div>
+          <div class="flex flex-col gap-space-sm" id="scanDiscountsChecklist">
+            <!-- Checkbox items rendered dynamically -->
+          </div>
+        </div>
 
-          <!-- Over Budget Warning Banner -->
-          <div class="neo-alert-overbudget hidden" id="overBudgetBanner">
-            <div class="alert-top-row">
-              <span class="badge-alert-danger">
-                <i data-lucide="triangle-alert"></i> DANGER: DEFISIT
+        <!-- Harga Bersih Final (Nett) Card -->
+        <div class="bg-primary-container text-on-primary rounded-2xl p-space-md mb-space-md shadow-lg relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-secondary/20 blur-xl pointer-events-none"></div>
+          <div class="flex items-start justify-between relative z-10">
+            <div>
+              <span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider font-bold">Harga Bersih Final (Nett)</span>
+              <div class="font-numeric-lg text-numeric-lg text-white mt-0.5 tracking-tight font-bold" id="scanFinalPrice">
+                Rp 85.000
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="inline-block bg-secondary-fixed text-on-secondary-fixed font-headline-sm text-label-lg px-2.5 py-1 rounded-full font-bold shadow-sm"
+                id="scanSavingsPercent">
+                Hemat 32%
               </span>
-              <span class="alert-limit-msg">TOTAL LEBIHI UANG SAKU</span>
-            </div>
-            <p class="alert-p">Keluarkan barang non-pokok sebelum ke meja kasir agar tidak canggung!</p>
-            <button id="btnSuggestTrim" class="btn-neo-trim">
-              <i data-lucide="scissors"></i> Buka Saran Pangkas Belanjaan
-            </button>
-          </div>
-
-          <!-- CART ITEMS LIST CONTAINER -->
-          <div class="neo-items-stack" id="cartItemsList">
-            <!-- Rendered by JavaScript -->
-          </div>
-
-          <!-- Empty Cart State -->
-          <div class="neo-empty-box hidden" id="emptyCartState">
-            <div class="empty-glyph">🛒</div>
-            <h3>Troli Belanja Kosong</h3>
-            <p>Rian belum memasukkan barang pokok ke troli belanjaan supermarket.</p>
-            <div class="empty-btn-group">
-              <button class="btn-neo-secondary" id="btnLoadSampleData">
-                <i data-lucide="sparkles"></i> Muat Data Kebutuhan Rian
-              </button>
-              <button class="btn-neo-volt full-w" id="btnEmptyAdd">
-                <i data-lucide="plus"></i> Tambah Barang Manual
-              </button>
-            </div>
-          </div>
-
-          <!-- Shopping Summary Bottom Card -->
-          <div class="neo-summary-bar" id="cartSummaryBottom">
-            <div class="summary-metrics-grid">
-              <div class="metric-cell">
-                <span class="m-lbl">TOTAL BARANG</span>
-                <strong class="m-val" id="summaryTotalItems">0 Jenis (0 Pcs)</strong>
-              </div>
-              <div class="metric-cell right">
-                <span class="m-lbl">PENGHEMATAN</span>
-                <strong class="m-val text-volt" id="summaryTotalSaved">Hemat Rp 0</strong>
-              </div>
-            </div>
-            <button id="btnFinishShopping" class="btn-neo-checkout">
-              <i data-lucide="check-circle-2"></i>
-              <span>SELESAIKAN BELANJA & KASIR</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- ================= TAB 2: PROMO & SMART COMPARATOR ================= -->
-        <section id="tabCompare" class="tab-pane">
-          <div class="neo-section-title">
-            <span class="neo-kicker">ANALISIS RAK SUPERMARKET</span>
-            <h2>Kalkulator Promo & Kemasan</h2>
-            <p>Hitung diskon bertingkat (50%+20%) dan perbandingan kemasan jerigen vs pouch.</p>
-          </div>
-
-          <!-- TOOL 1: KALKULATOR DISKON BERTINGKAT & PROMO -->
-          <div class="neo-bento-card">
-            <div class="card-header-line">
-              <div class="header-icon-box">
-                <i data-lucide="percent"></i>
-              </div>
-              <div>
-                <h3>Kalkulator Diskon Bertumpuk</h3>
-                <span>Hitung promo 50%+20%, 30%, atau potongan Rp langsung</span>
-              </div>
-            </div>
-
-            <div class="card-body-content">
-              <div class="neo-form-group">
-                <label>HARGA ASLI DI RAK (RP)</label>
-                <div class="neo-input-affix-wrap">
-                  <span class="affix">RP</span>
-                  <input type="number" id="calcOrigPrice" placeholder="100000" inputmode="numeric">
-                </div>
-              </div>
-
-              <div class="neo-form-group">
-                <label>FORMAT DISKON / PROMO</label>
-                <div class="neo-chip-pills">
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('50+20')">50% + 20%</button>
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('70+10')">70% + 10%</button>
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('30')">30%</button>
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('Buy 2 Get 1')">Beli 2 Gratis
-                    1</button>
-                  <button type="button" class="neo-pill-btn" onclick="setCalcDiscount('15000')">-Rp 15rb</button>
-                </div>
-                <div class="neo-input-affix-wrap no-affix">
-                  <input type="text" id="calcDiscountInput"
-                    placeholder="Ketik rumus (contoh: 50+20 atau 25% atau 15000)">
-                </div>
-              </div>
-
-              <div class="neo-calc-display-box" id="calcDiscountResult">
-                <div class="display-row-top">
-                  <div>
-                    <span class="d-caption">HARGA AKHIR:</span>
-                    <div class="d-price-huge" id="calcFinalPrice">Rp 0</div>
-                  </div>
-                  <div class="savings-tag-volt" id="calcSavedAmount">Hemat Rp 0</div>
-                </div>
-                <div class="d-formula-code" id="calcFormulaBreakdown">
-                  Masukkan harga dan diskon di atas.
-                </div>
+              <div class="font-body-sm text-body-sm text-secondary-fixed-dim mt-1 font-semibold" id="scanSavingsNominal">
+                Total Hemat: Rp 40.000
               </div>
             </div>
           </div>
-
-          <!-- TOOL 2: SMART UNIT PRICE COMPARATOR (Value for Money) -->
-          <div class="neo-bento-card">
-            <div class="card-header-line">
-              <div class="header-icon-box">
-                <i data-lucide="scale"></i>
-              </div>
-              <div>
-                <h3>Perbandingan Kemasan (Unit Price)</h3>
-                <span>Contoh: Minyak 1L Rp 18.000 vs Jerigen 5L Rp 85.000</span>
-              </div>
-            </div>
-
-            <div class="card-body-content">
-              <div class="dual-compare-grid">
-                <!-- Option A -->
-                <div class="compare-sub-box" id="colOptionA">
-                  <div class="sub-box-title">OPSI A (KEMASAN 1)</div>
-                  <div class="form-micro">
-                    <label>UKURAN / VOLUME</label>
-                    <div class="dual-unit-field">
-                      <input type="number" id="cmpSizeA" placeholder="1" value="1" step="any">
-                      <select id="cmpUnitA">
-                        <option value="liter">Liter</option>
-                        <option value="ml">ml</option>
-                        <option value="kg">kg</option>
-                        <option value="gram">gram</option>
-                        <option value="pcs">pcs</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-micro">
-                    <label>HARGA (RP)</label>
-                    <div class="neo-input-affix-wrap mini">
-                      <span class="affix mini">RP</span>
-                      <input type="number" id="cmpPriceA" placeholder="18000" value="18000" inputmode="numeric">
-                    </div>
-                  </div>
-                  <div class="unit-price-pill" id="unitCostA">
-                    Rp 18.000 / Liter
-                  </div>
-                </div>
-
-                <!-- Option B -->
-                <div class="compare-sub-box" id="colOptionB">
-                  <div class="sub-box-title">OPSI B (KEMASAN 2)</div>
-                  <div class="form-micro">
-                    <label>UKURAN / VOLUME</label>
-                    <div class="dual-unit-field">
-                      <input type="number" id="cmpSizeB" placeholder="5" value="5" step="any">
-                      <select id="cmpUnitB">
-                        <option value="liter">Liter</option>
-                        <option value="ml">ml</option>
-                        <option value="kg">kg</option>
-                        <option value="gram">gram</option>
-                        <option value="pcs">pcs</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-micro">
-                    <label>HARGA (RP)</label>
-                    <div class="neo-input-affix-wrap mini">
-                      <span class="affix mini">RP</span>
-                      <input type="number" id="cmpPriceB" placeholder="85000" value="85000" inputmode="numeric">
-                    </div>
-                  </div>
-                  <div class="unit-price-pill" id="unitCostB">
-                    Rp 17.000 / Liter
-                  </div>
-                </div>
-              </div>
-
-              <!-- Recommendation Verdict Banner -->
-              <div class="neo-verdict-box" id="cmpVerdictBanner">
-                <div class="verdict-dot">
-                  <i data-lucide="check"></i>
-                </div>
-                <div class="verdict-txt">
-                  <strong id="cmpVerdictTitle">Opsi B Lebih Hemat!</strong>
-                  <p id="cmpVerdictDesc">Hemat Rp 1.000/liter (5.56% lebih murah dibanding Opsi A).</p>
-                </div>
-              </div>
-            </div>
+          <div class="mt-space-sm pt-space-sm border-t border-white/10 flex items-center justify-between text-body-sm font-body-sm text-on-primary-container relative z-10">
+            <span>Harga Satuan Netto:</span>
+            <span class="font-label-lg text-label-lg text-white font-bold" id="scanUnitPriceDetail">Rp 17.000 / 100ml</span>
           </div>
-        </section>
-
-        <!-- ================= TAB 3: ANGGARAN & ANALISIS (BUDGET) ================= -->
-        <section id="tabBudget" class="tab-pane">
-          <div class="neo-section-title">
-            <span class="neo-kicker">KENDALI KEUANGAN KOS</span>
-            <h2>Pengendali & Batas Anggaran</h2>
-            <p>Jaga ketat uang saku kiriman orang tua agar tidak defisit di akhir bulan.</p>
-          </div>
-
-          <!-- Budget Config Card -->
-          <div class="neo-bento-card">
-            <div class="card-header-line">
-              <div class="header-icon-box">
-                <i data-lucide="wallet"></i>
-              </div>
-              <div>
-                <h3>Batas Uang Saku Belanja</h3>
-                <span>Nominal maksimal yang dibawa ke kasir</span>
-              </div>
-            </div>
-            <div class="card-body-content">
-              <div class="neo-form-group">
-                <label>NOMINAL ANGGARAN (RP)</label>
-                <div class="neo-input-affix-wrap">
-                  <span class="affix">RP</span>
-                  <input type="number" id="inputBudgetSetting" placeholder="350000" inputmode="numeric">
-                </div>
-              </div>
-              <div class="neo-chip-pills">
-                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(250000)">Rp 250rb</button>
-                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(350000)">Rp 350rb</button>
-                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(500000)">Rp 500rb</button>
-                <button type="button" class="neo-pill-btn" onclick="setBudgetSetting(750000)">Rp 750rb</button>
-              </div>
-              <button id="btnSaveBudgetSetting" class="btn-neo-volt full-w">
-                <i data-lucide="save"></i> SIMPAN BATAS ANGGARAN
-              </button>
-            </div>
-          </div>
-
-          <!-- NODE.JS & TYPESCRIPT CLOUD INSIGHTS ENGINE -->
-          <div class="neo-bento-card" id="cardNodeInsights">
-            <div class="card-header-line">
-              <div class="header-icon-box"
-                style="color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3);">
-                <i data-lucide="cpu"></i>
-              </div>
-              <div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <h3 style="margin: 0;">Analisis Cerdas Keranjang</h3>
-                  <span class="badge-volt"
-                    style="font-size: 0.58rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">NODE.JS
-                    + TS</span>
-                </div>
-                <span>Deteksi inflasi keranjang & optimasi belanjaan</span>
-              </div>
-            </div>
-            <div class="card-body-content">
-              <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 10px;">
-                Mesin Node.js di cloud menganalisis komposisi keranjang, lonjakan harga vs bulan lalu, dan rekomendasi
-                penghematan cerdas.
-              </p>
-              <button id="btnRunNodeAnalytics" class="btn-neo-secondary full-w" type="button">
-                <i data-lucide="sparkles"></i> Minta Analisis Cerdas (Cloud API)
-              </button>
-              <div id="nodeAnalyticsResult" class="hidden" style="margin-top: 12px;"></div>
-            </div>
-          </div>
-
-          <!-- Spending Category Breakdown -->
-          <div class="neo-bento-card">
-            <div class="card-header-line">
-              <div class="header-icon-box">
-                <i data-lucide="pie-chart"></i>
-              </div>
-              <div>
-                <h3>Distribusi Kategori Belanja</h3>
-                <span>Alokasi pengeluaran barang saat ini</span>
-              </div>
-            </div>
-            <div class="card-body-content">
-              <div class="neo-category-breakdown" id="categoryBreakdownList">
-                <!-- Rendered dynamically -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Guidelines -->
-          <div class="neo-rules-card">
-            <div class="rules-header">
-              <i data-lucide="info"></i>
-              <strong>STRATEGI BELANJA HEMAT RIAN</strong>
-            </div>
-            <ul class="rules-list">
-              <li><strong>Bahan Pokok Duluan:</strong> Pastikan beras, minyak, dan sabun cuci sudah masuk troli.</li>
-              <li><strong>Cek Sinyal Harga:</strong> Jika panah merah naik (↑), bandingkan dengan merek lain.</li>
-              <li><strong>Safety Cap HUD:</strong> Jangan pernah melangkah ke kasir jika status menyala merah.</li>
-            </ul>
-          </div>
-        </section>
-
-        <!-- ================= TAB 4: RIWAYAT & DATABASE HARGA (HISTORY) ================= -->
-        <section id="tabHistory" class="tab-pane">
-          <div class="neo-section-title">
-            <span class="neo-kicker">BELANJA SAYA</span>
-            <h2>Riwayat Belanja</h2>
-            <p>Semua struk tersimpan otomatis. Tap untuk lihat rincian.</p>
-          </div>
-
-          <!-- Hidden cloud IDs (JS-only) -->
-          <div class="hidden" id="cloudBannerBox">
-            <div class="cloud-indicator-circle connected" id="cloudIndicatorIcon"></div>
-            <strong id="cloudStatusTitle"></strong>
-            <span id="cloudStatusSubtitle"></span>
-            <button id="btnSyncNow"></button>
-          </div>
-
-          <div class="neo-segmented-tabs">
-            <button class="neo-tab-btn active" id="btnSubHistory" data-sub="history">
-              <i data-lucide="receipt"></i> STRUK BELANJA
-            </button>
-            <button class="neo-tab-btn" id="btnSubMaster" data-sub="master">
-              <i data-lucide="bar-chart-2"></i> ACUAN HARGA
-            </button>
-          </div>
-
-          <!-- SUB-VIEW: STRUK RIWAYAT BELANJA -->
-          <div id="subViewHistory" class="sub-view-pane active">
-            <div class="neo-history-deck" id="historyListContainer">
-              <!-- Rendered dynamically -->
-            </div>
-          </div>
-
-          <!-- SUB-VIEW: MASTER DATABASE HARGA ACUAN -->
-          <div id="subViewMaster" class="sub-view-pane">
-            <div class="neo-master-bar">
-              <div class="neo-search-input-wrap mini">
-                <i data-lucide="search" class="search-ico"></i>
-                <input type="text" id="searchMasterInput" placeholder="Cari acuan harga...">
-              </div>
-              <button id="btnAddMasterItem" class="btn-neo-secondary mini">
-                <i data-lucide="plus"></i> Tambah
-              </button>
-            </div>
-
-            <div class="neo-master-records" id="masterItemsList">
-              <!-- Rendered dynamically -->
-            </div>
-          </div>
-
-          <!-- Hidden dev-only actions (JS logic preserved, not displayed) -->
-          <input type="file" id="importFileInput" accept=".json" class="hidden">
-          <button id="btnExportData" class="hidden"></button>
-          <button id="btnImportDataTrigger" class="hidden"></button>
-          <button id="btnResetToDefaults" class="hidden"></button>
-
-        </section>
-
-      </main>
-
-      <!-- ================= BOTTOM DOCK NAVIGATION ================= -->
-      <nav class="neo-bottom-dock">
-        <div class="dock-frame">
-          <button class="dock-tab active" data-tab="tabCart" id="navBtnCart">
-            <div class="dock-tab-glyph">
-              <i data-lucide="shopping-bag"></i>
-              <span class="dock-bubble-tag" id="navCartBadge">0</span>
-            </div>
-            <span class="dock-txt">Troli</span>
-          </button>
-
-          <button class="dock-tab" data-tab="tabCompare" id="navBtnCompare">
-            <div class="dock-tab-glyph">
-              <i data-lucide="scale"></i>
-            </div>
-            <span class="dock-txt">Kalkulator</span>
-          </button>
-
-          <button class="dock-tab" data-tab="tabBudget" id="navBtnBudget">
-            <div class="dock-tab-glyph">
-              <i data-lucide="pie-chart"></i>
-            </div>
-            <span class="dock-txt">Anggaran</span>
-          </button>
-
-          <button class="dock-tab" data-tab="tabHistory" id="navBtnHistory">
-            <div class="dock-tab-glyph">
-              <i data-lucide="receipt"></i>
-            </div>
-            <span class="dock-txt">Riwayat</span>
-          </button>
         </div>
-      </nav>
 
-      <!-- ================= BOTTOM DOCK NAVIGATION ================= -->
-
-      <!-- ================= MODAL: TAMBAH / EDIT ITEM BELANJA ================= -->
-      <div class="modal-backdrop hidden" id="modalItemBackdrop">
-        <div class="neo-modal-sheet" id="modalItemSheet">
-          <div class="sheet-notch"></div>
-
-          <div class="neo-sheet-header">
-            <div>
-              <span class="sheet-kicker">INPUT PRODUK</span>
-              <h3 id="modalItemTitle">Tambah ke Troli</h3>
-            </div>
-            <button class="neo-btn-close" id="btnCloseItemModal">
-              <i data-lucide="x"></i>
-            </button>
+        <!-- Dampak ke Dompet Belanja -->
+        <div class="bg-surface-container rounded-2xl p-3.5 mb-space-lg flex items-center gap-3" id="scanWalletImpactCard">
+          <div class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0 text-secondary">
+            <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
           </div>
-
-          <form id="formItemModal" class="neo-sheet-form">
-            <input type="hidden" id="modalItemId">
-
-            <!-- F-01: Nama Barang & Autocomplete -->
-            <div class="neo-form-group">
-              <label for="inputItemName">NAMA PRODUK <span class="req">*</span></label>
-              <div class="neo-input-affix-wrap no-affix">
-                <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required
-                  autocomplete="off">
-              </div>
-              <div class="neo-autocomplete-dropdown hidden" id="autoSuggestContainer"></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <span class="font-label-lg text-label-lg text-primary font-bold">Dampak ke Dompet Belanja</span>
+              <span class="font-label-sm text-label-sm text-secondary font-bold" id="scanImpactTag">Aman ✅</span>
             </div>
-
-            <div class="neo-dual-grid">
-              <!-- F-01: Kategori -->
-              <div class="neo-form-group">
-                <label for="selectItemCategory">KATEGORI</label>
-                <div class="neo-select-wrap">
-                  <select id="selectItemCategory">
-                    <option value="Bahan Pokok">Bahan Pokok</option>
-                    <option value="Makanan & Minuman">Makanan & Minum</option>
-                    <option value="Kebersihan">Kebersihan</option>
-                    <option value="Dapur & Bumbu">Dapur & Bumbu</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- F-01: Satuan -->
-              <div class="neo-form-group">
-                <label for="selectItemUnit">KEMASAN/SATUAN</label>
-                <div class="neo-select-wrap">
-                  <select id="selectItemUnit">
-                    <option value="pcs">pcs (buah)</option>
-                    <option value="kg">kg (kilogram)</option>
-                    <option value="liter">liter</option>
-                    <option value="pack">pack</option>
-                    <option value="pouch">pouch</option>
-                    <option value="botol">botol</option>
-                    <option value="kaleng">kaleng</option>
-                    <option value="sachet">sachet</option>
-                    <option value="dus">dus</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- F-02: Kuantitas Beli (Neo Stepper) -->
-            <div class="neo-form-group">
-              <label>KUANTITAS PEMBELIAN (QTY)</label>
-              <div class="neo-stepper-touch">
-                <button type="button" class="stepper-tap-btn" id="btnModalQtyMinus">
-                  <i data-lucide="minus"></i>
-                </button>
-                <input type="number" id="inputItemQty" value="1" min="1" step="1" inputmode="numeric" required>
-                <button type="button" class="stepper-tap-btn" id="btnModalQtyPlus">
-                  <i data-lucide="plus"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="neo-dual-grid">
-              <!-- F-01: Harga Satuan Saat Ini -->
-              <div class="neo-form-group">
-                <label for="inputItemPrice">HARGA SATUAN (RP) <span class="req">*</span></label>
-                <div class="neo-input-affix-wrap">
-                  <span class="affix">RP</span>
-                  <input type="number" id="inputItemPrice" placeholder="18000" required inputmode="numeric">
-                </div>
-              </div>
-
-              <!-- F-01: Harga Riwayat Bulan Lalu -->
-              <div class="neo-form-group">
-                <label for="inputItemLastMonthPrice">HARGA BULAN LALU (RP)</label>
-                <div class="neo-input-affix-wrap">
-                  <span class="affix">RP</span>
-                  <input type="number" id="inputItemLastMonthPrice" placeholder="Otomatis" inputmode="numeric">
-                </div>
-              </div>
-            </div>
-
-            <!-- F-04: LIVE PRICE COMPARISON BADGE IN MODAL -->
-            <div class="neo-comparison-pill-box" id="modalPriceComparisonBox">
-              <div class="neo-badge-indicator status-neutral" id="modalComparePill">
-                <i data-lucide="minus" class="cmp-icon"></i>
-                <span id="modalCompareText">Masukkan harga untuk cek fluktuasi</span>
-              </div>
-            </div>
-
-            <!-- F-03: Diskon Bertingkat Input -->
-            <div class="neo-form-group">
-              <div class="label-split-line">
-                <label for="inputItemDiscount">DISKON / PROMO RAK</label>
-                <span class="pill-discount-hint">Support: 50+20% atau Rp 15rb</span>
-              </div>
-              <div class="neo-input-affix-wrap no-affix">
-                <input type="text" id="inputItemDiscount" placeholder="Contoh: 50+20 atau 25% atau 15000">
-              </div>
-              <div class="neo-discount-live-box hidden" id="modalDiscountPreview">
-                <span id="modalDiscountPreviewText">Harga Promo: Rp 0 (Hemat Rp 0)</span>
-              </div>
-            </div>
-
-            <!-- Live Item Line Total Preview -->
-            <div class="neo-total-banner-box">
-              <span class="banner-lbl">SUBTOTAL BARIS:</span>
-              <strong class="banner-digits" id="modalLineTotal">Rp 0</strong>
-            </div>
-
-            <!-- Modal Action Buttons -->
-            <div class="neo-sheet-actions">
-              <button type="button" class="btn-neo-secondary" id="btnCancelModalItem">Batal</button>
-              <button type="submit" class="btn-neo-volt" id="btnSubmitModalItem">
-                <i data-lucide="plus"></i>
-                <span id="btnSubmitItemText">SIMPAN KE TROLI</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- ================= MODAL: EDIT BATAS ANGGARAN ================= -->
-      <div class="modal-backdrop hidden" id="modalBudgetBackdrop">
-        <div class="neo-modal-sheet" id="modalBudgetSheet">
-          <div class="sheet-notch"></div>
-          <div class="neo-sheet-header">
-            <div>
-              <span class="sheet-kicker">KENDALI DOMPET</span>
-              <h3>Atur Batas Anggaran</h3>
-            </div>
-            <button class="neo-btn-close" id="btnCloseBudgetModal">
-              <i data-lucide="x"></i>
-            </button>
-          </div>
-          <div class="neo-sheet-form">
-            <p class="sheet-p-desc">Atur batas uang tunai di dompet agar total tagihan di kasir pas dengan isi dompet:
+            <p class="font-body-sm text-body-sm text-on-surface-variant truncate" id="scanImpactDesc">
+              Budget sisa menjadi <strong class="text-primary font-semibold">Rp 32.500</strong> dari limit Rp 350k
             </p>
-            <div class="neo-form-group">
-              <label>NOMINAL BUDGET (RP)</label>
-              <div class="neo-input-affix-wrap">
-                <span class="affix">RP</span>
-                <input type="number" id="inputQuickBudget" value="350000" inputmode="numeric">
-              </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button class="w-full py-3.5 px-space-md rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm shadow-xl flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.98] transition-all cursor-pointer"
+          id="btnApplyScanToCart">
+          <span class="material-symbols-outlined text-[20px]">add_shopping_cart</span>
+          <span>Masukkan ke Troli Saya</span>
+        </button>
+      </div>
+
+      <!-- Quick Comparator View in Scan Screen -->
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 mb-space-lg" id="scannerComparatorCard">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-secondary text-[20px]">compare_arrows</span>
+            <h3 class="font-headline-sm text-label-lg text-primary font-bold">Bandingkan Kemasan Kecil vs Jerigen</h3>
+          </div>
+          <span class="text-[11px] text-secondary font-bold bg-secondary-fixed/30 px-2 py-0.5 rounded-full">Hitung Satuan</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div class="p-3 bg-surface-container-low rounded-xl">
+            <span class="font-label-sm text-[11px] font-bold text-primary block mb-1">OPSI A (Kemasan 1)</span>
+            <input type="number" id="cmpSizeA" value="1" placeholder="Ukuran" class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <input type="number" id="cmpPriceA" value="18000" placeholder="Harga Rp" class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostA">Rp 18.000 / Satuan</span>
+          </div>
+          <div class="p-3 bg-surface-container-low rounded-xl">
+            <span class="font-label-sm text-[11px] font-bold text-primary block mb-1">OPSI B (Kemasan 2)</span>
+            <input type="number" id="cmpSizeB" value="5" placeholder="Ukuran" class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <input type="number" id="cmpPriceB" value="85000" placeholder="Harga Rp" class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostB">Rp 17.000 / Satuan</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-secondary-fixed/20 rounded-xl flex items-center gap-2 text-secondary" id="cmpVerdictBanner">
+          <span class="material-symbols-outlined text-[20px]">verified</span>
+          <div>
+            <strong class="font-label-lg text-label-lg text-primary block" id="cmpVerdictTitle">Opsi B Lebih Hemat!</strong>
+            <span class="font-body-sm text-[12px] text-on-surface-variant" id="cmpVerdictDesc">Hemat Rp 1.000 per satuan dibanding Opsi A.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         TAB 3: SHOPPING PLANNER (RENCANA KEBUTUHAN BELANJA SEBELUM KE TOKO)
+         ========================================================================== -->
+    <section id="tabBudget" class="tab-pane flex-col w-full gap-space-md hidden">
+
+      <!-- Header Penjelasan Fitur Shopping Planner -->
+      <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
+        <div class="flex items-center gap-2 mb-1">
+          <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-[18px]">edit_note</span>
+          </div>
+          <h2 class="font-headline-sm text-headline-sm text-primary font-bold">Shopping Planner Kos Rian</h2>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+          Catat barang kebutuhan yang akan dibeli dari kos/rumah <strong>sebelum pergi ke supermarket</strong>. Cukup masukkan nama, kuantitas, dan satuan tanpa perlu tahu harganya terlebih dahulu.
+        </p>
+      </div>
+
+      <!-- Form Tambah Rencana Kebutuhan Baru (Tanpa Harga) -->
+      <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-headline-sm text-label-lg text-primary font-bold flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-secondary text-[20px]">add_task</span>
+            <span>Tambah Kebutuhan Belanja</span>
+          </h3>
+          <span class="text-[11px] font-bold text-secondary bg-surface-container-low px-2 py-0.5 rounded-full">Pra-Belanja</span>
+        </div>
+
+        <form id="formAddPlannerItem" class="space-y-3">
+          <div>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NAMA BARANG KEBUTUHAN *</label>
+            <input type="text" id="inputPlannerName" placeholder="Contoh: Beras Ramos 5kg, Telur 1kg, Sabun Cuci" required
+              class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KATEGORI</label>
+              <select id="selectPlannerCategory"
+                class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
+                <option value="Bahan Pokok">Bahan Pokok</option>
+                <option value="Makanan & Minuman">Makanan & Minuman</option>
+                <option value="Kebersihan">Kebersihan</option>
+                <option value="Dapur & Bumbu">Dapur & Bumbu</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
             </div>
-            <div class="neo-chip-pills">
-              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(200000)">Rp 200rb</button>
-              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(350000)">Rp 350rb</button>
-              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(500000)">Rp 500rb</button>
-              <button type="button" class="neo-pill-btn" onclick="setQuickBudget(750000)">Rp 750rb</button>
+            <div>
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN / SATUAN</label>
+              <select id="selectPlannerUnit"
+                class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
+                <option value="pack">pack</option>
+                <option value="pouch">pouch</option>
+                <option value="kg">kg (kilogram)</option>
+                <option value="pcs">pcs (buah)</option>
+                <option value="botol">botol</option>
+                <option value="liter">liter</option>
+                <option value="kaleng">kaleng</option>
+                <option value="sachet">sachet</option>
+                <option value="dus">dus</option>
+              </select>
             </div>
-            <div class="neo-sheet-actions">
-              <button type="button" class="btn-neo-secondary" id="btnCancelQuickBudget">Batal</button>
-              <button type="button" class="btn-neo-volt" id="btnSaveQuickBudget">
-                <i data-lucide="check"></i> Terapkan
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="w-32">
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">JUMLAH (QTY)</label>
+              <input type="number" id="inputPlannerQty" value="1" min="1" required
+                class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-center font-numeric-md text-numeric-md font-bold text-primary border border-outline-variant/30">
+            </div>
+            <div class="flex-1 pt-5">
+              <button type="submit"
+                class="w-full py-2.5 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm font-bold flex items-center justify-center gap-1.5 shadow-md hover:bg-primary-container active:scale-95 transition-all cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">playlist_add</span>
+                <span>Simpan ke Rencana</span>
               </button>
             </div>
           </div>
+        </form>
+      </div>
+
+      <!-- Daftar Rencana Belanja Aktif (Shopping Planner List) -->
+      <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
+        <div class="flex items-center justify-between mb-space-sm">
+          <div>
+            <h3 class="font-headline-sm text-label-lg text-primary font-bold">Daftar Rencana Belanja Aktif</h3>
+            <span class="font-body-sm text-[12px] text-on-surface-variant" id="plannerEstimatedCostTotal">Estimasi acuan bulan lalu: Rp 0</span>
+          </div>
+          <span class="px-2.5 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold"
+            id="plannerActiveCountBadge">0 Item</span>
+        </div>
+
+        <div class="space-y-2 mb-3" id="shoppingPlannerFullList">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-2 border-t border-outline-variant/20">
+          <span>💡 Saat di supermarket, buka tab <strong>Troli</strong> untuk input harga di rak.</span>
+          <button class="text-error font-semibold hover:underline cursor-pointer" id="btnClearCompletedPlanner">Bersihkan yang selesai</button>
         </div>
       </div>
 
-      <!-- ================= MODAL: SARAN PANGKAS BARANG ================= -->
-      <div class="modal-backdrop hidden" id="modalTrimBackdrop">
-        <div class="neo-modal-sheet" id="modalTrimSheet">
-          <div class="sheet-notch"></div>
-          <div class="neo-sheet-header">
-            <div>
-              <span class="sheet-kicker text-danger">PENYELAMAT KASIR</span>
-              <h3>Saran Pangkas Belanjaan</h3>
-            </div>
-            <button class="neo-btn-close" id="btnCloseTrimModal">
-              <i data-lucide="x"></i>
-            </button>
-          </div>
-          <div class="neo-sheet-form">
-            <div class="neo-alert-overbudget" style="margin-top: 0;">
-              <div class="alert-top-row">
-                <span class="badge-alert-danger">
-                  DEFISIT: <span id="trimDeficitAmount">Rp 0</span>
-                </span>
-              </div>
-              <p class="alert-p">Kurangi kuantitas atau batalkan barang non-pokok berikut:</p>
-            </div>
-            <div class="neo-trim-deck" id="trimSuggestionsList">
-              <!-- Rendered dynamically -->
-            </div>
-            <button type="button" class="btn-neo-volt full-w" id="btnCloseTrimDone">
-              Selesai Menata Ulang
-            </button>
-          </div>
+      <!-- Section: Atur Batas Dompet Belanja (Limit Uang Saku) -->
+      <div class="w-full bg-surface-container-lowest rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Batas Uang Saku Dompet</h3>
+          <span class="font-label-sm text-label-sm text-secondary font-bold" id="budgetTabStatusPill">Aman</span>
+        </div>
+        <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tentukan pagu maksimal uang belanja bulanan agar tidak over-budget:</p>
+
+        <div class="flex gap-2 mb-space-sm">
+          <input type="number" id="inputBudgetSetting" placeholder="350000"
+            class="flex-1 px-3 py-2 bg-surface-container-low rounded-xl text-on-surface font-numeric-md text-numeric-md font-bold focus:outline-none focus:ring-1 focus:ring-secondary border border-outline-variant/30">
+          <button id="btnSaveBudgetSetting"
+            class="px-5 py-2 rounded-xl bg-primary text-on-primary font-label-sm text-label-sm font-bold cursor-pointer">
+            Simpan
+          </button>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+            onclick="setBudgetSetting(250000)">Rp 250k</button>
+          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+            onclick="setBudgetSetting(350000)">Rp 350k</button>
+          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+            onclick="setBudgetSetting(500000)">Rp 500k</button>
+          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+            onclick="setBudgetSetting(750000)">Rp 750k</button>
         </div>
       </div>
 
-      <!-- ================= MODAL: DETAIL STRUK DIGITAL ================= -->
-      <div class="modal-backdrop hidden" id="modalReceiptBackdrop">
-        <div class="neo-modal-sheet" id="modalReceiptSheet">
-          <div class="sheet-notch"></div>
-          <div class="neo-sheet-header">
-            <div>
-              <span class="sheet-kicker">STRUK DIGITAL ANTI-PUDAR</span>
-              <h3>Struk Belanja Supermarket</h3>
-            </div>
-            <button class="neo-btn-close" id="btnCloseReceiptModal">
-              <i data-lucide="x"></i>
-            </button>
+      <!-- Section: Tips Hemat Belanja Bijak (Bahasa Manusia) -->
+      <div class="w-full bg-surface-container rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
+        <div class="flex items-start gap-space-sm">
+          <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
           </div>
-          <div class="neo-sheet-form" id="receiptModalBody">
-            <!-- Rendered dynamically -->
+          <div class="flex-1 min-w-0">
+            <span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Asisten Belanja Bijak</span>
+            <p class="font-body-sm text-body-sm text-on-surface mt-1 leading-snug">
+              Periksa keseimbangan belanjaan antara bahan makanan pokok dengan jajanan sekunder agar saku tetap aman.
+            </p>
+            <div class="mt-space-sm">
+              <button class="px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold active:scale-95 transition-transform flex items-center gap-1 shadow-sm cursor-pointer"
+                id="btnRunNodeAnalytics" type="button">
+                <span>Periksa Kesehatan Belanja</span>
+                <span class="material-symbols-outlined text-[16px]">sparkles</span>
+              </button>
+            </div>
+            <div id="nodeAnalyticsResult" class="hidden mt-3"></div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
-      <div class="toast-container" id="toastContainer"></div>
+    <!-- ==========================================================================
+         TAB 4: STRUK PEMBELIAN & ACUAN HARGA (STITCH SCREEN 1)
+         ========================================================================== -->
+    <section id="tabHistory" class="tab-pane flex-col w-full gap-space-md hidden">
+      <!-- Sub Tab Switcher: Struk vs Acuan Harga -->
+      <div class="flex bg-surface-container-highest p-1 rounded-full mb-space-xs shadow-inner gap-1">
+        <button class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all active"
+          id="btnSubHistory">
+          <span>Struk Pembelian</span>
+        </button>
+        <button class="flex-1 py-1.5 px-3 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all"
+          id="btnSubMaster">
+          <span>Daftar Acuan Harga</span>
+        </button>
+      </div>
 
+      <!-- Sub View 1: Struk Pembelian Selesai -->
+      <div id="subViewHistory" class="space-y-space-sm">
+        <div class="flex items-center justify-between mb-1 px-1">
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Riwayat Belanja Selesai</span>
+        </div>
+        <div id="historyListContainer" class="space-y-space-sm">
+          <!-- Rendered by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Sub View 2: Acuan Harga Toko Bulan Lalu -->
+      <div id="subViewMaster" class="space-y-space-sm hidden">
+        <div class="flex items-center justify-between mb-1 px-1">
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Harga Acuan Bulan Lalu (Database Rian)</span>
+        </div>
+        <div class="flex items-center gap-2 mb-space-sm">
+          <div class="flex-1 relative">
+            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline-variant text-[16px]">search</span>
+            <input type="text" id="searchMasterInput" placeholder="Cari acuan harga..."
+              class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm border border-outline-variant/30">
+          </div>
+          <button id="btnAddMasterItem"
+            class="px-3 py-1.5 rounded-xl bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-outlined text-[15px]">add</span>
+            <span>Tambah</span>
+          </button>
+        </div>
+        <div id="masterItemsList" class="space-y-1.5">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Hidden compatibility items kept for JS -->
+      <div class="hidden" id="cloudBannerBox">
+        <div id="cloudIndicatorIcon"></div>
+        <span id="cloudStatusTitle"></span>
+        <span id="cloudStatusSubtitle"></span>
+        <button id="btnSyncNow"></button>
+        <input type="file" id="importFileInput" accept=".json">
+        <button id="btnExportData"></button>
+        <button id="btnImportDataTrigger"></button>
+        <button id="btnResetToDefaults"></button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FLOATING BOTTOM DOCK NAVIGATION (STITCH FLOATING DOCK) ================= -->
+  <nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin mb-3">
+    <div class="pointer-events-auto mx-auto max-w-md bg-surface-container-lowest/95 backdrop-blur-xl rounded-[28px] p-1.5 flex items-center justify-between shadow-[0_8px_32px_-4px_rgba(17,51,34,0.12)] border border-outline-variant/30">
+
+      <!-- 1. Troli Aktif -->
+      <button class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] transition-all duration-200 bg-primary text-on-primary shadow-[0_4px_16px_rgba(0,29,15,0.2)] active"
+        id="navBtnCart" data-tab="tabCart">
+        <div class="relative flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
+          <span class="absolute -top-1 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-on-secondary rounded-full font-label-sm text-[10px] flex items-center justify-center leading-none font-bold shadow-sm"
+            id="navCartBadge">0</span>
+        </div>
+        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Troli</span>
+      </button>
+
+      <!-- 2. Scan Barcode (Center Hero in Stitch) -->
+      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+        id="navBtnScan" data-tab="tabScan">
+        <div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-inner">
+          <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+        </div>
+        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap font-bold text-secondary">Scan</span>
+      </button>
+
+      <!-- 3. Shopping Planner & Rencana -->
+      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+        id="navBtnBudget" data-tab="tabBudget">
+        <span class="material-symbols-outlined text-[22px]">checklist</span>
+        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Rencana</span>
+      </button>
+
+      <!-- 4. Hemat & Struk -->
+      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+        id="navBtnHistory" data-tab="tabHistory">
+        <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Struk</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MODAL: INPUT HARGA RAK DARI SHOPPING PLANNER ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalShelfPriceBackdrop">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Ambil dari Rencana Belanja</span>
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold" id="shelfModalItemName">Nama Barang</h3>
+          <span class="font-body-sm text-[12px] text-on-surface-variant" id="shelfModalItemSpec">1 pack • Kategori</span>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          id="btnCloseShelfModal">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form id="formShelfPriceModal" class="space-y-4">
+        <input type="hidden" id="shelfModalPlannerId">
+
+        <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
+          <span class="font-body-sm text-body-sm text-on-surface-variant">Harga Acuan Bulan Lalu:</span>
+          <strong class="font-numeric-md text-numeric-md text-primary font-bold" id="shelfModalLastPriceText">Rp 0</strong>
+        </div>
+
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN DI RAK TOKO (RP) *</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 font-numeric-md text-outline">Rp</span>
+            <input type="number" id="inputShelfPrice" placeholder="Contoh: 38000" required inputmode="numeric"
+              class="w-full pl-10 pr-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-lg text-numeric-lg font-bold border border-outline-variant/30 focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
+          </div>
+        </div>
+
+        <!-- Fluktuasi Harga Badge Seketika -->
+        <div id="shelfModalFluctuationBox" class="p-2.5 rounded-xl bg-surface-container flex items-center gap-2">
+          <span class="material-symbols-outlined text-[18px] text-secondary" id="shelfFluctuationIcon">query_stats</span>
+          <div class="flex-1 min-w-0">
+            <span class="font-label-sm text-label-sm font-bold block" id="shelfFluctuationText">Ketik harga rak untuk melihat fluktuasi</span>
+            <span class="font-body-sm text-[11px] text-on-surface-variant" id="shelfFluctuationSub">Dibandingkan dengan catatan belanja bulan lalu</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">POTONGAN / DISKON RAK (OPSIONAL)</label>
+          <input type="text" id="inputShelfDiscount" placeholder="Contoh: 10% atau 50+20 atau Rp 5000"
+            class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+            id="btnCancelShelfModal">Batal</button>
+          <button type="submit" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer hover:bg-primary-container active:scale-95 transition-all"
+            id="btnSubmitShelfModal">
+            Masukkan ke Troli
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <script src="app.js?v=4.0.0"></script>
+  <!-- ================= MODAL: INPUT PRODUK LENGKAP MANUAL ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalItemBackdrop">
+    <div class="w-full max-w-lg bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto"
+      id="modalItemSheet">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Input Produk</span>
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold" id="modalItemTitle">Tambah ke Troli</h3>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          id="btnCloseItemModal">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <form id="formItemModal" class="space-y-4">
+        <input type="hidden" id="modalItemId">
+
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NAMA PRODUK *</label>
+          <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required autocomplete="off"
+            class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
+          <div class="neo-autocomplete-dropdown hidden mt-1 bg-white rounded-xl shadow-lg border border-outline-variant/30 max-h-40 overflow-y-auto"
+            id="autoSuggestContainer"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KATEGORI</label>
+            <select id="selectItemCategory"
+              class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+              <option value="Bahan Pokok">Bahan Pokok</option>
+              <option value="Makanan & Minuman">Makanan & Minuman</option>
+              <option value="Kebersihan">Kebersihan</option>
+              <option value="Dapur & Bumbu">Dapur & Bumbu</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN/SATUAN</label>
+            <select id="selectItemUnit"
+              class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary">
+              <option value="pcs">pcs (buah)</option>
+              <option value="kg">kg (kilogram)</option>
+              <option value="liter">liter</option>
+              <option value="pack">pack</option>
+              <option value="pouch">pouch</option>
+              <option value="botol">botol</option>
+              <option value="kaleng">kaleng</option>
+              <option value="sachet">sachet</option>
+              <option value="dus">dus</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KUANTITAS (QTY)</label>
+          <div class="flex items-center gap-3 bg-surface-container-low p-1.5 rounded-2xl max-w-[180px]">
+            <button type="button" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
+              id="btnModalQtyMinus">
+              <span class="material-symbols-outlined text-[16px]">remove</span>
+            </button>
+            <input type="number" id="inputItemQty" value="1" min="1" inputmode="numeric" required
+              class="flex-1 text-center bg-transparent font-numeric-md text-numeric-md font-bold text-primary focus:outline-none">
+            <button type="button" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
+              id="btnModalQtyPlus">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN (RP) *</label>
+            <input type="number" id="inputItemPrice" placeholder="18000" required inputmode="numeric"
+              class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md font-bold focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
+          </div>
+          <div>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA BULAN LALU (RP)</label>
+            <input type="number" id="inputItemLastMonthPrice" placeholder="Otomatis" inputmode="numeric"
+              class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
+          </div>
+        </div>
+
+        <!-- Fluktuasi Badge -->
+        <div id="modalPriceComparisonBox">
+          <div class="px-3 py-1.5 rounded-xl bg-surface-container-low text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-1"
+            id="modalComparePill">
+            <span class="material-symbols-outlined text-[15px]">info</span>
+            <span id="modalCompareText">Masukkan harga untuk cek fluktuasi</span>
+          </div>
+        </div>
+
+        <!-- Diskon Input -->
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">DISKON / PROMO RAK</label>
+          <input type="text" id="inputItemDiscount" placeholder="Contoh: 50+20 atau 25% atau 15000"
+            class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
+          <div class="mt-1 font-label-sm text-[11px] text-secondary font-bold hidden" id="modalDiscountPreview">
+            <span id="modalDiscountPreviewText">Harga Promo: Rp 0 (Hemat Rp 0)</span>
+          </div>
+        </div>
+
+        <!-- Subtotal Preview -->
+        <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">SUBTOTAL:</span>
+          <strong class="font-numeric-md text-numeric-md text-primary font-bold" id="modalLineTotal">Rp 0</strong>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+            id="btnCancelModalItem">Batal</button>
+          <button type="submit" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer"
+            id="btnSubmitModalItem">
+            <span id="btnSubmitItemText">Simpan ke Troli</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ATUR BATAS DOMPET ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalBudgetBackdrop">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Kendali Dompet</span>
+          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Atur Batas Anggaran</h3>
+        </div>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          id="btnCloseBudgetModal">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NOMINAL ANGGARAN (RP)</label>
+          <input type="number" id="inputQuickBudget" placeholder="350000" inputmode="numeric"
+            class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md font-bold focus:outline-none focus:ring-2 focus:ring-secondary">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+            onclick="setQuickBudget(250000)">Rp 250.000</button>
+          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+            onclick="setQuickBudget(350000)">Rp 350.000</button>
+          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+            onclick="setQuickBudget(500000)">Rp 500.000</button>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+            id="btnCancelQuickBudget">Batal</button>
+          <button type="button" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
+            id="btnSaveQuickBudget">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: STRUK DIGITAL ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalReceiptBackdrop">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Struk Belanja Kasir</h3>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          onclick="document.getElementById('modalReceiptBackdrop').classList.add('hidden')">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div id="receiptModalBody"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SARAN PANGKAS ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalTrimBackdrop">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[85vh] overflow-y-auto">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Saran Pangkas Belanja</h3>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          id="btnCloseTrimModal">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <p class="font-body-sm text-body-sm text-on-surface-variant mb-4">
+        Daftar barang non-pokok dan berbiaya besar yang dapat Anda kurangi untuk menyelamatkan dompet dari defisit:
+      </p>
+      <div id="trimSuggestionsList" class="space-y-2 mb-4"></div>
+      <button class="w-full py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
+        id="btnCloseTrimDone">
+        Selesai Memangkas
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PILIH SUPERMARKET ================= -->
+  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    id="modalStoreBackdrop">
+    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Pilih Supermarket</h3>
+        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+          id="btnCloseStoreModal">
+          <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+      </div>
+      <div class="space-y-2 mb-2">
+        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+          data-store="GrandLucky SCBD" onclick="selectStore('GrandLucky SCBD')">
+          <span>GrandLucky SCBD</span>
+          <span class="material-symbols-outlined text-secondary store-check-icon">check</span>
+        </button>
+        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+          data-store="Superindo Express" onclick="selectStore('Superindo Express')">
+          <span>Superindo Express</span>
+          <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
+        </button>
+        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+          data-store="Hypermart Mega Mall" onclick="selectStore('Hypermart Mega Mall')">
+          <span>Hypermart Mega Mall</span>
+          <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
+        </button>
+        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+          data-store="Alfamidi Super" onclick="selectStore('Alfamidi Super')">
+          <span>Alfamidi Super</span>
+          <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Element -->
+  <div class="neo-toast" id="neoToast">
+    <span class="material-symbols-outlined text-[18px]" id="toastIcon">info</span>
+    <span id="toastMessage">Pesan</span>
+  </div>
+
+  <script src="app.js?v=5.3.0"></script>
 </body>
 
 </html>

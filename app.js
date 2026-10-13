@@ -19,7 +19,8 @@
     BUDGET: 'smart_grocery_budget',
     HISTORY: 'smart_grocery_history',
     MASTER: 'smart_grocery_master',
-    SOUND: 'smart_grocery_sound_enabled'
+    SOUND: 'smart_grocery_sound_enabled',
+    PLANNER: 'smart_grocery_planner'
   };
 
   // Default Master Reference Items for Rian
@@ -35,6 +36,17 @@
     { name: 'Biskuit Cokelat Kaleng', category: 'Makanan & Minuman', unit: 'kaleng', lastPrice: 32000 }
   ];
 
+  // Default Shopping Planner (Kebutuhan yang Direncanakan Sebelum ke Supermarket)
+  const DEFAULT_SAMPLE_PLANNER = [
+    { id: 'plan-1', name: 'Beras Ramos 5kg', category: 'Bahan Pokok', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 3600000 },
+    { id: 'plan-2', name: 'Minyak Goreng Sania 2L', category: 'Bahan Pokok', unit: 'pouch', qty: 2, isPurchased: true, createdAt: Date.now() - 3000000 },
+    { id: 'plan-3', name: 'Telur Ayam Negeri 1kg', category: 'Bahan Pokok', unit: 'kg', qty: 1, isPurchased: true, createdAt: Date.now() - 2400000 },
+    { id: 'plan-4', name: 'Sabun Pembersih Lantai 750ml', category: 'Kebersihan', unit: 'botol', qty: 1, isPurchased: true, createdAt: Date.now() - 1800000 },
+    { id: 'plan-5', name: 'Mie Instan Goreng Spesial', category: 'Makanan & Minuman', unit: 'pcs', qty: 10, isPurchased: true, createdAt: Date.now() - 1200000 },
+    { id: 'plan-6', name: 'Kecap Manis Refill 520ml', category: 'Dapur & Bumbu', unit: 'pouch', qty: 1, isPurchased: false, createdAt: Date.now() - 600000 },
+    { id: 'plan-7', name: 'Pasta Gigi Herbal 190g', category: 'Kebersihan', unit: 'pcs', qty: 1, isPurchased: false, createdAt: Date.now() - 300000 }
+  ];
+
   const DEFAULT_SAMPLE_CART = [
     {
       id: 'item-1',
@@ -45,6 +57,8 @@
       price: 75000,
       lastMonthPrice: 72000,
       discountRaw: '',
+      isPlanned: true,
+      inPhysicalCart: true,
       createdAt: Date.now() - 3600000
     },
     {
@@ -56,6 +70,8 @@
       price: 38000,
       lastMonthPrice: 36000,
       discountRaw: '10%',
+      isPlanned: true,
+      inPhysicalCart: true,
       createdAt: Date.now() - 3000000
     },
     {
@@ -67,6 +83,8 @@
       price: 26000,
       lastMonthPrice: 28000,
       discountRaw: '',
+      isPlanned: true,
+      inPhysicalCart: true,
       createdAt: Date.now() - 2400000
     },
     {
@@ -78,6 +96,8 @@
       price: 20000,
       lastMonthPrice: 16000,
       discountRaw: '50+20',
+      isPlanned: true,
+      inPhysicalCart: false,
       createdAt: Date.now() - 1800000
     },
     {
@@ -89,6 +109,8 @@
       price: 3100,
       lastMonthPrice: 3100,
       discountRaw: '',
+      isPlanned: true,
+      inPhysicalCart: false,
       createdAt: Date.now() - 1200000
     }
   ];
@@ -96,6 +118,7 @@
   // --- STATE MANAGEMENT ---
   let appState = {
     cart: [],
+    planner: [],
     budgetLimit: 350000,
     history: [],
     masterItems: [],
@@ -134,6 +157,48 @@
         gain.connect(this.ctx.destination);
         osc.start();
         osc.stop(this.ctx.currentTime + 0.03);
+      } catch (e) { }
+    },
+    playScan() {
+      if (!appState.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1900, now);
+        osc.frequency.exponentialRampToValueAtTime(2200, now + 0.05);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.06);
+        if (navigator.vibrate) {
+          navigator.vibrate([40, 20, 40]);
+        }
+      } catch (e) { }
+    },
+    playCashier() {
+      if (!appState.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        [987.77, 1318.51, 1975.53].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now + idx * 0.06);
+          gain.gain.setValueAtTime(0.18, now + idx * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.06);
+          osc.stop(now + idx * 0.06 + 0.25);
+        });
       } catch (e) { }
     },
     playSuccess() {
@@ -188,6 +253,9 @@
     setupNavigation();
     setupEventListeners();
     setupSoundToggle();
+    initShelfAdderTray();
+    initBarcodeScannerModule();
+    initStoreSelectorModule();
     renderAll();
     initComparatorTool();
     initDockAutoHide();
@@ -235,22 +303,31 @@
   function loadDataFromStorage() {
     try {
       const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
+      const savedPlanner = localStorage.getItem(STORAGE_KEYS.PLANNER);
       const savedBudget = localStorage.getItem(STORAGE_KEYS.BUDGET);
       const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
       const savedMaster = localStorage.getItem(STORAGE_KEYS.MASTER);
       const savedSound = localStorage.getItem(STORAGE_KEYS.SOUND);
 
       appState.cart = savedCart ? JSON.parse(savedCart) : DEFAULT_SAMPLE_CART;
+      appState.planner = savedPlanner ? JSON.parse(savedPlanner) : DEFAULT_SAMPLE_PLANNER;
       appState.budgetLimit = savedBudget ? Number(savedBudget) : 350000;
       appState.history = savedHistory ? JSON.parse(savedHistory) : [];
       appState.masterItems = savedMaster ? JSON.parse(savedMaster) : DEFAULT_MASTER_ITEMS;
       appState.soundEnabled = savedSound !== null ? savedSound === 'true' : true;
+      const savedStore = localStorage.getItem('smart_grocery_store');
+      appState.activeStore = savedStore || 'GrandLucky SCBD';
+      const storeEl = document.getElementById('activeStoreName');
+      if (storeEl) storeEl.textContent = appState.activeStore;
+
       appState.supabaseUrl = SUPABASE_CONFIG.URL;
       appState.supabaseKey = SUPABASE_CONFIG.KEY;
     } catch (e) {
       appState.cart = DEFAULT_SAMPLE_CART;
+      appState.planner = DEFAULT_SAMPLE_PLANNER;
       appState.budgetLimit = 350000;
       appState.masterItems = DEFAULT_MASTER_ITEMS;
+      appState.activeStore = 'GrandLucky SCBD';
       appState.supabaseUrl = SUPABASE_CONFIG.URL;
       appState.supabaseKey = SUPABASE_CONFIG.KEY;
     }
@@ -258,6 +335,9 @@
 
   function saveCart() {
     localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(appState.cart));
+  }
+  function savePlanner() {
+    localStorage.setItem(STORAGE_KEYS.PLANNER, JSON.stringify(appState.planner));
   }
   function saveBudget() {
     localStorage.setItem(STORAGE_KEYS.BUDGET, appState.budgetLimit.toString());
@@ -324,21 +404,21 @@
     if (isConnected) {
       if (dot) {
         dot.classList.add('connected');
-        dot.title = 'Status: Terhubung ke Cloud Supabase (Realtime Sync)';
+        dot.title = 'Status: Sinkronisasi Aktif (Tersinkron di Semua HP)';
       }
-      if (tag) tag.textContent = 'CLOUD';
+      if (tag) tag.textContent = 'ONLINE';
       if (cloudIcon) cloudIcon.classList.add('connected');
-      if (cloudTitle) cloudTitle.textContent = 'Cloud Database Terhubung';
-      if (cloudSub) cloudSub.textContent = 'Supabase Realtime Sync • Data otomatis sinkron di semua HP.';
+      if (cloudTitle) cloudTitle.textContent = 'Data Belanja Tersinkron';
+      if (cloudSub) cloudSub.textContent = 'Data belanja Anda otomatis tersimpan & sinkron di semua HP Anda.';
     } else {
       if (dot) {
         dot.classList.remove('connected');
-        dot.title = 'Status: LocalStorage Mode';
+        dot.title = 'Status: Mode Offline (Tersimpan di Ponsel)';
       }
-      if (tag) tag.textContent = 'LOCAL';
+      if (tag) tag.textContent = 'OFFLINE';
       if (cloudIcon) cloudIcon.classList.remove('connected');
-      if (cloudTitle) cloudTitle.textContent = 'Mode LocalStorage';
-      if (cloudSub) cloudSub.textContent = 'Data tersimpan di perangkat lokal.';
+      if (cloudTitle) cloudTitle.textContent = 'Tersimpan di Ponsel';
+      if (cloudSub) cloudSub.textContent = 'Data aman tersimpan di penyimpanan perangkat ini.';
     }
 
     if (window.lucide) lucide.createIcons();
@@ -346,12 +426,12 @@
 
   async function pushDataToSupabase(silent = false) {
     if (!appState.supabaseClient) {
-      if (!silent) showToast('Koneksi Supabase belum dikonfigurasi!', 'danger');
+      if (!silent) showToast('Koneksi sinkronisasi belum aktif!', 'warning');
       return;
     }
 
     try {
-      if (!silent) showToast('Mengunggah data ke Supabase...', 'info');
+      if (!silent) showToast('Menyimpan data belanja...', 'info');
 
       // 1. Sync User Settings / Budget
       await appState.supabaseClient.from('user_settings').upsert({
@@ -390,22 +470,22 @@
 
       if (!silent) {
         AudioEngine.playSuccess();
-        showToast('Seluruh data berhasil dicadangkan ke Supabase!', 'success');
+        showToast('Seluruh data belanja tersimpan aman!', 'success');
       }
     } catch (err) {
       console.error('Push error:', err);
-      if (!silent) showToast('Gagal mengunggah: ' + (err.message || 'Error jaringan'), 'danger');
+      if (!silent) showToast('Gagal menyimpan data: ' + (err.message || 'Koneksi terputus'), 'danger');
     }
   }
 
   async function pullDataFromSupabase(silent = false) {
     if (!appState.supabaseClient) {
-      if (!silent) showToast('Koneksi Supabase belum dikonfigurasi!', 'danger');
+      if (!silent) showToast('Koneksi sinkronisasi belum aktif!', 'warning');
       return;
     }
 
     try {
-      if (!silent) showToast('Mengambil data dari Supabase...', 'info');
+      if (!silent) showToast('Menyinkronkan data belanja...', 'info');
 
       // 1. Fetch Master Products
       const { data: masterData, error: masterErr } = await appState.supabaseClient
@@ -458,11 +538,11 @@
       renderAll();
       if (!silent) {
         AudioEngine.playSuccess();
-        showToast('Data berhasil disinkronkan dari Supabase!', 'success');
+        showToast('Data belanja berhasil disinkronkan!', 'success');
       }
     } catch (err) {
       console.error('Pull error:', err);
-      if (!silent) showToast('Gagal menarik data: ' + (err.message || 'Error'), 'danger');
+      if (!silent) showToast('Gagal menyinkronkan data: ' + (err.message || 'Error'), 'danger');
     }
   }
 
@@ -471,14 +551,14 @@
       initSupabaseClient();
     }
     if (!appState.supabaseClient) {
-      showToast('Koneksi Supabase tidak aktif', 'danger');
+      showToast('Koneksi sinkronisasi belum aktif', 'danger');
       return;
     }
     AudioEngine.playTap();
-    showToast('Menyinkronkan dengan Cloud...', 'info');
+    showToast('Menyinkronkan antar perangkat...', 'info');
     await pushDataToSupabase();
     await pullDataFromSupabase();
-    showToast('Sinkronisasi Cloud Berhasil!', 'success');
+    showToast('Semua data belanja sudah sinkron!', 'success');
   }
 
   // ==========================================================================
@@ -632,7 +712,15 @@
     // Text Elements
     document.getElementById('hudTotalSpending').textContent = formatNumber(totalSpent);
     document.getElementById('hudBudgetLimit').textContent = `Rp ${formatNumber(limit)}`;
-    document.getElementById('budgetPercentLabel').textContent = `${percentage.toFixed(0)}% CAP`;
+    const hudPercentEl = document.getElementById('budgetPercentLabel');
+    if (hudPercentEl) hudPercentEl.textContent = `${percentage.toFixed(0)}% CAP`;
+
+    const hudSavingsEl = document.getElementById('hudTotalSavingsText');
+    if (hudSavingsEl) hudSavingsEl.textContent = `Hemat Rp ${formatNumber(totalSaved)}`;
+
+    const hudSubtickMax = document.getElementById('hudSubtickMax');
+    if (hudSubtickMax) hudSubtickMax.textContent = `Max ${formatNumber(Math.round(limit / 1000))}k`;
+
     document.getElementById('summaryTotalItems').textContent = `${appState.cart.length} Jenis (${totalQty} Qty)`;
     document.getElementById('summaryTotalSaved').textContent = `Hemat Rp ${formatNumber(totalSaved)}`;
 
@@ -681,9 +769,23 @@
       AudioEngine.playAlert();
     }
 
-    // Dock Badges
-    document.getElementById('navCartBadge').textContent = appState.cart.length;
-    document.getElementById('countAll').textContent = appState.cart.length;
+    // Dock Badges & Sticky Checkout Total
+    const stickyGrandTotal = document.getElementById('cartBottomGrandTotal');
+    if (stickyGrandTotal) stickyGrandTotal.textContent = formatNumber(totalSpent);
+
+    const navCartBadge = document.getElementById('navCartBadge');
+    if (navCartBadge) navCartBadge.textContent = appState.cart.length;
+
+    const countAll = document.getElementById('countAll');
+    if (countAll) countAll.textContent = appState.cart.length;
+
+    // Macro Allocator & Budget Screen Sync
+    const planSpend = document.getElementById('budgetCurrentSpend');
+    if (planSpend) planSpend.textContent = `Rp ${formatNumber(totalSpent)}`;
+    const planRemain = document.getElementById('budgetRemainingAmount');
+    if (planRemain) planRemain.textContent = `Rp ${formatNumber(Math.max(0, remaining))}`;
+    const planMeter = document.getElementById('budgetHealthMeter');
+    if (planMeter) planMeter.style.width = `${clampedPercentage}%`;
 
     if (window.lucide) {
       lucide.createIcons();
@@ -697,6 +799,8 @@
     const container = document.getElementById('cartItemsList');
     const emptyState = document.getElementById('emptyCartState');
     const summaryBottom = document.getElementById('cartSummaryBottom');
+    const headerCount = document.getElementById('cartHeaderPillCount');
+    if (headerCount) headerCount.textContent = `${appState.cart.length} Produk`;
 
     let filteredItems = appState.cart.filter(item => {
       const matchCat = appState.activeCategory === 'ALL' || item.category === appState.activeCategory;
@@ -731,11 +835,17 @@
       const comparison = comparePriceWithLastMonth(item.price, item.lastMonthPrice);
       const lineTotal = discount.finalUnitPrice * item.qty;
       const hasDiscount = discount.savedPerUnit > 0;
+      const isChecked = !!item.inPhysicalCart;
 
       html += `
-        <div class="neo-card-row" data-id="${item.id}">
+        <div class="neo-card-row ${isChecked ? 'in-physical-cart' : ''}" data-id="${item.id}">
           <div class="card-top-header">
-            <span class="cat-mono-tag">${escapeHtml(item.category)}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" class="cart-check-btn ${isChecked ? 'checked' : ''}" onclick="window.toggleItemInCart('${item.id}')" title="Centang jika sudah di troli fisik">
+                <i data-lucide="check"></i>
+              </button>
+              <span class="cat-mono-tag">${escapeHtml(item.category)}</span>
+            </div>
             <div class="card-action-mini">
               <button class="btn-ico-subtle" onclick="window.editCartItem('${item.id}')" title="Edit">
                 <i data-lucide="edit-3"></i>
@@ -746,8 +856,26 @@
             </div>
           </div>
 
-          <h4 class="card-item-title">${escapeHtml(item.name)}</h4>
-          <span class="card-item-spec">Kemasan: ${escapeHtml(item.unit)}</span>
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="card-item-title">${escapeHtml(item.name)}</h4>
+              <span class="card-item-spec">Kemasan: ${escapeHtml(item.unit)}</span>
+            </div>
+            <!-- Status Sesuai Rencana vs Impulsif -->
+            <div>
+              ${item.isPlanned !== false ? `
+                <span class="inline-flex items-center gap-1 font-label-sm text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  <span class="material-symbols-outlined text-[12px]">check_circle</span>
+                  <span>Sesuai Rencana</span>
+                </span>
+              ` : `
+                <span class="inline-flex items-center gap-1 font-label-sm text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200" title="Barang ini dimasukkan di luar daftar Shopping Planner">
+                  <span class="material-symbols-outlined text-[12px]">warning</span>
+                  <span>Di Luar Rencana</span>
+                </span>
+              `}
+            </div>
+          </div>
 
           <!-- Badges Row -->
           <div class="card-badges-flow">
@@ -774,8 +902,8 @@
           <!-- Stepper & Subtotal -->
           <div class="card-bottom-line">
             <div class="neo-stepper-touch">
-              <button type="button" class="stepper-tap-btn" onclick="window.changeItemQty('${item.id}', -1)" title="Kurangi">
-                <i data-lucide="minus"></i>
+              <button type="button" class="stepper-tap-btn ${item.qty === 1 ? 'is-trash' : ''}" onclick="window.changeItemQty('${item.id}', -1)" title="${item.qty === 1 ? 'Hapus Barang' : 'Kurangi'}">
+                <i data-lucide="${item.qty === 1 ? 'trash-2' : 'minus'}"></i>
               </button>
               <input type="number" value="${item.qty}" min="1" onchange="window.setItemQty('${item.id}', this.value)" inputmode="numeric">
               <button type="button" class="stepper-tap-btn" onclick="window.changeItemQty('${item.id}', 1)" title="Tambah">
@@ -799,6 +927,16 @@
       lucide.createIcons();
     }
   }
+
+  // Toggle Physical Cart Status
+  window.toggleItemInCart = function (id) {
+    const item = appState.cart.find(i => i.id === id);
+    if (!item) return;
+    item.inPhysicalCart = !item.inPhysicalCart;
+    AudioEngine.playTap();
+    saveCart();
+    renderCart();
+  };
 
   // ==========================================================================
   // F-02: LOGIKA STEPPER & TOUCH
@@ -1053,34 +1191,64 @@
   // NAVIGATION & TABS
   // ==========================================================================
   function setupNavigation() {
-    const navButtons = document.querySelectorAll('.neo-bottom-dock .dock-tab');
+    const navButtons = document.querySelectorAll('.dock-tab');
     const panes = document.querySelectorAll('.tab-pane');
 
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTabId = btn.getAttribute('data-tab');
+        if (!targetTabId) return;
 
-        navButtons.forEach(b => b.classList.remove('active'));
-        panes.forEach(p => p.classList.remove('active'));
+        // Reset semua tombol nav ke gaya inaktif
+        navButtons.forEach(b => {
+          b.classList.remove('active', 'bg-primary', 'text-on-primary', 'shadow-[0_4px_16px_rgba(0,29,15,0.2)]');
+          b.classList.add('text-on-surface-variant');
+        });
 
-        btn.classList.add('active');
+        // Aktifkan tombol yang dipilih
+        btn.classList.add('active', 'bg-primary', 'text-on-primary', 'shadow-[0_4px_16px_rgba(0,29,15,0.2)]');
+        btn.classList.remove('text-on-surface-variant');
+
+        // Toggle pane tampilan
+        panes.forEach(p => {
+          p.classList.remove('active');
+          p.classList.add('hidden');
+        });
+
         const targetPane = document.getElementById(targetTabId);
-        if (targetPane) targetPane.classList.add('active');
+        if (targetPane) {
+          targetPane.classList.add('active');
+          targetPane.classList.remove('hidden');
+        }
 
         AudioEngine.playTap();
+
+        // Screen 2 Stitch: Scan Barcode & Promo Calculator
+        if (targetTabId === 'tabScan') {
+          renderBarcodePresets();
+          startCameraScanner();
+          if (!currentScannedItem && BARCODE_CATALOG.length > 0) {
+            onBarcodeDetected(BARCODE_CATALOG[0].barcode, false);
+          }
+        } else {
+          // Matikan kamera saat meninggalkan tab scan
+          stopCameraScanner();
+        }
 
         if (targetTabId === 'tabBudget') {
           renderBudgetBreakdown();
         } else if (targetTabId === 'tabHistory') {
           renderHistoryList();
           renderMasterList();
+        } else if (targetTabId === 'tabCart') {
+          renderCart();
         }
 
         if (window.lucide) lucide.createIcons();
       });
     });
 
-    // Sub tabs in History
+    // Sub tabs in History (Screen 1 Stitch)
     const subTabHistory = document.getElementById('btnSubHistory');
     const subTabMaster = document.getElementById('btnSubMaster');
     const subViewHistory = document.getElementById('subViewHistory');
@@ -1088,21 +1256,51 @@
 
     if (subTabHistory && subTabMaster) {
       subTabHistory.addEventListener('click', () => {
-        subTabHistory.classList.add('active');
-        subTabMaster.classList.remove('active');
-        subViewHistory.classList.add('active');
-        subViewMaster.classList.remove('active');
+        subTabHistory.classList.add('active', 'bg-primary-container', 'text-on-primary');
+        subTabHistory.classList.remove('text-on-surface-variant');
+        subTabMaster.classList.remove('active', 'bg-primary-container', 'text-on-primary');
+        subTabMaster.classList.add('text-on-surface-variant');
+        if (subViewHistory) subViewHistory.classList.remove('hidden');
+        if (subViewMaster) subViewMaster.classList.add('hidden');
         AudioEngine.playTap();
         renderHistoryList();
       });
 
       subTabMaster.addEventListener('click', () => {
-        subTabMaster.classList.add('active');
-        subTabHistory.classList.remove('active');
-        subViewMaster.classList.add('active');
-        subViewHistory.classList.remove('active');
+        subTabMaster.classList.add('active', 'bg-primary-container', 'text-on-primary');
+        subTabMaster.classList.remove('text-on-surface-variant');
+        subTabHistory.classList.remove('active', 'bg-primary-container', 'text-on-primary');
+        subTabHistory.classList.add('text-on-surface-variant');
+        if (subViewMaster) subViewMaster.classList.remove('hidden');
+        if (subViewHistory) subViewHistory.classList.add('hidden');
         AudioEngine.playTap();
         renderMasterList();
+      });
+    }
+
+    // Sub-mode tabs in Scan Screen (Screen 2 Stitch)
+    const btnModeBarcode = document.getElementById('tab-scan-barcode');
+    const btnModeMulti = document.getElementById('tab-scan-multibuy');
+    const btnModeManual = document.getElementById('tab-scan-manual');
+
+    if (btnModeBarcode && btnModeMulti && btnModeManual) {
+      const modeButtons = [btnModeBarcode, btnModeMulti, btnModeManual];
+      modeButtons.forEach(mBtn => {
+        mBtn.addEventListener('click', () => {
+          modeButtons.forEach(b => {
+            b.classList.remove('active', 'bg-primary-container', 'text-on-primary', 'shadow-md');
+            b.classList.add('text-on-surface-variant');
+          });
+          mBtn.classList.add('active', 'bg-primary-container', 'text-on-primary', 'shadow-md');
+          mBtn.classList.remove('text-on-surface-variant');
+          AudioEngine.playTap();
+
+          if (mBtn.id === 'tab-scan-multibuy') {
+            openComparatorToolModal();
+          } else if (mBtn.id === 'tab-scan-manual') {
+            openItemModal();
+          }
+        });
       });
     }
   }
@@ -1250,9 +1448,76 @@
       showToast('Data kebutuhan Rian dimuat', 'success');
     });
 
-    document.getElementById('btnQuickCompareHeader').addEventListener('click', () => {
-      document.getElementById('navBtnCompare').click();
-    });
+    // Header Utility Buttons
+    const btnCompareHeader = document.getElementById('btnQuickCompareHeader');
+    if (btnCompareHeader) {
+      btnCompareHeader.addEventListener('click', () => {
+        document.getElementById('navBtnCompare').click();
+      });
+    }
+
+    const btnScanHeader = document.getElementById('btnOpenScannerHeader');
+    if (btnScanHeader) {
+      btnScanHeader.addEventListener('click', () => {
+        const navScan = document.getElementById('navBtnScan');
+        if (navScan) navScan.click();
+      });
+    }
+
+    const btnGoToScanTab = document.getElementById('btnGoToScanTab');
+    if (btnGoToScanTab) {
+      btnGoToScanTab.addEventListener('click', () => {
+        const navScan = document.getElementById('navBtnScan');
+        if (navScan) navScan.click();
+      });
+    }
+
+    const btnCheckoutSticky = document.getElementById('btnCheckoutCashierSticky');
+    if (btnCheckoutSticky) {
+      btnCheckoutSticky.addEventListener('click', handleCheckout);
+    }
+
+    const btnStore = document.getElementById('btnStoreSelector');
+    if (btnStore) {
+      btnStore.addEventListener('click', openStoreModal);
+    }
+    const btnCloseStore = document.getElementById('btnCloseStoreModal');
+    if (btnCloseStore) {
+      btnCloseStore.addEventListener('click', closeStoreModal);
+    }
+
+    // Scanner Modals Close & Submit
+    const btnCloseScan = document.getElementById('btnCloseScannerModal');
+    if (btnCloseScan) {
+      btnCloseScan.addEventListener('click', closeBarcodeScanner);
+    }
+    const btnCloseScanRes = document.getElementById('btnCloseScanResultModal');
+    if (btnCloseScanRes) {
+      btnCloseScanRes.addEventListener('click', () => {
+        document.getElementById('modalScanResultBackdrop').classList.add('hidden');
+      });
+    }
+    const btnCancelScanRes = document.getElementById('btnCancelScanResult');
+    if (btnCancelScanRes) {
+      btnCancelScanRes.addEventListener('click', () => {
+        document.getElementById('modalScanResultBackdrop').classList.add('hidden');
+        openBarcodeScanner();
+      });
+    }
+    const btnApplyScan = document.getElementById('btnApplyScanToCart');
+    if (btnApplyScan) {
+      btnApplyScan.addEventListener('click', applyScannedItemToCart);
+    }
+
+    // Flashlight & Flip Camera Toggles
+    const btnFlash = document.getElementById('btnScannerFlash');
+    if (btnFlash) {
+      btnFlash.addEventListener('click', toggleScannerTorch);
+    }
+    const btnFlip = document.getElementById('btnScannerFlip');
+    if (btnFlip) {
+      btnFlip.addEventListener('click', flipScannerCamera);
+    }
 
     // Master DB
     document.getElementById('searchMasterInput').addEventListener('input', (e) => {
@@ -1284,6 +1549,676 @@
     if (btnRunNode) {
       btnRunNode.addEventListener('click', requestNodeSmartInsights);
     }
+
+    // Shopping Planner & Shelf Price Modal Handlers
+    const formPlan = document.getElementById('formAddPlannerItem');
+    if (formPlan) formPlan.addEventListener('submit', addPlannerItemFromForm);
+
+    const formShelf = document.getElementById('formShelfPriceModal');
+    if (formShelf) formShelf.addEventListener('submit', applyShelfPriceModalSubmit);
+
+    const inputShelf = document.getElementById('inputShelfPrice');
+    if (inputShelf) {
+      inputShelf.addEventListener('input', () => {
+        const val = parseFloat(inputShelf.value) || 0;
+        const last = currentShelfModalPlannerItem ?
+          (appState.masterItems.find(m => m.name.toLowerCase() === currentShelfModalPlannerItem.name.toLowerCase())?.lastPrice || 0) : 0;
+        updateShelfModalFluctuation(val, last);
+      });
+    }
+
+    const btnCloseShelf = document.getElementById('btnCloseShelfModal');
+    if (btnCloseShelf) {
+      btnCloseShelf.addEventListener('click', () => {
+        document.getElementById('modalShelfPriceBackdrop').classList.add('hidden');
+      });
+    }
+
+    const btnCancelShelf = document.getElementById('btnCancelShelfModal');
+    if (btnCancelShelf) {
+      btnCancelShelf.addEventListener('click', () => {
+        document.getElementById('modalShelfPriceBackdrop').classList.add('hidden');
+      });
+    }
+
+    const btnGoPlan = document.getElementById('btnGoToPlannerTab');
+    if (btnGoPlan) {
+      btnGoPlan.addEventListener('click', () => {
+        const tabBtn = document.getElementById('navBtnBudget');
+        if (tabBtn) tabBtn.click();
+      });
+    }
+
+    const btnClearPlan = document.getElementById('btnClearCompletedPlanner');
+    if (btnClearPlan) {
+      btnClearPlan.addEventListener('click', clearCompletedPlannerItems);
+    }
+  }
+
+  // ==========================================================================
+  // STITCH SHELF-ADDER TRAY MODULE ("Input Cepat di Rak")
+  // ==========================================================================
+  let traySelectedPromo = '0';
+  let traySelectedCategory = 'Bahan Pokok';
+
+  function initShelfAdderTray() {
+    const promoChips = document.querySelectorAll('.tray-promo-chip');
+    promoChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        promoChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        traySelectedPromo = chip.getAttribute('data-promo') || '0';
+        AudioEngine.playTap();
+      });
+    });
+
+    const catTags = document.querySelectorAll('.tray-cat-tag');
+    catTags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        catTags.forEach(t => t.classList.remove('active'));
+        tag.classList.add('active');
+        traySelectedCategory = tag.getAttribute('data-cat') || 'Bahan Pokok';
+        AudioEngine.playTap();
+      });
+    });
+
+    const btnScanTray = document.getElementById('btnQuickScanTray');
+    if (btnScanTray) {
+      btnScanTray.addEventListener('click', openBarcodeScanner);
+    }
+
+    const btnAddTray = document.getElementById('btnTrayAddToCart');
+    if (btnAddTray) {
+      btnAddTray.addEventListener('click', () => {
+        const priceInput = document.getElementById('trayItemPrice');
+        const nameInput = document.getElementById('trayItemName');
+        if (!priceInput || !nameInput) return;
+
+        const priceVal = parseFloat(priceInput.value);
+        if (!priceVal || priceVal <= 0) {
+          showToast('Masukkan harga di rak terlebih dahulu!', 'warning');
+          priceInput.focus();
+          return;
+        }
+
+        const nameVal = nameInput.value.trim() || `${traySelectedCategory} Rak`;
+        const newItem = {
+          id: 'item-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          name: nameVal,
+          category: traySelectedCategory,
+          unit: 'pcs',
+          qty: 1,
+          price: priceVal,
+          lastMonthPrice: priceVal,
+          discountRaw: (traySelectedPromo && traySelectedPromo !== '0') ? traySelectedPromo : '',
+          createdAt: Date.now(),
+          inPhysicalCart: false
+        };
+
+        appState.cart.unshift(newItem);
+        updateMasterDatabaseItem(newItem.name, newItem.category, newItem.unit, newItem.price);
+        saveCart();
+        renderCart();
+
+        priceInput.value = '';
+        nameInput.value = '';
+        AudioEngine.playSuccess();
+        showToast(`"${nameVal}" masuk ke troli aktif!`, 'success');
+      });
+    }
+  }
+
+  // ==========================================================================
+  // BARCODE DATABASE & REALTIME SCANNER MODULE (STITCH SPEC)
+  // ==========================================================================
+  const BARCODE_CATALOG = [
+    {
+      barcode: '84101970',
+      name: 'Olive Oil Extra Virgin 500ml',
+      brand: 'Borges Mediterranean Craft • Spanyol',
+      category: 'Dapur & Bumbu',
+      unit: 'botol',
+      unitSize: '500ml',
+      price: 125000,
+      lastMonthPrice: 130000,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCr02p4i7QikyTt3l67LStzsEpbx6b5dkONS-XcxxFFfiASKe_AU8nrJelLfQ4dUBxeIKYD4Z5whmp0swAWtI9OkCH3u-4pcEwFjzInLqNc8mlKYPg0ap0BkVxTmAWc2jYP3Gi6ERtirta3o5sY0mX9bVOny3OQpMHvJgMtH7DnZgERkymPK4DwzFOU7142FDkjCh9mmG671eqGR6eQQ6uabRMRB42aiQ1suBXwW0BVRyKQIhIYHnB1Kg',
+      unitPricingDesc: 'Rp 17.000 / 100ml',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Diskon Katalog Mingguan (-20%)', type: 'pct', value: 20, tag: 'Katalog', checked: true },
+        { id: 'member', label: 'Member Supermarket Club (-5%)', type: 'pct', value: 5, tag: 'Member', checked: true },
+        { id: 'qris', label: 'Cashback Bank QRIS (Min. 100k)', type: 'nom', value: 10000, tag: 'Bank', checked: true }
+      ]
+    },
+    {
+      barcode: '89927531',
+      name: 'Susu UHT Full Cream 1L',
+      brand: 'Ultra Milk Dairy Farms • Lembang',
+      category: 'Makanan & Minuman',
+      unit: 'pack',
+      unitSize: '1 Liter',
+      price: 22000,
+      lastMonthPrice: 20500,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCX4hERzTA6DhuC2FLnb6P2eu1QiDZdRhb3ckzupgDiGgDWA2oDsD_UcS_eHGcv-h2eu-cNQJ5xxFeSdydTZ5yqhjqeU5MtXX-Ki63qqcrzs9a7SC-BHOnMYaLDBBTYgoonbrrdGX7s--77gJclOD5G1xj5cpwgdrepmIXUuzLqyTkzOdqOWokwJGe7zUWPYTgBS0NVZoxp7xAamjtavwPLE3io_h1yfvptOUSwKRS81fXljc8EmRObiQ',
+      unitPricingDesc: 'Rp 18.700 / Liter',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Diskon Belanja Mingguan (-15%)', type: 'pct', value: 15, tag: 'Katalog', checked: true },
+        { id: 'member', label: 'Member Club Point (-5%)', type: 'pct', value: 5, tag: 'Member', checked: false }
+      ]
+    },
+    {
+      barcode: '20019280',
+      name: 'Dada Ayam Fillet Segar 500g',
+      brand: 'Fresh Butcher Farm Choice',
+      category: 'Bahan Pokok',
+      unit: 'pack',
+      unitSize: '0.51 kg',
+      price: 48500,
+      lastMonthPrice: 52000,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBzra5PPTiPJt7jEUu4_x-LkTHhYmToF-wR8nLhrRmeRSJQ6u4dTmFKkkOfiBMHMGapoMc_HU-xwxjOYuHW0ogI9-MWhWyVzilurIAhs8VL6cJsZ8tTDh-44_X__xi7jzANSEvySd5THSgFSJXhQQaRLpWlRk7GnRCa_u6pbSELveNiOXHvGP-ZR5X2EWeS-zi9_hFO4FUyFrrv7dGMU7_qpBjzLfW6jFmpOnDC5L6S5iafMWunm045PA',
+      unitPricingDesc: 'Rp 95 / gram',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Promo Protein Segar (-10%)', type: 'pct', value: 10, tag: 'Katalog', checked: true }
+      ]
+    },
+    {
+      barcode: '89938210',
+      name: 'Apel Fuji Wang Shan 1kg',
+      brand: 'Fresh Import Fruit Market',
+      category: 'Makanan & Minuman',
+      unit: 'kg',
+      unitSize: '1 kg',
+      price: 38000,
+      lastMonthPrice: 38000,
+      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDcqp4_nHG0hMnJd8CYsRtlh0iQ9ZNX8X7tqVMXZtTktDWdvQEF8_LcKciaJxB_Esx9XmR8DGXjQRu427JEeK1CQSllJ1Iq_5lVs9vV2k5E__89zNuvl-F8lNSc2XKHgZQNIIPQdtl7zs5A5VFv-nPlwL0phATCnkHySqWTGCAWvpU-MQuOwnz2QzXLpTxxp9yhUtyTm9D6OQ2Y_dUOmXJsqlnWOvpfpA2HdJJYctiS14_XTDxzeoDwjg',
+      unitPricingDesc: 'Rp 34.200 / kg',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Diskon Buah Segar (-10%)', type: 'pct', value: 10, tag: 'Katalog', checked: true },
+        { id: 'member', label: 'Diskon Member Fresh (-5%)', type: 'pct', value: 5, tag: 'Member', checked: true }
+      ]
+    },
+    {
+      barcode: '89927753',
+      name: 'Minyak Goreng Sania 2L',
+      brand: 'Sania Royale Kelapa Sawit',
+      category: 'Bahan Pokok',
+      unit: 'pouch',
+      unitSize: '2 Liter',
+      price: 38000,
+      lastMonthPrice: 36000,
+      image: '',
+      unitPricingDesc: 'Rp 17.100 / Liter',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Katalog Minyak Hemat (-10%)', type: 'pct', value: 10, tag: 'Katalog', checked: true }
+      ]
+    },
+    {
+      barcode: '89910023',
+      name: 'Beras Ramos Super 5kg',
+      brand: 'Ramos Setra Super Premium',
+      category: 'Bahan Pokok',
+      unit: 'pack',
+      unitSize: '5 kg',
+      price: 75000,
+      lastMonthPrice: 72000,
+      image: '',
+      unitPricingDesc: 'Rp 14.250 / kg',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Subsidi Pokok (-5%)', type: 'pct', value: 5, tag: 'Katalog', checked: true }
+      ]
+    },
+    {
+      barcode: '89988662',
+      name: 'Indomie Goreng Spesial',
+      brand: 'Indofood Rasa Legendaris',
+      category: 'Makanan & Minuman',
+      unit: 'pcs',
+      unitSize: '85g',
+      price: 3100,
+      lastMonthPrice: 3100,
+      image: '',
+      unitPricingDesc: 'Rp 3.100 / bks',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Beli 5 Potongan Rp 1.000', type: 'nom', value: 200, tag: 'Katalog', checked: true }
+      ]
+    },
+    {
+      barcode: '89923456',
+      name: 'Biore Guard Body Wash 400ml',
+      brand: 'Kao Biore Antibacterial Clean',
+      category: 'Kebersihan',
+      unit: 'pouch',
+      unitSize: '400ml',
+      price: 24500,
+      lastMonthPrice: 22000,
+      image: '',
+      unitPricingDesc: 'Rp 4.900 / 100ml',
+      defaultDiscounts: [
+        { id: 'katalog', label: 'Promo Kebersihan Rumah (-20%)', type: 'pct', value: 20, tag: 'Katalog', checked: true },
+        { id: 'member', label: 'Member Cashback (-5%)', type: 'pct', value: 5, tag: 'Member', checked: true }
+      ]
+    }
+  ];
+
+  let html5QrScannerInstance = null;
+  let isScannerActive = false;
+  let currentCameraFacing = 'environment';
+  let isTorchOn = false;
+  let currentScannedItem = null;
+  let scannedDiscountsState = [];
+
+  function initBarcodeScannerModule() {
+    // Initializer
+  }
+
+  function openBarcodeScanner() {
+    AudioEngine.playTap();
+    const modal = document.getElementById('modalScannerBackdrop');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    renderBarcodePresets();
+    startCameraScanner();
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeBarcodeScanner() {
+    stopCameraScanner();
+    const modal = document.getElementById('modalScannerBackdrop');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async function startCameraScanner() {
+    const viewContainer = document.getElementById('interactiveScannerView');
+    if (!viewContainer) return;
+
+    if (window.Html5Qrcode && !isScannerActive) {
+      try {
+        html5QrScannerInstance = new Html5Qrcode('interactiveScannerView');
+        isScannerActive = true;
+        await html5QrScannerInstance.start(
+          { facingMode: currentCameraFacing },
+          {
+            fps: 20,
+            qrbox: { width: 220, height: 160 },
+            aspectRatio: 1.0
+          },
+          (decodedText) => {
+            onBarcodeDetected(decodedText);
+          },
+          () => {
+            // Frame search callback
+          }
+        );
+      } catch (err) {
+        console.warn('Camera could not start:', err);
+        isScannerActive = false;
+        showToast('Kamera tidak dapat diakses. Gunakan simulasi barcode di bawah!', 'info');
+      }
+    }
+  }
+
+  async function stopCameraScanner() {
+    if (html5QrScannerInstance && isScannerActive) {
+      try {
+        await html5QrScannerInstance.stop();
+        await html5QrScannerInstance.clear();
+      } catch (e) { }
+      isScannerActive = false;
+      html5QrScannerInstance = null;
+    }
+  }
+
+  async function toggleScannerTorch() {
+    if (html5QrScannerInstance && isScannerActive) {
+      try {
+        isTorchOn = !isTorchOn;
+        await html5QrScannerInstance.applyVideoConstraints({
+          advanced: [{ torch: isTorchOn }]
+        });
+        showToast(isTorchOn ? 'Lampu flash aktif' : 'Lampu flash mati', 'info');
+      } catch (e) {
+        showToast('Fitur lampu flash tidak didukung perangkat', 'warning');
+      }
+    } else {
+      showToast('Kamera belum aktif', 'info');
+    }
+  }
+
+  async function flipScannerCamera() {
+    currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
+    await stopCameraScanner();
+    await startCameraScanner();
+  }
+
+  function renderBarcodePresets() {
+    const container = document.getElementById('scannerPresetsList');
+    if (!container) return;
+
+    let html = '';
+    BARCODE_CATALOG.forEach(prod => {
+      html += `
+        <div class="preset-card" onclick="window.selectBarcodePreset('${prod.barcode}')" title="Klik untuk simulasi scan">
+          <div class="preset-img-wrap">
+            ${prod.image ? `<img src="${prod.image}" alt="${escapeHtml(prod.name)}">` : `<div style="font-size:1.6rem; color:var(--volt-main);">🛒</div>`}
+            <span class="preset-unit-tag">${escapeHtml(prod.unitSize)}</span>
+          </div>
+          <div class="preset-title">${escapeHtml(prod.name)}</div>
+          <div class="preset-price-row">
+            <span>Rp ${formatNumber(prod.price)}</span>
+            <span class="preset-barcode-badge">EAN:${prod.barcode}</span>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  window.selectBarcodePreset = function (barcode) {
+    onBarcodeDetected(barcode);
+  };
+
+  function onBarcodeDetected(code) {
+    AudioEngine.playScan();
+    stopCameraScanner();
+    closeBarcodeScanner();
+
+    let found = BARCODE_CATALOG.find(p => p.barcode === code || code.includes(p.barcode));
+    if (!found) {
+      const inMaster = appState.masterItems.find(m => m.name.toLowerCase().includes(code.toLowerCase()));
+      if (inMaster) {
+        found = {
+          barcode: code,
+          name: inMaster.name,
+          brand: 'Produk Terdaftar di Riwayat',
+          category: inMaster.category,
+          unit: inMaster.unit,
+          unitSize: inMaster.unit,
+          price: inMaster.lastPrice || 25000,
+          lastMonthPrice: inMaster.lastPrice || 25000,
+          image: '',
+          unitPricingDesc: `Rp ${formatNumber(inMaster.lastPrice || 25000)} / ${inMaster.unit}`,
+          defaultDiscounts: [
+            { id: 'katalog', label: 'Promo Toko Mingguan (-10%)', type: 'pct', value: 10, tag: 'Katalog', checked: true }
+          ]
+        };
+      } else {
+        found = {
+          barcode: code,
+          name: `Item Barcode #${code}`,
+          brand: 'Item Supermarket',
+          category: 'Bahan Pokok',
+          unit: 'pcs',
+          unitSize: '1 pcs',
+          price: 32000,
+          lastMonthPrice: 32000,
+          image: '',
+          unitPricingDesc: 'Rp 32.000 / pcs',
+          defaultDiscounts: [
+            { id: 'katalog', label: 'Diskon Rak (-10%)', type: 'pct', value: 10, tag: 'Katalog', checked: true }
+          ]
+        };
+      }
+    }
+
+    currentScannedItem = JSON.parse(JSON.stringify(found));
+    scannedDiscountsState = JSON.parse(JSON.stringify(found.defaultDiscounts || []));
+    openScanResultModal();
+  }
+
+  function openScanResultModal() {
+    if (!currentScannedItem) return;
+
+    const titleEl = document.getElementById('scanResultTitle');
+    if (titleEl) titleEl.textContent = currentScannedItem.name;
+
+    const nameEl = document.getElementById('scanProductName');
+    if (nameEl) nameEl.textContent = currentScannedItem.name;
+
+    const brandEl = document.getElementById('scanProductBrand');
+    if (brandEl) brandEl.textContent = currentScannedItem.brand || 'Item Supermarket';
+
+    const catEl = document.getElementById('scanProductCategory');
+    if (catEl) catEl.textContent = `Kategori: ${currentScannedItem.category}`;
+
+    const unitEl = document.getElementById('scanProductUnit');
+    if (unitEl) unitEl.textContent = currentScannedItem.unitSize || currentScannedItem.unit;
+
+    const priceEl = document.getElementById('scanShelfPrice');
+    if (priceEl) priceEl.textContent = `Rp ${formatNumber(currentScannedItem.price)}`;
+
+    const imgEl = document.getElementById('scanProductImg');
+    if (imgEl) {
+      if (currentScannedItem.image) {
+        imgEl.src = currentScannedItem.image;
+        imgEl.style.display = 'block';
+      } else {
+        imgEl.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="%2322c55e" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+      }
+    }
+
+    renderScanDiscountsChecklist();
+    recalculateScanFinalResult();
+
+    const modal = document.getElementById('modalScanResultBackdrop');
+    if (modal) modal.classList.remove('hidden');
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function renderScanDiscountsChecklist() {
+    const container = document.getElementById('scanDiscountsChecklist');
+    if (!container) return;
+
+    let html = '';
+    scannedDiscountsState.forEach((d, idx) => {
+      let savedPreview = 0;
+      if (d.type === 'pct') {
+        savedPreview = currentScannedItem.price * (d.value / 100);
+      } else {
+        savedPreview = d.value;
+      }
+
+      const tagClass = d.tag.toLowerCase();
+
+      html += `
+        <label class="discount-item-row flex items-center justify-between p-2.5 bg-surface-container-lowest rounded-xl border border-outline-variant/30 cursor-pointer hover:border-secondary transition-all">
+          <div class="discount-item-left flex items-center gap-2.5">
+            <input type="checkbox" id="disc_chk_${idx}" ${d.checked ? 'checked' : ''} onchange="window.toggleScanDiscount(${idx}, this.checked)"
+              class="w-4 h-4 accent-secondary rounded cursor-pointer">
+            <div class="discount-item-text">
+              <span class="font-headline-sm text-label-md text-primary font-bold block">${escapeHtml(d.label)}</span>
+              <span class="font-numeric-sm text-body-sm text-secondary font-bold">Hemat Rp ${formatNumber(savedPreview)}</span>
+            </div>
+          </div>
+          <span class="font-label-sm text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${tagClass === 'katalog' ? 'bg-secondary-fixed text-on-secondary-fixed' : tagClass === 'member' ? 'bg-tertiary-fixed text-on-tertiary-fixed' : 'bg-surface-container-high text-primary'}">
+            ${escapeHtml(d.tag)}
+          </span>
+        </label>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  window.toggleScanDiscount = function (idx, isChecked) {
+    if (scannedDiscountsState[idx]) {
+      scannedDiscountsState[idx].checked = isChecked;
+      recalculateScanFinalResult();
+      AudioEngine.playTap();
+    }
+  };
+
+  function recalculateScanFinalResult() {
+    if (!currentScannedItem) return;
+    const basePrice = currentScannedItem.price;
+    let currentPrice = basePrice;
+    let totalDiscount = 0;
+    let activeCount = 0;
+
+    scannedDiscountsState.forEach(d => {
+      if (d.checked) {
+        activeCount++;
+        let cut = 0;
+        if (d.type === 'pct') {
+          cut = currentPrice * (d.value / 100);
+        } else {
+          cut = d.value;
+        }
+        totalDiscount += cut;
+        currentPrice -= cut;
+      }
+    });
+
+    if (currentPrice < 0) currentPrice = 0;
+    currentPrice = Math.round(currentPrice);
+    totalDiscount = Math.round(totalDiscount);
+
+    const savingsPct = basePrice > 0 ? ((totalDiscount / basePrice) * 100).toFixed(0) : 0;
+
+    const countEl = document.getElementById('scanActiveDiscountsCount');
+    if (countEl) countEl.textContent = `${activeCount} Promo Aktif`;
+
+    const finalPriceEl = document.getElementById('scanFinalPrice');
+    if (finalPriceEl) finalPriceEl.textContent = `Rp ${formatNumber(currentPrice)}`;
+
+    const pctEl = document.getElementById('scanSavingsPercent');
+    if (pctEl) pctEl.textContent = `Hemat ${savingsPct}%`;
+
+    const nomEl = document.getElementById('scanSavingsNominal');
+    if (nomEl) nomEl.textContent = `Total Hemat: Rp ${formatNumber(totalDiscount)}`;
+
+    const unitDescEl = document.getElementById('scanUnitPriceDetail');
+    if (unitDescEl) unitDescEl.textContent = currentScannedItem.unitPricingDesc || `Rp ${formatNumber(currentPrice)} / ${currentScannedItem.unit}`;
+
+    // Wallet Impact
+    let currentTotalSpent = 0;
+    appState.cart.forEach(item => {
+      const disc = calculateDiscount(item.price, item.discountRaw);
+      currentTotalSpent += disc.finalUnitPrice * item.qty;
+    });
+    const newTotalSpent = currentTotalSpent + currentPrice;
+    const limit = appState.budgetLimit;
+    const sisa = limit - newTotalSpent;
+
+    const tagEl = document.getElementById('scanImpactTag');
+    const descEl = document.getElementById('scanImpactDesc');
+
+    if (tagEl && descEl) {
+      if (sisa >= 0) {
+        tagEl.textContent = 'Aman ✅';
+        tagEl.className = 'font-label-sm text-label-sm text-secondary font-bold';
+        descEl.innerHTML = `Budget sisa menjadi <strong class="text-primary font-semibold">Rp ${formatNumber(sisa)}</strong> dari limit Rp ${formatNumber(Math.round(limit / 1000))}k`;
+      } else {
+        tagEl.textContent = 'Defisit ⚠️';
+        tagEl.className = 'font-label-sm text-label-sm text-error font-bold';
+        descEl.innerHTML = `<span class="text-error font-medium">Melebihi budget saku sebesar <strong class="font-bold">Rp ${formatNumber(Math.abs(sisa))}</strong>!</span>`;
+      }
+    }
+  }
+
+  function applyScannedItemToCart() {
+    if (!currentScannedItem) return;
+
+    const basePrice = currentScannedItem.price;
+    let currentPrice = basePrice;
+    let totalDiscount = 0;
+
+    scannedDiscountsState.forEach(d => {
+      if (d.checked) {
+        let cut = d.type === 'pct' ? currentPrice * (d.value / 100) : d.value;
+        totalDiscount += cut;
+        currentPrice -= cut;
+      }
+    });
+
+    if (currentPrice < 0) currentPrice = 0;
+    currentPrice = Math.round(currentPrice);
+
+    const discountEffective = totalDiscount > 0 ? `${Math.round((totalDiscount / basePrice) * 100)}%` : '';
+
+    const newItem = {
+      id: 'item-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+      name: currentScannedItem.name,
+      category: currentScannedItem.category,
+      unit: currentScannedItem.unit,
+      qty: 1,
+      price: currentScannedItem.price,
+      lastMonthPrice: currentScannedItem.lastMonthPrice || currentScannedItem.price,
+      discountRaw: discountEffective,
+      barcode: currentScannedItem.barcode,
+      createdAt: Date.now(),
+      inPhysicalCart: true
+    };
+
+    appState.cart.unshift(newItem);
+    saveCart();
+    updateMasterDatabaseItem(newItem.name, newItem.category, newItem.unit, newItem.price);
+    renderCart();
+
+    AudioEngine.playSuccess();
+    if (window.confetti) {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#006e2f', '#6bff8f', '#ffffff']
+      });
+    }
+
+    showToast(`"${newItem.name}" dimasukkan ke troli!`, 'success');
+
+    const modal = document.getElementById('modalScanResultBackdrop');
+    if (modal) modal.classList.add('hidden');
+
+    // Alihkan otomatis ke troli agar user langsung melihat item di keranjang
+    const navCartBtn = document.getElementById('navBtnCart');
+    if (navCartBtn) {
+      setTimeout(() => navCartBtn.click(), 400);
+    }
+  }
+
+  // ==========================================================================
+  // SUPERMARKET STORE SELECTOR MODULE
+  // ==========================================================================
+  function initStoreSelectorModule() {
+    const storeButtons = document.querySelectorAll('.store-item-btn');
+    storeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const storeName = btn.getAttribute('data-store');
+        if (storeName) {
+          selectStore(storeName);
+        }
+      });
+    });
+  }
+
+  function openStoreModal() {
+    AudioEngine.playTap();
+    const modal = document.getElementById('modalStoreBackdrop');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeStoreModal() {
+    const modal = document.getElementById('modalStoreBackdrop');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function selectStore(storeName) {
+    appState.activeStore = storeName;
+    localStorage.setItem('smart_grocery_store', storeName);
+
+    const activeLabel = document.getElementById('activeStoreName');
+    if (activeLabel) activeLabel.textContent = storeName;
+
+    const storeButtons = document.querySelectorAll('.store-item-btn');
+    storeButtons.forEach(btn => {
+      const match = btn.getAttribute('data-store') === storeName;
+      btn.classList.toggle('active', match);
+      const chk = btn.querySelector('.store-check-icon');
+      if (chk) chk.classList.toggle('hidden', !match);
+    });
+
+    closeStoreModal();
+    AudioEngine.playSuccess();
+    showToast(`Lokasi diubah: ${storeName}`, 'info');
   }
 
   // ==========================================================================
@@ -1300,7 +2235,7 @@
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Memproses dengan Node.js Engine...';
+    btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Memeriksa Pengeluaran Belanja...';
     if (window.lucide) lucide.createIcons();
     AudioEngine.playTap();
 
@@ -1350,14 +2285,14 @@
         }
         recs.push({
           type: 'SAVINGS',
-          title: 'Analisis Inflasi & Rekomendasi (Node.js)',
+          title: 'Saran & Optimasi Belanja Pintar',
           description: `Total belanjaan Rp ${totalSpent.toLocaleString('id-ID')} dengan skor kesehatan belanja ${healthScore}/100.`
         });
 
         insightData = {
           status,
           healthScore,
-          summary: `Keranjang dianalisis (${healthScore}/100). Status: ${status}.`,
+          summary: `Keranjang dianalisis (${healthScore}/100). Status dompet: ${status}.`,
           recommendations: recs
         };
       }
@@ -1391,16 +2326,16 @@
             ${recomHtml}
           </div>
           <small style="font-family:var(--font-mono); font-size:0.62rem; color:var(--text-muted); text-align:right;">
-            ⚡ Engine: Node.js 20+ & TypeScript Serverless API
+            💡 Panduan belanja bijak otomatis sesuai sisa uang saku
           </small>
         </div>
       `;
 
       container.classList.remove('hidden');
       AudioEngine.playSuccess();
-      showToast('Analisis Cerdas Node.js Selesai', 'success');
+      showToast('Pemeriksaan belanjaan selesai!', 'success');
     } catch (err) {
-      showToast('Gagal memproses analisis: ' + err.message, 'danger');
+      showToast('Gagal memeriksa belanjaan: ' + err.message, 'danger');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '<i data-lucide="refresh-cw"></i> Perbarui Analisis Cerdas';
@@ -1869,29 +2804,332 @@
   }
 
   // ==========================================================================
+  // SHOPPING PLANNER MODULE (MENCATAT SEBELUM KE SUPERMARKET)
+  // ==========================================================================
+  let currentShelfModalPlannerItem = null;
+
+  function renderShoppingPlannerSection() {
+    // 1. Render di Tab 1 (Troli: #plannerPendingItemsList)
+    const shelfContainer = document.getElementById('plannerPendingItemsList');
+    const pill = document.getElementById('plannerProgressPill');
+
+    const pendingItems = appState.planner.filter(p => !p.isPurchased);
+    const purchasedItems = appState.planner.filter(p => p.isPurchased);
+
+    if (pill) {
+      pill.textContent = `${purchasedItems.length}/${appState.planner.length} Terbeli`;
+    }
+
+    if (shelfContainer) {
+      if (pendingItems.length === 0) {
+        shelfContainer.innerHTML = `
+          <div class="p-3 bg-secondary-fixed/20 rounded-2xl text-center text-secondary font-label-sm text-label-sm font-semibold flex items-center justify-center gap-2 border border-secondary/20">
+            <span class="material-symbols-outlined text-[18px]">verified</span>
+            <span>Semua kebutuhan terencana sudah dimasukkan ke troli! 🎉</span>
+          </div>
+        `;
+      } else {
+        let html = '';
+        pendingItems.forEach(item => {
+          const master = appState.masterItems.find(m => m.name.toLowerCase() === item.name.toLowerCase());
+          const refPrice = master ? master.lastPrice : 0;
+
+          html += `
+            <div class="p-3 bg-surface-container-low rounded-2xl flex items-center justify-between gap-2 border border-outline-variant/30">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 mb-0.5">
+                  <span class="text-[10px] font-bold uppercase px-2 py-0.2 rounded-full bg-surface-container text-secondary">
+                    ${escapeHtml(item.category)}
+                  </span>
+                  ${refPrice > 0 ? `<span class="text-[10px] text-on-surface-variant font-mono">Acuan bulan lalu: Rp ${formatNumber(refPrice)}</span>` : ''}
+                </div>
+                <h4 class="font-headline-sm text-[14px] text-primary font-bold truncate">${escapeHtml(item.name)}</h4>
+                <span class="font-body-sm text-[12px] text-on-surface-variant font-medium">Kebutuhan: <strong>${item.qty} ${escapeHtml(item.unit)}</strong></span>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button class="px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-[12px] font-bold flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer hover:bg-primary-container"
+                  onclick="window.openShelfPriceModal('${item.id}')" title="Ketik harga saat menemukan di rak">
+                  <span class="material-symbols-outlined text-[15px]">price_change</span>
+                  <span>Input Harga Rak</span>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        shelfContainer.innerHTML = html;
+      }
+    }
+
+    // 2. Render di Tab 3 (Shopping Planner Full List: #shoppingPlannerFullList)
+    const fullContainer = document.getElementById('shoppingPlannerFullList');
+    const badgeCount = document.getElementById('plannerActiveCountBadge');
+    const estCostEl = document.getElementById('plannerEstimatedCostTotal');
+
+    if (badgeCount) badgeCount.textContent = `${appState.planner.length} Item`;
+
+    let totalEstCost = 0;
+    appState.planner.forEach(p => {
+      const master = appState.masterItems.find(m => m.name.toLowerCase() === p.name.toLowerCase());
+      if (master) totalEstCost += master.lastPrice * p.qty;
+    });
+
+    if (estCostEl) {
+      estCostEl.textContent = `Estimasi acuan belanja bulan lalu: Rp ${formatNumber(totalEstCost)}`;
+    }
+
+    if (fullContainer) {
+      if (appState.planner.length === 0) {
+        fullContainer.innerHTML = `
+          <div class="p-4 bg-surface-container-low rounded-xl text-center text-on-surface-variant font-body-sm text-body-sm">
+            Belum ada rencana kebutuhan. Gunakan form di atas untuk mencatat barang sebelum ke supermarket.
+          </div>
+        `;
+      } else {
+        let html = '';
+        appState.planner.forEach(item => {
+          const master = appState.masterItems.find(m => m.name.toLowerCase() === item.name.toLowerCase());
+          const estPrice = master ? master.lastPrice : 0;
+          const isDone = item.isPurchased;
+
+          html += `
+            <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 border border-outline-variant/30 ${isDone ? 'opacity-70 bg-surface-container' : ''}">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="w-6 h-6 rounded-full ${isDone ? 'bg-secondary text-white' : 'bg-surface-container-highest text-outline'} flex items-center justify-center text-[13px] font-bold">
+                  ${isDone ? '✓' : '•'}
+                </span>
+                <div class="min-w-0">
+                  <h4 class="font-headline-sm text-[14px] text-primary font-bold truncate ${isDone ? 'line-through text-outline' : ''}">${escapeHtml(item.name)}</h4>
+                  <div class="flex items-center gap-2 font-body-sm text-[11px] text-on-surface-variant">
+                    <span>${item.qty} ${escapeHtml(item.unit)}</span>
+                    <span>•</span>
+                    <span>${escapeHtml(item.category)}</span>
+                    ${estPrice > 0 ? `<span>• Est. Rp ${formatNumber(estPrice * item.qty)}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="font-label-sm text-[11px] font-bold px-2 py-0.5 rounded-full ${isDone ? 'bg-secondary-fixed/30 text-secondary' : 'bg-surface-container-highest text-outline'}">
+                  ${isDone ? 'Sudah di Troli' : 'Direncanakan'}
+                </span>
+                <button class="w-7 h-7 rounded-full text-error hover:bg-red-50 flex items-center justify-center cursor-pointer"
+                  onclick="window.deletePlannerItem('${item.id}')" title="Hapus dari Rencana">
+                  <span class="material-symbols-outlined text-[16px]">delete</span>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        fullContainer.innerHTML = html;
+      }
+    }
+  }
+
+  window.openShelfPriceModal = function (plannerId) {
+    const item = appState.planner.find(p => p.id === plannerId);
+    if (!item) return;
+
+    currentShelfModalPlannerItem = item;
+    AudioEngine.playTap();
+
+    document.getElementById('shelfModalPlannerId').value = item.id;
+    document.getElementById('shelfModalItemName').textContent = item.name;
+    document.getElementById('shelfModalItemSpec').textContent = `${item.qty} ${item.unit} • ${item.category}`;
+
+    const master = appState.masterItems.find(m => m.name.toLowerCase() === item.name.toLowerCase());
+    const lastPrice = master ? master.lastPrice : 0;
+    document.getElementById('shelfModalLastPriceText').textContent = lastPrice > 0 ? `Rp ${formatNumber(lastPrice)} / ${item.unit}` : 'Belum ada catatan';
+
+    const inputPrice = document.getElementById('inputShelfPrice');
+    inputPrice.value = '';
+    document.getElementById('inputShelfDiscount').value = '';
+
+    updateShelfModalFluctuation(0, lastPrice);
+
+    document.getElementById('modalShelfPriceBackdrop').classList.remove('hidden');
+    inputPrice.focus();
+  };
+
+  function updateShelfModalFluctuation(currentPrice, lastPrice) {
+    const box = document.getElementById('shelfModalFluctuationBox');
+    const icon = document.getElementById('shelfFluctuationIcon');
+    const title = document.getElementById('shelfFluctuationText');
+    const sub = document.getElementById('shelfFluctuationSub');
+
+    if (!box || !icon || !title || !sub) return;
+
+    if (!currentPrice || currentPrice <= 0) {
+      box.className = 'p-2.5 rounded-xl bg-surface-container flex items-center gap-2';
+      icon.textContent = 'query_stats';
+      icon.className = 'material-symbols-outlined text-[18px] text-secondary';
+      title.textContent = 'Ketik harga rak untuk melihat fluktuasi';
+      sub.textContent = 'Dibandingkan dengan catatan belanja bulan lalu';
+      return;
+    }
+
+    if (!lastPrice || lastPrice <= 0) {
+      box.className = 'p-2.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center gap-2 text-blue-700';
+      icon.textContent = 'sparkles';
+      icon.className = 'material-symbols-outlined text-[18px] text-blue-600';
+      title.textContent = 'Barang Baru (Belum ada catatan bulan lalu)';
+      sub.textContent = `Harga Rp ${formatNumber(currentPrice)} akan dicatat sebagai acuan`;
+      return;
+    }
+
+    const diff = currentPrice - lastPrice;
+    const pct = ((diff / lastPrice) * 100).toFixed(1);
+
+    if (diff > 0) {
+      box.className = 'p-2.5 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-red-700';
+      icon.textContent = 'trending_up';
+      icon.className = 'material-symbols-outlined text-[18px] text-red-600';
+      title.textContent = `↑ Harga Naik +Rp ${formatNumber(diff)} (+${pct}%)`;
+      sub.textContent = `Bulan lalu Rp ${formatNumber(lastPrice)} ➔ Sekarang Rp ${formatNumber(currentPrice)}`;
+    } else if (diff < 0) {
+      box.className = 'p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 text-emerald-800';
+      icon.textContent = 'trending_down';
+      icon.className = 'material-symbols-outlined text-[18px] text-emerald-600';
+      title.textContent = `↓ Harga Turun -Rp ${formatNumber(Math.abs(diff))} (-${Math.abs(pct)}%)`;
+      sub.textContent = `Lebih hemat dari bulan lalu (Rp ${formatNumber(lastPrice)})`;
+    } else {
+      box.className = 'p-2.5 rounded-xl bg-gray-50 border border-gray-200 flex items-center gap-2 text-gray-700';
+      icon.textContent = 'drag_handle';
+      icon.className = 'material-symbols-outlined text-[18px] text-gray-600';
+      title.textContent = `= Harga Tetap Stabil (Rp ${formatNumber(currentPrice)})`;
+      sub.textContent = 'Sama persis dengan belanjaan bulan lalu';
+    }
+  }
+
+  function applyShelfPriceModalSubmit(e) {
+    if (e) e.preventDefault();
+    if (!currentShelfModalPlannerItem) return;
+
+    const price = parseFloat(document.getElementById('inputShelfPrice').value) || 0;
+    const discountRaw = document.getElementById('inputShelfDiscount').value.trim();
+    if (price <= 0) {
+      showToast('Masukkan harga di rak yang valid', 'warning');
+      return;
+    }
+
+    const master = appState.masterItems.find(m => m.name.toLowerCase() === currentShelfModalPlannerItem.name.toLowerCase());
+    const lastPrice = master ? master.lastPrice : price;
+
+    const newCartItem = {
+      id: 'item-' + Date.now(),
+      name: currentShelfModalPlannerItem.name,
+      category: currentShelfModalPlannerItem.category,
+      unit: currentShelfModalPlannerItem.unit,
+      qty: currentShelfModalPlannerItem.qty,
+      price: price,
+      lastMonthPrice: lastPrice,
+      discountRaw: discountRaw,
+      createdAt: Date.now(),
+      inPhysicalCart: true,
+      isPlanned: true,
+      plannerItemId: currentShelfModalPlannerItem.id
+    };
+
+    appState.cart.unshift(newCartItem);
+    currentShelfModalPlannerItem.isPurchased = true;
+
+    saveCart();
+    savePlanner();
+    updateMasterDatabaseItem(newCartItem.name, newCartItem.category, newCartItem.unit, price);
+
+    document.getElementById('modalShelfPriceBackdrop').classList.add('hidden');
+    renderCart();
+    renderShoppingPlannerSection();
+
+    AudioEngine.playSuccess();
+    showToast(`"${newCartItem.name}" dimasukkan ke troli sesuai rencana!`, 'success');
+  }
+
+  function addPlannerItemFromForm(e) {
+    if (e) e.preventDefault();
+    const nameInput = document.getElementById('inputPlannerName');
+    const catSelect = document.getElementById('selectPlannerCategory');
+    const unitSelect = document.getElementById('selectPlannerUnit');
+    const qtyInput = document.getElementById('inputPlannerQty');
+
+    const name = nameInput.value.trim();
+    const category = catSelect.value;
+    const unit = unitSelect.value;
+    const qty = parseInt(qtyInput.value, 10) || 1;
+
+    if (!name) return;
+
+    const newPlan = {
+      id: 'plan-' + Date.now(),
+      name,
+      category,
+      unit,
+      qty,
+      isPurchased: false,
+      createdAt: Date.now()
+    };
+
+    appState.planner.unshift(newPlan);
+    savePlanner();
+    renderShoppingPlannerSection();
+
+    nameInput.value = '';
+    qtyInput.value = '1';
+
+    AudioEngine.playTap();
+    showToast(`"${name}" dicatat ke Rencana Belanja`, 'success');
+  }
+
+  window.deletePlannerItem = function (id) {
+    const item = appState.planner.find(p => p.id === id);
+    if (!item) return;
+
+    appState.planner = appState.planner.filter(p => p.id !== id);
+    savePlanner();
+    renderShoppingPlannerSection();
+    showToast(`"${item.name}" dihapus dari rencana`, 'warning');
+  };
+
+  function clearCompletedPlannerItems() {
+    const prevCount = appState.planner.length;
+    appState.planner = appState.planner.filter(p => !p.isPurchased);
+    if (appState.planner.length < prevCount) {
+      savePlanner();
+      renderShoppingPlannerSection();
+      showToast('Item yang sudah terbeli dibersihkan', 'info');
+    }
+  }
+
+  // ==========================================================================
   // TOAST NOTIFICATIONS & HELPERS
   // ==========================================================================
   function showToast(message, type = 'info') {
+    const toast = document.getElementById('neoToast');
+    const msgEl = document.getElementById('toastMessage');
+    const iconEl = document.getElementById('toastIcon');
+
+    if (toast && msgEl) {
+      msgEl.textContent = message;
+      toast.className = `neo-toast show ${type}`;
+      if (iconEl) {
+        iconEl.textContent = type === 'success' ? 'check_circle' :
+          type === 'danger' ? 'error' :
+            type === 'warning' ? 'warning' : 'info';
+      }
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+      return;
+    }
+
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-
-    const iconName = type === 'success' ? 'check' :
-      type === 'danger' ? 'alert-triangle' :
-        type === 'warning' ? 'alert-circle' : 'info';
-
-    toast.innerHTML = `<i data-lucide="${iconName}"></i> <span>${escapeHtml(message)}</span>`;
-    container.appendChild(toast);
-
-    if (window.lucide) lucide.createIcons();
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = message;
+    container.appendChild(t);
 
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-8px)';
-      toast.style.transition = 'all 0.2s ease';
-      setTimeout(() => toast.remove(), 200);
+      t.remove();
     }, 2500);
   }
 
@@ -1912,6 +3150,7 @@
 
   function renderAll() {
     renderCart();
+    renderShoppingPlannerSection();
     renderBudgetBreakdown();
     renderHistoryList();
     renderMasterList();
