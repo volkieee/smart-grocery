@@ -1,6 +1,6 @@
 /**
  * SMART GROCERY PRO - TYPE DEFINITIONS
- * Kontrak tipe data ketat TypeScript untuk Node.js API & Frontend
+ * Kontrak tipe data ketat TypeScript untuk Shopping Planner, Troli, & Analisis
  */
 
 export type GroceryCategory =
@@ -23,6 +23,19 @@ export type GroceryUnit =
 
 export type BudgetHealthStatus = 'SAFE' | 'WARNING' | 'DANGER';
 
+export interface PlannerItem {
+  id: string;
+  name: string;
+  category: GroceryCategory;
+  unit: GroceryUnit;
+  qty: number;
+  notes?: string;
+  isPurchased?: boolean;
+  estimatedPrice?: number;
+  actualPrice?: number;
+  createdAt: number;
+}
+
 export interface CartItem {
   id: string;
   name: string;
@@ -33,6 +46,31 @@ export interface CartItem {
   lastMonthPrice: number;
   discountRaw?: string;
   createdAt: number;
+  barcode?: string;
+  inPhysicalCart?: boolean;
+  image?: string;
+  promoTag?: string;
+  isPlanned?: boolean; // Menandai barang sesuai rencana vs belanjaan impulsif
+  plannerItemId?: string;
+}
+
+export interface BarcodeProduct {
+  barcode: string;
+  name: string;
+  category: GroceryCategory;
+  unit: GroceryUnit;
+  price: number;
+  lastMonthPrice: number;
+  image: string;
+  description: string;
+  defaultDiscounts: Array<{
+    id: string;
+    label: string;
+    type: 'percentage' | 'nominal';
+    value: number;
+    tag: string;
+    checked: boolean;
+  }>;
 }
 
 export interface MasterProduct {
@@ -40,6 +78,7 @@ export interface MasterProduct {
   category: GroceryCategory;
   unit: GroceryUnit;
   lastPrice: number;
+  barcode?: string;
   updatedAt?: string;
 }
 
@@ -52,6 +91,7 @@ export interface ReceiptItem {
   finalUnitPrice: number;
   discountRaw?: string;
   lineTotal: number;
+  isPlanned?: boolean;
 }
 
 export interface Receipt {
@@ -62,6 +102,8 @@ export interface Receipt {
   totalSaved: number;
   itemCount: number;
   items: ReceiptItem[];
+  plannedCount?: number;
+  unplannedCount?: number;
 }
 
 export interface DiscountCalculation {

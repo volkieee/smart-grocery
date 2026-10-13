@@ -1,9 +1,9 @@
-const CACHE_NAME = 'smart-grocery-v3.2.0';
+const CACHE_NAME = 'smart-grocery-stitch-v5.3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './styles.css?v=3.2.0',
-  './app.js?v=3.2.0',
+  './styles.css?v=5.3.0',
+  './app.js?v=5.3.0',
   './manifest.json?v=3.2'
 ];
 
@@ -32,9 +32,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Network first for fresh content, fallback to cache
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
