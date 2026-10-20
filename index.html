@@ -132,21 +132,25 @@
           <div class="flex items-center gap-1.5">
             <span class="font-headline-sm text-[18px] text-primary tracking-tight font-bold">KeranjangPintar</span>
           </div>
-          <button class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors -my-0.5 text-left"
+          <button
+            class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors -my-0.5 text-left"
             id="btnStoreSelector">
             <span class="material-symbols-outlined text-[15px] text-secondary">store</span>
-            <span class="font-label-sm text-label-sm font-semibold text-primary" id="activeStoreName">GrandLucky SCBD</span>
+            <span class="font-label-sm text-label-sm font-semibold text-primary" id="activeStoreName">GrandLucky
+              SCBD</span>
             <span class="material-symbols-outlined text-[14px]">expand_more</span>
           </button>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <button id="btnSoundToggle" class="w-8 h-8 rounded-full bg-surface-container-low text-secondary flex items-center justify-center border border-outline-variant/30 hover:bg-surface-container cursor-pointer"
+        <button id="btnSoundToggle"
+          class="w-8 h-8 rounded-full bg-surface-container-low text-secondary flex items-center justify-center border border-outline-variant/30 hover:bg-surface-container cursor-pointer"
           title="Toggle Suara">
           <span class="material-symbols-outlined text-[17px]" id="soundIcon">volume_up</span>
         </button>
-        <button class="flex items-center gap-1 px-space-sm py-1.5 rounded-full bg-surface-container-low text-secondary border border-outline-variant/30 shadow-[0_2px_8px_rgba(17,51,34,0.04)] cursor-pointer"
+        <button
+          class="flex items-center gap-1 px-space-sm py-1.5 rounded-full bg-surface-container-low text-secondary border border-outline-variant/30 shadow-[0_2px_8px_rgba(17,51,34,0.04)] cursor-pointer"
           id="btnEditBudgetTrigger" title="Ketuk untuk ubah limit dompet">
           <span class="material-symbols-outlined text-[14px] text-secondary">account_balance_wallet</span>
           <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudBudgetLimit">Limit: Rp 350k</span>
@@ -166,32 +170,45 @@
       <!-- Top Live Gauge Card (Neo-Fintech Safety Cap Dashboard) -->
       <section class="w-full mb-space-md" id="budgetHudCard">
         <div class="relative overflow-hidden rounded-[24px] bg-primary-container p-space-md shadow-xl text-on-primary">
-          <div class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-secondary opacity-25 blur-2xl pointer-events-none"></div>
-          <div class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-secondary-fixed opacity-15 blur-2xl pointer-events-none"></div>
+          <div
+            class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-secondary opacity-25 blur-2xl pointer-events-none">
+          </div>
+          <div
+            class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-secondary-fixed opacity-15 blur-2xl pointer-events-none">
+          </div>
 
           <!-- Top Row: Status Pill & Savings Badge -->
           <div class="relative z-10 flex items-center justify-between mb-space-sm">
-            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md" id="hudStatusBadge">
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md"
+              id="hudStatusBadge">
               <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
-              <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed" id="hudStatusText">Radar Budget Aktif</span>
+              <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed"
+                id="hudStatusText">Radar Budget Aktif</span>
             </div>
-            <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-container/90 text-tertiary-fixed shadow-sm" id="hudSavingsBadge">
-              <span class="material-symbols-outlined text-[15px] text-tertiary-fixed" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
-              <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudTotalSavingsText">Hemat Rp 0</span>
+            <div
+              class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-container/90 text-tertiary-fixed shadow-sm"
+              id="hudSavingsBadge">
+              <span class="material-symbols-outlined text-[15px] text-tertiary-fixed"
+                style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+              <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudTotalSavingsText">Hemat Rp
+                0</span>
             </div>
           </div>
 
           <!-- Main Numbers Group -->
           <div class="relative z-10 flex flex-col mb-space-md">
-            <span class="font-label-sm text-label-sm text-on-primary-container uppercase tracking-wider">Total Belanja Berjalan</span>
+            <span class="font-label-sm text-label-sm text-on-primary-container uppercase tracking-wider">Total Belanja
+              Berjalan</span>
             <div class="flex items-baseline justify-between gap-space-xs mt-0.5">
               <div class="flex items-baseline gap-1">
                 <span class="font-headline-sm text-headline-sm text-secondary-fixed font-light">Rp</span>
-                <span class="font-numeric-lg text-numeric-lg text-on-primary tracking-tight font-bold" id="hudTotalSpending">0</span>
+                <span class="font-numeric-lg text-numeric-lg text-on-primary tracking-tight font-bold"
+                  id="hudTotalSpending">0</span>
               </div>
               <div class="text-right">
                 <span class="font-label-sm text-label-sm text-outline-variant block">Pemakaian Dompet</span>
-                <span class="font-label-lg text-label-lg text-secondary-fixed font-bold" id="budgetPercentLabel">0% CAP</span>
+                <span class="font-label-lg text-label-lg text-secondary-fixed font-bold" id="budgetPercentLabel">0%
+                  CAP</span>
               </div>
             </div>
           </div>
@@ -207,7 +224,8 @@
             </div>
             <!-- Progress Track -->
             <div class="relative w-full h-3 rounded-full bg-primary/70 p-0.5 overflow-hidden shadow-inner">
-              <div class="h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]"
+              <div
+                class="h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]"
                 id="budgetProgressBar" style="width: 0%;"></div>
             </div>
             <!-- Gauge Sub-ticks -->
@@ -231,10 +249,12 @@
               <span class="material-symbols-outlined text-secondary text-[22px]">checklist</span>
               <div>
                 <h2 class="font-headline-sm text-headline-sm text-primary font-bold">Rencana Belanja dari Rumah</h2>
-                <p class="font-body-sm text-[12px] text-on-surface-variant">Checklist kebutuhan terencana. Masukkan harga saat barang ditemukan di rak.</p>
+                <p class="font-body-sm text-[12px] text-on-surface-variant">Checklist kebutuhan terencana. Masukkan
+                  harga saat barang ditemukan di rak.</p>
               </div>
             </div>
-            <span class="px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant font-label-sm text-label-sm font-bold whitespace-nowrap"
+            <span
+              class="px-2.5 py-1 rounded-full bg-secondary-fixed/30 text-on-secondary-fixed-variant font-label-sm text-label-sm font-bold whitespace-nowrap"
               id="plannerProgressPill">0/0 Terbeli</span>
           </div>
 
@@ -244,7 +264,8 @@
           </div>
 
           <div class="mt-space-sm pt-space-xs border-t border-outline-variant/20 flex items-center justify-between">
-            <button class="text-secondary font-label-sm text-label-sm font-bold flex items-center gap-1 hover:underline cursor-pointer"
+            <button
+              class="text-secondary font-label-sm text-label-sm font-bold flex items-center gap-1 hover:underline cursor-pointer"
               id="btnGoToPlannerTab">
               <span class="material-symbols-outlined text-[16px]">add_circle</span>
               <span>+ Atur Daftar Kebutuhan</span>
@@ -260,10 +281,12 @@
       <div class="flex items-center justify-between mb-space-xs px-1">
         <div class="flex items-center gap-2">
           <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Isi Keranjang Fisik</h3>
-          <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm"
+          <span
+            class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm"
             id="cartHeaderPillCount">0 Produk</span>
         </div>
-        <button id="btnOpenAddModal" class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 shadow-sm active:scale-95 transition-transform cursor-pointer"
+        <button id="btnOpenAddModal"
+          class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 shadow-sm active:scale-95 transition-transform cursor-pointer"
           title="Tambah Barang Belanjaan Langsung">
           <span class="material-symbols-outlined text-[15px]">add</span>
           <span>Tambah Item</span>
@@ -272,27 +295,35 @@
 
       <!-- Kategori Filter yang Jelas & Ramah Pengguna -->
       <div class="flex items-center gap-1.5 mb-space-sm overflow-x-auto no-scrollbar py-0.5">
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm active shadow-sm flex items-center gap-1 shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm active shadow-sm flex items-center gap-1 shrink-0"
           data-category="ALL">
           <span>Semua</span>
           <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]" id="countAll">0</span>
         </button>
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
           data-category="Bahan Pokok">Bahan Pokok</button>
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
           data-category="Makanan & Minuman">Makanan & Minuman</button>
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
           data-category="Kebersihan">Kebersihan</button>
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
           data-category="Dapur & Bumbu">Dapur & Bumbu</button>
-        <button class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+        <button
+          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
           data-category="Lainnya">Lainnya</button>
       </div>
 
       <!-- Search Input -->
       <div class="relative mb-space-sm">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">search</span>
-        <input class="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-xs border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary"
+        <span
+          class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">search</span>
+        <input
+          class="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-xs border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary"
           id="searchCartInput" placeholder="Cari barang di troli..." type="text" autocomplete="off" />
         <button id="btnClearSearch" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline-variant hidden">
           <span class="material-symbols-outlined text-[16px]">close</span>
@@ -304,7 +335,8 @@
         id="overBudgetBanner">
         <div class="flex items-center justify-between">
           <span class="text-error font-bold font-label-sm text-label-sm flex items-center gap-1">
-            <span class="material-symbols-outlined text-[16px]">warning</span> DEFISIT: <span id="trimDeficitAmount">Rp 0</span>
+            <span class="material-symbols-outlined text-[16px]">warning</span> DEFISIT: <span id="trimDeficitAmount">Rp
+              0</span>
           </span>
           <button id="btnSuggestTrim" class="text-error font-label-sm text-label-sm font-bold underline cursor-pointer">
             Saran Pangkas
@@ -318,9 +350,11 @@
       </div>
 
       <!-- Empty Cart State -->
-      <div class="bg-surface-container-lowest rounded-2xl p-8 text-center shadow-xs border border-outline-variant/20 hidden"
+      <div
+        class="bg-surface-container-lowest rounded-2xl p-8 text-center shadow-xs border border-outline-variant/20 hidden"
         id="emptyCartState">
-        <div class="w-16 h-16 rounded-full bg-surface-container-low mx-auto flex items-center justify-center text-secondary mb-3">
+        <div
+          class="w-16 h-16 rounded-full bg-surface-container-low mx-auto flex items-center justify-center text-secondary mb-3">
           <span class="material-symbols-outlined text-[32px]">shopping_cart</span>
         </div>
         <h3 class="font-headline-sm text-headline-sm text-primary mb-1">Troli Belanja Kosong</h3>
@@ -328,11 +362,13 @@
           Belum ada produk yang dimasukkan harganya. Beli dari rencana belanja di atas atau scan barcode.
         </p>
         <div class="flex flex-col gap-2 max-w-xs mx-auto">
-          <button class="w-full py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold cursor-pointer"
+          <button
+            class="w-full py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold cursor-pointer"
             id="btnLoadSampleData">
             ✨ Muat Data Kebutuhan Rian
           </button>
-          <button class="w-full py-2.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold cursor-pointer"
+          <button
+            class="w-full py-2.5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm font-semibold cursor-pointer"
             id="btnEmptyAdd">
             + Tambah Produk Manual
           </button>
@@ -341,19 +377,24 @@
 
       <!-- Sticky Bottom Summary Dock Bar (Stitch Screen 4) -->
       <div class="sticky bottom-20 z-40 mt-space-md w-full" id="cartSummaryBottom">
-        <div class="bg-surface-container-lowest/95 backdrop-blur-xl rounded-[24px] p-space-sm shadow-[0_12px_36px_rgba(0,29,15,0.18)] flex items-center justify-between gap-space-sm border border-outline-variant/20">
+        <div
+          class="bg-surface-container-lowest/95 backdrop-blur-xl rounded-[24px] p-space-sm shadow-[0_12px_36px_rgba(0,29,15,0.18)] flex items-center justify-between gap-space-sm border border-outline-variant/20">
           <div class="flex flex-col pl-1">
             <div class="flex items-center gap-1.5">
-              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="summaryTotalItems">0 Jenis (0 Pcs)</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="summaryTotalItems">0
+                Jenis (0 Pcs)</span>
               <span class="w-1 h-1 rounded-full bg-outline"></span>
-              <span class="font-label-sm text-label-sm text-secondary font-bold" id="summaryTotalSaved">Hemat Rp 0</span>
+              <span class="font-label-sm text-label-sm text-secondary font-bold" id="summaryTotalSaved">Hemat Rp
+                0</span>
             </div>
             <div class="flex items-baseline gap-1">
               <span class="font-label-sm text-label-sm text-outline">Total</span>
-              <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight" id="cartBottomGrandTotal">Rp 0</span>
+              <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight"
+                id="cartBottomGrandTotal">Rp 0</span>
             </div>
           </div>
-          <button class="px-5 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center gap-2 shadow-[0_4px_16px_rgba(0,29,15,0.25)] active:scale-95 transition-all cursor-pointer"
+          <button
+            class="px-5 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center gap-2 shadow-[0_4px_16px_rgba(0,29,15,0.25)] active:scale-95 transition-all cursor-pointer"
             id="btnFinishShopping" type="button">
             <span class="font-label-lg text-label-lg font-semibold">Cek Kasir</span>
             <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
@@ -370,27 +411,32 @@
       <div class="flex items-center justify-between mb-space-sm px-1">
         <div class="flex items-center gap-space-xs">
           <span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed animate-ping"></span>
-          <span class="font-label-sm text-label-sm text-secondary tracking-wide uppercase font-bold">Kamera Pintar Aktif</span>
+          <span class="font-label-sm text-label-sm text-secondary tracking-wide uppercase font-bold">Kamera Pintar
+            Aktif</span>
         </div>
         <div class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full shadow-xs">
           <span class="material-symbols-outlined text-[15px] text-primary">storefront</span>
-          <span class="font-label-sm text-label-sm text-on-surface font-semibold" id="scanViewStoreName">GrandLucky SCBD</span>
+          <span class="font-label-sm text-label-sm text-on-surface font-semibold" id="scanViewStoreName">GrandLucky
+            SCBD</span>
         </div>
       </div>
 
       <!-- Mode Selector Segmented Pills -->
       <div class="flex bg-surface-container-highest p-1 rounded-full mb-space-md shadow-inner gap-1">
-        <button class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 active"
+        <button
+          class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 active"
           id="tab-scan-barcode">
           <span class="material-symbols-outlined text-[15px]">barcode_scanner</span>
           <span>Label Rak</span>
         </button>
-        <button class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
+        <button
+          class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
           id="tab-scan-multibuy">
           <span class="material-symbols-outlined text-[15px]">inventory_2</span>
           <span>Bandingkan Kemasan</span>
         </button>
-        <button class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
+        <button
+          class="flex-1 py-1.5 px-2 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all duration-200 flex items-center justify-center gap-1"
           id="tab-scan-manual">
           <span class="material-symbols-outlined text-[15px]">calculate</span>
           <span>Diskon Manual</span>
@@ -398,10 +444,13 @@
       </div>
 
       <!-- Real Camera Viewport Frame (Stitch Screen 2 Viewfinder) -->
-      <div class="relative w-full h-72 rounded-[32px] overflow-hidden shadow-2xl bg-primary mb-space-md flex items-center justify-center border border-outline-variant/30"
+      <div
+        class="relative w-full h-72 rounded-[32px] overflow-hidden shadow-2xl bg-primary mb-space-md flex items-center justify-center border border-outline-variant/30"
         id="cameraViewportContainer">
         <div id="interactiveScannerView" class="absolute inset-0 w-full h-full object-cover"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-primary/80 via-transparent to-primary/95 pointer-events-none"></div>
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-primary/80 via-transparent to-primary/95 pointer-events-none">
+        </div>
 
         <!-- Camera Top Bar Controls -->
         <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
@@ -410,11 +459,13 @@
             <span class="font-label-sm text-label-sm">Deteksi: Barcode EAN-13 / QR</span>
           </div>
           <div class="flex items-center gap-2">
-            <button class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
+            <button
+              class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
               id="btnScannerFlash" title="Toggle Flashlight">
               <span class="material-symbols-outlined text-[18px]">flash_on</span>
             </button>
-            <button class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
+            <button
+              class="w-8 h-8 rounded-full bg-primary/70 backdrop-blur-md text-on-primary flex items-center justify-center shadow hover:bg-primary transition-colors cursor-pointer"
               id="btnScannerFlip" title="Balik Kamera">
               <span class="material-symbols-outlined text-[18px]">flip_camera_ios</span>
             </button>
@@ -423,10 +474,18 @@
 
         <!-- Viewfinder Corners & Pulsing Laser Line -->
         <div class="relative w-56 h-40 rounded-2xl p-2 flex flex-col justify-between pointer-events-none">
-          <div class="absolute -top-1 -left-1 w-7 h-7 border-t-4 border-l-4 border-secondary-fixed rounded-tl-xl shadow-sm"></div>
-          <div class="absolute -top-1 -right-1 w-7 h-7 border-t-4 border-r-4 border-secondary-fixed rounded-tr-xl shadow-sm"></div>
-          <div class="absolute -bottom-1 -left-1 w-7 h-7 border-b-4 border-l-4 border-secondary-fixed rounded-bl-xl shadow-sm"></div>
-          <div class="absolute -bottom-1 -right-1 w-7 h-7 border-b-4 border-r-4 border-secondary-fixed rounded-br-xl shadow-sm"></div>
+          <div
+            class="absolute -top-1 -left-1 w-7 h-7 border-t-4 border-l-4 border-secondary-fixed rounded-tl-xl shadow-sm">
+          </div>
+          <div
+            class="absolute -top-1 -right-1 w-7 h-7 border-t-4 border-r-4 border-secondary-fixed rounded-tr-xl shadow-sm">
+          </div>
+          <div
+            class="absolute -bottom-1 -left-1 w-7 h-7 border-b-4 border-l-4 border-secondary-fixed rounded-bl-xl shadow-sm">
+          </div>
+          <div
+            class="absolute -bottom-1 -right-1 w-7 h-7 border-b-4 border-r-4 border-secondary-fixed rounded-br-xl shadow-sm">
+          </div>
           <div class="scan-laser-line"></div>
         </div>
 
@@ -438,7 +497,8 @@
       <!-- Quick Supermarket Presets Bar -->
       <div class="mb-space-md">
         <div class="flex items-center justify-between mb-space-xs px-1">
-          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Simulasi Barcode Produk Supermarket:</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Simulasi
+            Barcode Produk Supermarket:</span>
           <span class="font-label-sm text-label-sm text-secondary font-bold">8 Sampel EAN-13</span>
         </div>
         <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1" id="scannerPresetsList">
@@ -447,30 +507,39 @@
       </div>
 
       <!-- Notification if Matches Shopping Planner -->
-      <div class="hidden p-3 bg-secondary-fixed/30 border border-secondary/30 rounded-2xl mb-space-md flex items-center gap-2" id="scanPlannerMatchBanner">
+      <div
+        class="hidden p-3 bg-secondary-fixed/30 border border-secondary/30 rounded-2xl mb-space-md flex items-center gap-2"
+        id="scanPlannerMatchBanner">
         <span class="material-symbols-outlined text-secondary text-[22px]">check_circle</span>
         <div class="flex-1 min-w-0">
-          <strong class="font-label-md text-label-md text-primary block font-bold">Barang Sesuai Rencana Belanja!</strong>
-          <span class="font-body-sm text-[12px] text-on-surface-variant" id="scanPlannerMatchText">Cocok dengan kebutuhan yang dicatat dari rumah.</span>
+          <strong class="font-label-md text-label-md text-primary block font-bold">Barang Sesuai Rencana
+            Belanja!</strong>
+          <span class="font-body-sm text-[12px] text-on-surface-variant" id="scanPlannerMatchText">Cocok dengan
+            kebutuhan yang dicatat dari rumah.</span>
         </div>
       </div>
 
       <!-- Scanned Item Card Result (Stitch Screen 2 Card) -->
-      <div class="bg-surface-container-lowest rounded-[28px] p-space-md mb-space-md shadow-md border border-outline-variant/30">
+      <div
+        class="bg-surface-container-lowest rounded-[28px] p-space-md mb-space-md shadow-md border border-outline-variant/30">
         <div class="flex items-start gap-space-md mb-space-md">
-          <div class="w-20 h-20 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex items-center justify-center overflow-hidden shrink-0 relative">
+          <div
+            class="w-20 h-20 rounded-2xl bg-surface-container-low border border-outline-variant/30 flex items-center justify-center overflow-hidden shrink-0 relative">
             <img class="w-full h-full object-cover" id="scanProductImg"
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr02p4i7QikyTt3l67LStzsEpbx6b5dkONS-XcxxFFfiASKe_AU8nrJelLfQ4dUBxeIKYD4Z5whmp0swAWtI9OkCH3u-4pcEwFjzInLqNc8mlKYPg0ap0BkVxTmAWc2jYP3Gi6ERtirta3o5sY0mX9bVOny3OQpMHvJgMtH7DnZgERkymPK4DwzFOU7142FDkjCh9mmG671eqGR6eQQ6uabRMRB42aiQ1suBXwW0BVRyKQIhIYHnB1Kg"
               alt="Scan Preview" />
-            <span class="absolute bottom-1 right-1 bg-primary text-secondary-fixed font-label-sm text-[9px] px-1 rounded font-bold"
+            <span
+              class="absolute bottom-1 right-1 bg-primary text-secondary-fixed font-label-sm text-[9px] px-1 rounded font-bold"
               id="scanProductUnit">500ml</span>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5 mb-0.5">
-              <span class="bg-surface-container-high text-secondary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-bold"
+              <span
+                class="bg-surface-container-high text-secondary px-2 py-0.5 rounded-full font-label-sm text-label-sm font-bold"
                 id="scanProductCategory">Kategori: Minyak & Bumbu</span>
             </div>
-            <h2 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate font-bold" id="scanProductName">
+            <h2 class="font-headline-sm text-headline-sm text-primary tracking-tight truncate font-bold"
+              id="scanProductName">
               Olive Oil Extra Virgin 500ml</h2>
             <p class="font-body-sm text-body-sm text-on-surface-variant truncate" id="scanProductBrand">
               Borges Mediterranean Craft • Spanyol</p>
@@ -489,7 +558,8 @@
               <span class="material-symbols-outlined text-[18px] text-secondary">layers</span>
               <span class="font-headline-sm text-label-lg text-primary font-bold">Kombinasi Diskon Bertumpuk</span>
             </div>
-            <span class="font-label-sm text-label-sm text-secondary bg-secondary-fixed/30 px-2 py-0.5 rounded-full font-bold"
+            <span
+              class="font-label-sm text-label-sm text-secondary bg-secondary-fixed/30 px-2 py-0.5 rounded-full font-bold"
               id="scanActiveDiscountsCount">3 Promo Aktif</span>
           </div>
           <div class="flex flex-col gap-space-sm" id="scanDiscountsChecklist">
@@ -498,34 +568,44 @@
         </div>
 
         <!-- Harga Bersih Final (Nett) Card -->
-        <div class="bg-primary-container text-on-primary rounded-2xl p-space-md mb-space-md shadow-lg relative overflow-hidden">
-          <div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-secondary/20 blur-xl pointer-events-none"></div>
+        <div
+          class="bg-primary-container text-on-primary rounded-2xl p-space-md mb-space-md shadow-lg relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-secondary/20 blur-xl pointer-events-none">
+          </div>
           <div class="flex items-start justify-between relative z-10">
             <div>
-              <span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider font-bold">Harga Bersih Final (Nett)</span>
-              <div class="font-numeric-lg text-numeric-lg text-white mt-0.5 tracking-tight font-bold" id="scanFinalPrice">
+              <span class="font-label-sm text-label-sm text-secondary-fixed uppercase tracking-wider font-bold">Harga
+                Bersih Final (Nett)</span>
+              <div class="font-numeric-lg text-numeric-lg text-white mt-0.5 tracking-tight font-bold"
+                id="scanFinalPrice">
                 Rp 85.000
               </div>
             </div>
             <div class="text-right">
-              <span class="inline-block bg-secondary-fixed text-on-secondary-fixed font-headline-sm text-label-lg px-2.5 py-1 rounded-full font-bold shadow-sm"
+              <span
+                class="inline-block bg-secondary-fixed text-on-secondary-fixed font-headline-sm text-label-lg px-2.5 py-1 rounded-full font-bold shadow-sm"
                 id="scanSavingsPercent">
                 Hemat 32%
               </span>
-              <div class="font-body-sm text-body-sm text-secondary-fixed-dim mt-1 font-semibold" id="scanSavingsNominal">
+              <div class="font-body-sm text-body-sm text-secondary-fixed-dim mt-1 font-semibold"
+                id="scanSavingsNominal">
                 Total Hemat: Rp 40.000
               </div>
             </div>
           </div>
-          <div class="mt-space-sm pt-space-sm border-t border-white/10 flex items-center justify-between text-body-sm font-body-sm text-on-primary-container relative z-10">
+          <div
+            class="mt-space-sm pt-space-sm border-t border-white/10 flex items-center justify-between text-body-sm font-body-sm text-on-primary-container relative z-10">
             <span>Harga Satuan Netto:</span>
-            <span class="font-label-lg text-label-lg text-white font-bold" id="scanUnitPriceDetail">Rp 17.000 / 100ml</span>
+            <span class="font-label-lg text-label-lg text-white font-bold" id="scanUnitPriceDetail">Rp 17.000 /
+              100ml</span>
           </div>
         </div>
 
         <!-- Dampak ke Dompet Belanja -->
-        <div class="bg-surface-container rounded-2xl p-3.5 mb-space-lg flex items-center gap-3" id="scanWalletImpactCard">
-          <div class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0 text-secondary">
+        <div class="bg-surface-container rounded-2xl p-3.5 mb-space-lg flex items-center gap-3"
+          id="scanWalletImpactCard">
+          <div
+            class="w-10 h-10 rounded-xl bg-secondary/15 flex items-center justify-center flex-shrink-0 text-secondary">
             <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
           </div>
           <div class="flex-1 min-w-0">
@@ -540,7 +620,8 @@
         </div>
 
         <!-- Action Button -->
-        <button class="w-full py-3.5 px-space-md rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm shadow-xl flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.98] transition-all cursor-pointer"
+        <button
+          class="w-full py-3.5 px-space-md rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm shadow-xl flex items-center justify-center gap-2 hover:bg-primary-container active:scale-[0.98] transition-all cursor-pointer"
           id="btnApplyScanToCart">
           <span class="material-symbols-outlined text-[20px]">add_shopping_cart</span>
           <span>Masukkan ke Troli Saya</span>
@@ -548,34 +629,44 @@
       </div>
 
       <!-- Quick Comparator View in Scan Screen -->
-      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 mb-space-lg" id="scannerComparatorCard">
+      <div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm border border-outline-variant/30 mb-space-lg"
+        id="scannerComparatorCard">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-1.5">
             <span class="material-symbols-outlined text-secondary text-[20px]">compare_arrows</span>
             <h3 class="font-headline-sm text-label-lg text-primary font-bold">Bandingkan Kemasan Kecil vs Jerigen</h3>
           </div>
-          <span class="text-[11px] text-secondary font-bold bg-secondary-fixed/30 px-2 py-0.5 rounded-full">Hitung Satuan</span>
+          <span class="text-[11px] text-secondary font-bold bg-secondary-fixed/30 px-2 py-0.5 rounded-full">Hitung
+            Satuan</span>
         </div>
         <div class="grid grid-cols-2 gap-2 mb-3">
           <div class="p-3 bg-surface-container-low rounded-xl">
             <span class="font-label-sm text-[11px] font-bold text-primary block mb-1">OPSI A (Kemasan 1)</span>
-            <input type="number" id="cmpSizeA" value="1" placeholder="Ukuran" class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
-            <input type="number" id="cmpPriceA" value="18000" placeholder="Harga Rp" class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
-            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostA">Rp 18.000 / Satuan</span>
+            <input type="number" id="cmpSizeA" value="1" placeholder="Ukuran"
+              class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <input type="number" id="cmpPriceA" value="18000" placeholder="Harga Rp"
+              class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostA">Rp 18.000 /
+              Satuan</span>
           </div>
           <div class="p-3 bg-surface-container-low rounded-xl">
             <span class="font-label-sm text-[11px] font-bold text-primary block mb-1">OPSI B (Kemasan 2)</span>
-            <input type="number" id="cmpSizeB" value="5" placeholder="Ukuran" class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
-            <input type="number" id="cmpPriceB" value="85000" placeholder="Harga Rp" class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
-            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostB">Rp 17.000 / Satuan</span>
+            <input type="number" id="cmpSizeB" value="5" placeholder="Ukuran"
+              class="w-full mb-1 px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <input type="number" id="cmpPriceB" value="85000" placeholder="Harga Rp"
+              class="w-full px-2 py-1 bg-white rounded text-sm border border-outline-variant/30">
+            <span class="font-label-sm text-[11px] text-secondary font-bold mt-1 block" id="unitCostB">Rp 17.000 /
+              Satuan</span>
           </div>
         </div>
 
         <div class="p-3 bg-secondary-fixed/20 rounded-xl flex items-center gap-2 text-secondary" id="cmpVerdictBanner">
           <span class="material-symbols-outlined text-[20px]">verified</span>
           <div>
-            <strong class="font-label-lg text-label-lg text-primary block" id="cmpVerdictTitle">Opsi B Lebih Hemat!</strong>
-            <span class="font-body-sm text-[12px] text-on-surface-variant" id="cmpVerdictDesc">Hemat Rp 1.000 per satuan dibanding Opsi A.</span>
+            <strong class="font-label-lg text-label-lg text-primary block" id="cmpVerdictTitle">Opsi B Lebih
+              Hemat!</strong>
+            <span class="font-body-sm text-[12px] text-on-surface-variant" id="cmpVerdictDesc">Hemat Rp 1.000 per satuan
+              dibanding Opsi A.</span>
           </div>
         </div>
       </div>
@@ -589,13 +680,15 @@
       <!-- Header Penjelasan Fitur Shopping Planner -->
       <div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
         <div class="flex items-center gap-2 mb-1">
-          <div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+          <div
+            class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
             <span class="material-symbols-outlined text-[18px]">edit_note</span>
           </div>
           <h2 class="font-headline-sm text-headline-sm text-primary font-bold">Shopping Planner Kos Rian</h2>
         </div>
         <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-          Catat barang kebutuhan yang akan dibeli dari kos/rumah <strong>sebelum pergi ke supermarket</strong>. Cukup masukkan nama, kuantitas, dan satuan tanpa perlu tahu harganya terlebih dahulu.
+          Catat barang kebutuhan yang akan dibeli dari kos/rumah <strong>sebelum pergi ke supermarket</strong>. Cukup
+          masukkan nama, kuantitas, dan satuan tanpa perlu tahu harganya terlebih dahulu.
         </p>
       </div>
 
@@ -606,13 +699,16 @@
             <span class="material-symbols-outlined text-secondary text-[20px]">add_task</span>
             <span>Tambah Kebutuhan Belanja</span>
           </h3>
-          <span class="text-[11px] font-bold text-secondary bg-surface-container-low px-2 py-0.5 rounded-full">Pra-Belanja</span>
+          <span
+            class="text-[11px] font-bold text-secondary bg-surface-container-low px-2 py-0.5 rounded-full">Pra-Belanja</span>
         </div>
 
         <form id="formAddPlannerItem" class="space-y-3">
           <div>
-            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NAMA BARANG KEBUTUHAN *</label>
-            <input type="text" id="inputPlannerName" placeholder="Contoh: Beras Ramos 5kg, Telur 1kg, Sabun Cuci" required
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NAMA BARANG
+              KEBUTUHAN *</label>
+            <input type="text" id="inputPlannerName" placeholder="Contoh: Beras Ramos 5kg, Telur 1kg, Sabun Cuci"
+              required
               class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
           </div>
 
@@ -629,7 +725,8 @@
               </select>
             </div>
             <div>
-              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN / SATUAN</label>
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN /
+                SATUAN</label>
               <select id="selectPlannerUnit"
                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
                 <option value="pack">pack</option>
@@ -647,7 +744,8 @@
 
           <div class="flex items-center gap-3">
             <div class="w-32">
-              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">JUMLAH (QTY)</label>
+              <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">JUMLAH
+                (QTY)</label>
               <input type="number" id="inputPlannerQty" value="1" min="1" required
                 class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-center font-numeric-md text-numeric-md font-bold text-primary border border-outline-variant/30">
             </div>
@@ -667,9 +765,11 @@
         <div class="flex items-center justify-between mb-space-sm">
           <div>
             <h3 class="font-headline-sm text-label-lg text-primary font-bold">Daftar Rencana Belanja Aktif</h3>
-            <span class="font-body-sm text-[12px] text-on-surface-variant" id="plannerEstimatedCostTotal">Estimasi acuan bulan lalu: Rp 0</span>
+            <span class="font-body-sm text-[12px] text-on-surface-variant" id="plannerEstimatedCostTotal">Estimasi acuan
+              bulan lalu: Rp 0</span>
           </div>
-          <span class="px-2.5 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold"
+          <span
+            class="px-2.5 py-0.5 rounded-full bg-surface-container text-secondary font-label-sm text-label-sm font-bold"
             id="plannerActiveCountBadge">0 Item</span>
         </div>
 
@@ -677,9 +777,11 @@
           <!-- Rendered dynamically -->
         </div>
 
-        <div class="flex items-center justify-between text-[11px] text-on-surface-variant pt-2 border-t border-outline-variant/20">
+        <div
+          class="flex items-center justify-between text-[11px] text-on-surface-variant pt-2 border-t border-outline-variant/20">
           <span>💡 Saat di supermarket, buka tab <strong>Troli</strong> untuk input harga di rak.</span>
-          <button class="text-error font-semibold hover:underline cursor-pointer" id="btnClearCompletedPlanner">Bersihkan yang selesai</button>
+          <button class="text-error font-semibold hover:underline cursor-pointer"
+            id="btnClearCompletedPlanner">Bersihkan yang selesai</button>
         </div>
       </div>
 
@@ -689,7 +791,8 @@
           <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Batas Uang Saku Dompet</h3>
           <span class="font-label-sm text-label-sm text-secondary font-bold" id="budgetTabStatusPill">Aman</span>
         </div>
-        <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tentukan pagu maksimal uang belanja bulanan agar tidak over-budget:</p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Tentukan pagu maksimal uang belanja
+          bulanan agar tidak over-budget:</p>
 
         <div class="flex gap-2 mb-space-sm">
           <input type="number" id="inputBudgetSetting" placeholder="350000"
@@ -701,13 +804,17 @@
         </div>
 
         <div class="grid grid-cols-4 gap-2">
-          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+          <button type="button"
+            class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
             onclick="setBudgetSetting(250000)">Rp 250k</button>
-          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+          <button type="button"
+            class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
             onclick="setBudgetSetting(350000)">Rp 350k</button>
-          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+          <button type="button"
+            class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
             onclick="setBudgetSetting(500000)">Rp 500k</button>
-          <button type="button" class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
+          <button type="button"
+            class="py-1.5 rounded-lg bg-surface-container-low text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container cursor-pointer"
             onclick="setBudgetSetting(750000)">Rp 750k</button>
         </div>
       </div>
@@ -715,16 +822,20 @@
       <!-- Section: Tips Hemat Belanja Bijak (Bahasa Manusia) -->
       <div class="w-full bg-surface-container rounded-2xl p-space-md shadow-sm border border-outline-variant/20">
         <div class="flex items-start gap-space-sm">
-          <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 shadow-sm">
-            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
+          <div
+            class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 shadow-sm">
+            <span class="material-symbols-outlined text-[20px]"
+              style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
           </div>
           <div class="flex-1 min-w-0">
-            <span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Asisten Belanja Bijak</span>
+            <span class="font-label-sm text-label-sm text-secondary font-bold uppercase tracking-wider">Asisten Belanja
+              Bijak</span>
             <p class="font-body-sm text-body-sm text-on-surface mt-1 leading-snug">
               Periksa keseimbangan belanjaan antara bahan makanan pokok dengan jajanan sekunder agar saku tetap aman.
             </p>
             <div class="mt-space-sm">
-              <button class="px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold active:scale-95 transition-transform flex items-center gap-1 shadow-sm cursor-pointer"
+              <button
+                class="px-space-md py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold active:scale-95 transition-transform flex items-center gap-1 shadow-sm cursor-pointer"
                 id="btnRunNodeAnalytics" type="button">
                 <span>Periksa Kesehatan Belanja</span>
                 <span class="material-symbols-outlined text-[16px]">sparkles</span>
@@ -742,11 +853,13 @@
     <section id="tabHistory" class="tab-pane flex-col w-full gap-space-md hidden">
       <!-- Sub Tab Switcher: Struk vs Acuan Harga -->
       <div class="flex bg-surface-container-highest p-1 rounded-full mb-space-xs shadow-inner gap-1">
-        <button class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all active"
+        <button
+          class="flex-1 py-1.5 px-3 rounded-full bg-primary-container text-on-primary font-label-sm text-label-sm shadow-md transition-all active"
           id="btnSubHistory">
           <span>Struk Pembelian</span>
         </button>
-        <button class="flex-1 py-1.5 px-3 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all"
+        <button
+          class="flex-1 py-1.5 px-3 rounded-full text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-all"
           id="btnSubMaster">
           <span>Daftar Acuan Harga</span>
         </button>
@@ -755,7 +868,8 @@
       <!-- Sub View 1: Struk Pembelian Selesai -->
       <div id="subViewHistory" class="space-y-space-sm">
         <div class="flex items-center justify-between mb-1 px-1">
-          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Riwayat Belanja Selesai</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Riwayat
+            Belanja Selesai</span>
         </div>
         <div id="historyListContainer" class="space-y-space-sm">
           <!-- Rendered by JavaScript -->
@@ -765,11 +879,13 @@
       <!-- Sub View 2: Acuan Harga Toko Bulan Lalu -->
       <div id="subViewMaster" class="space-y-space-sm hidden">
         <div class="flex items-center justify-between mb-1 px-1">
-          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Harga Acuan Bulan Lalu (Database Rian)</span>
+          <span class="font-label-sm text-label-sm text-on-surface-variant font-bold uppercase tracking-wider">Harga
+            Acuan Bulan Lalu (Database Rian)</span>
         </div>
         <div class="flex items-center gap-2 mb-space-sm">
           <div class="flex-1 relative">
-            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline-variant text-[16px]">search</span>
+            <span
+              class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline-variant text-[16px]">search</span>
             <input type="text" id="searchMasterInput" placeholder="Cari acuan harga..."
               class="w-full pl-8 pr-3 py-1.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm border border-outline-variant/30">
           </div>
@@ -801,37 +917,44 @@
 
   <!-- ================= FLOATING BOTTOM DOCK NAVIGATION (STITCH FLOATING DOCK) ================= -->
   <nav class="fixed bottom-0 w-full z-50 pb-safe pointer-events-none px-margin mb-3">
-    <div class="pointer-events-auto mx-auto max-w-md bg-surface-container-lowest/95 backdrop-blur-xl rounded-[28px] p-1.5 flex items-center justify-between shadow-[0_8px_32px_-4px_rgba(17,51,34,0.12)] border border-outline-variant/30">
+    <div
+      class="pointer-events-auto mx-auto max-w-md bg-surface-container-lowest/95 backdrop-blur-xl rounded-[28px] p-1.5 flex items-center justify-between shadow-[0_8px_32px_-4px_rgba(17,51,34,0.12)] border border-outline-variant/30">
 
       <!-- 1. Troli Aktif -->
-      <button class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] transition-all duration-200 bg-primary text-on-primary shadow-[0_4px_16px_rgba(0,29,15,0.2)] active"
+      <button
+        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] transition-all duration-200 bg-primary text-on-primary shadow-[0_4px_16px_rgba(0,29,15,0.2)] active"
         id="navBtnCart" data-tab="tabCart">
         <div class="relative flex items-center justify-center">
           <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
-          <span class="absolute -top-1 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-on-secondary rounded-full font-label-sm text-[10px] flex items-center justify-center leading-none font-bold shadow-sm"
+          <span
+            class="absolute -top-1 -right-2.5 min-w-[18px] h-[18px] px-1 bg-secondary text-on-secondary rounded-full font-label-sm text-[10px] flex items-center justify-center leading-none font-bold shadow-sm"
             id="navCartBadge">0</span>
         </div>
         <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Troli</span>
       </button>
 
       <!-- 2. Scan Barcode (Center Hero in Stitch) -->
-      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+      <button
+        class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
         id="navBtnScan" data-tab="tabScan">
-        <div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-inner">
+        <div
+          class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-inner">
           <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
         </div>
         <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap font-bold text-secondary">Scan</span>
       </button>
 
       <!-- 3. Shopping Planner & Rencana -->
-      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+      <button
+        class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
         id="navBtnBudget" data-tab="tabBudget">
         <span class="material-symbols-outlined text-[22px]">checklist</span>
         <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Rencana</span>
       </button>
 
       <!-- 4. Hemat & Struk -->
-      <button class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
+      <button
+        class="dock-tab flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full min-h-[52px] text-on-surface-variant hover:text-on-surface transition-all duration-200 cursor-pointer"
         id="navBtnHistory" data-tab="tabHistory">
         <span class="material-symbols-outlined text-[22px]">receipt_long</span>
         <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Struk</span>
@@ -840,17 +963,22 @@
   </nav>
 
   <!-- ================= MODAL: INPUT HARGA RAK DARI SHOPPING PLANNER ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalShelfPriceBackdrop">
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+    <div
+      class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-4">
         <div>
-          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Ambil dari Rencana Belanja</span>
+          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Ambil dari Rencana
+            Belanja</span>
           <h3 class="font-headline-sm text-headline-sm text-primary font-bold" id="shelfModalItemName">Nama Barang</h3>
-          <span class="font-body-sm text-[12px] text-on-surface-variant" id="shelfModalItemSpec">1 pack • Kategori</span>
+          <span class="font-body-sm text-[12px] text-on-surface-variant" id="shelfModalItemSpec">1 pack •
+            Kategori</span>
         </div>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           id="btnCloseShelfModal">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -861,11 +989,13 @@
 
         <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between">
           <span class="font-body-sm text-body-sm text-on-surface-variant">Harga Acuan Bulan Lalu:</span>
-          <strong class="font-numeric-md text-numeric-md text-primary font-bold" id="shelfModalLastPriceText">Rp 0</strong>
+          <strong class="font-numeric-md text-numeric-md text-primary font-bold" id="shelfModalLastPriceText">Rp
+            0</strong>
         </div>
 
         <div>
-          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN DI RAK TOKO (RP) *</label>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN DI RAK
+            TOKO (RP) *</label>
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 font-numeric-md text-outline">Rp</span>
             <input type="number" id="inputShelfPrice" placeholder="Contoh: 38000" required inputmode="numeric"
@@ -875,23 +1005,29 @@
 
         <!-- Fluktuasi Harga Badge Seketika -->
         <div id="shelfModalFluctuationBox" class="p-2.5 rounded-xl bg-surface-container flex items-center gap-2">
-          <span class="material-symbols-outlined text-[18px] text-secondary" id="shelfFluctuationIcon">query_stats</span>
+          <span class="material-symbols-outlined text-[18px] text-secondary"
+            id="shelfFluctuationIcon">query_stats</span>
           <div class="flex-1 min-w-0">
-            <span class="font-label-sm text-label-sm font-bold block" id="shelfFluctuationText">Ketik harga rak untuk melihat fluktuasi</span>
-            <span class="font-body-sm text-[11px] text-on-surface-variant" id="shelfFluctuationSub">Dibandingkan dengan catatan belanja bulan lalu</span>
+            <span class="font-label-sm text-label-sm font-bold block" id="shelfFluctuationText">Ketik harga rak untuk
+              melihat fluktuasi</span>
+            <span class="font-body-sm text-[11px] text-on-surface-variant" id="shelfFluctuationSub">Dibandingkan dengan
+              catatan belanja bulan lalu</span>
           </div>
         </div>
 
         <div>
-          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">POTONGAN / DISKON RAK (OPSIONAL)</label>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">POTONGAN / DISKON RAK
+            (OPSIONAL)</label>
           <input type="text" id="inputShelfDiscount" placeholder="Contoh: 10% atau 50+20 atau Rp 5000"
             class="w-full px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-secondary">
         </div>
 
         <div class="flex gap-2 pt-2">
-          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+          <button type="button"
+            class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
             id="btnCancelShelfModal">Batal</button>
-          <button type="submit" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer hover:bg-primary-container active:scale-95 transition-all"
+          <button type="submit"
+            class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer hover:bg-primary-container active:scale-95 transition-all"
             id="btnSubmitShelfModal">
             Masukkan ke Troli
           </button>
@@ -901,9 +1037,11 @@
   </div>
 
   <!-- ================= MODAL: INPUT PRODUK LENGKAP MANUAL ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalItemBackdrop">
-    <div class="w-full max-w-lg bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto"
+    <div
+      class="w-full max-w-lg bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto"
       id="modalItemSheet">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-4">
@@ -911,7 +1049,8 @@
           <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Input Produk</span>
           <h3 class="font-headline-sm text-headline-sm text-primary font-bold" id="modalItemTitle">Tambah ke Troli</h3>
         </div>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           id="btnCloseItemModal">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -924,7 +1063,8 @@
           <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NAMA PRODUK *</label>
           <input type="text" id="inputItemName" placeholder="Contoh: Minyak Goreng Sania 2L" required autocomplete="off"
             class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
-          <div class="neo-autocomplete-dropdown hidden mt-1 bg-white rounded-xl shadow-lg border border-outline-variant/30 max-h-40 overflow-y-auto"
+          <div
+            class="neo-autocomplete-dropdown hidden mt-1 bg-white rounded-xl shadow-lg border border-outline-variant/30 max-h-40 overflow-y-auto"
             id="autoSuggestContainer"></div>
         </div>
 
@@ -941,7 +1081,8 @@
             </select>
           </div>
           <div>
-            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN/SATUAN</label>
+            <label
+              class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KEMASAN/SATUAN</label>
             <select id="selectItemUnit"
               class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary">
               <option value="pcs">pcs (buah)</option>
@@ -958,15 +1099,18 @@
         </div>
 
         <div>
-          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KUANTITAS (QTY)</label>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">KUANTITAS
+            (QTY)</label>
           <div class="flex items-center gap-3 bg-surface-container-low p-1.5 rounded-2xl max-w-[180px]">
-            <button type="button" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
+            <button type="button"
+              class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
               id="btnModalQtyMinus">
               <span class="material-symbols-outlined text-[16px]">remove</span>
             </button>
             <input type="number" id="inputItemQty" value="1" min="1" inputmode="numeric" required
               class="flex-1 text-center bg-transparent font-numeric-md text-numeric-md font-bold text-primary focus:outline-none">
-            <button type="button" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
+            <button type="button"
+              class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-primary shadow-xs active:scale-90"
               id="btnModalQtyPlus">
               <span class="material-symbols-outlined text-[16px]">add</span>
             </button>
@@ -975,12 +1119,14 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN (RP) *</label>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA SATUAN (RP)
+              *</label>
             <input type="number" id="inputItemPrice" placeholder="18000" required inputmode="numeric"
               class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md font-bold focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
           </div>
           <div>
-            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA BULAN LALU (RP)</label>
+            <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">HARGA BULAN LALU
+              (RP)</label>
             <input type="number" id="inputItemLastMonthPrice" placeholder="Otomatis" inputmode="numeric"
               class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
           </div>
@@ -988,7 +1134,8 @@
 
         <!-- Fluktuasi Badge -->
         <div id="modalPriceComparisonBox">
-          <div class="px-3 py-1.5 rounded-xl bg-surface-container-low text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-1"
+          <div
+            class="px-3 py-1.5 rounded-xl bg-surface-container-low text-secondary font-label-sm text-label-sm font-semibold flex items-center gap-1"
             id="modalComparePill">
             <span class="material-symbols-outlined text-[15px]">info</span>
             <span id="modalCompareText">Masukkan harga untuk cek fluktuasi</span>
@@ -997,7 +1144,8 @@
 
         <!-- Diskon Input -->
         <div>
-          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">DISKON / PROMO RAK</label>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">DISKON / PROMO
+            RAK</label>
           <input type="text" id="inputItemDiscount" placeholder="Contoh: 50+20 atau 25% atau 15000"
             class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-body-md text-body-md focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-secondary">
           <div class="mt-1 font-label-sm text-[11px] text-secondary font-bold hidden" id="modalDiscountPreview">
@@ -1012,9 +1160,11 @@
         </div>
 
         <div class="flex gap-2 pt-2">
-          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+          <button type="button"
+            class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
             id="btnCancelModalItem">Batal</button>
-          <button type="submit" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer"
+          <button type="submit"
+            class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shadow-md cursor-pointer"
             id="btnSubmitModalItem">
             <span id="btnSubmitItemText">Simpan ke Troli</span>
           </button>
@@ -1024,16 +1174,20 @@
   </div>
 
   <!-- ================= MODAL: ATUR BATAS DOMPET ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalBudgetBackdrop">
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+    <div
+      class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-4">
         <div>
-          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Kendali Dompet</span>
+          <span class="font-label-sm text-[11px] text-secondary font-bold uppercase tracking-wider">Kendali
+            Dompet</span>
           <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Atur Batas Anggaran</h3>
         </div>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           id="btnCloseBudgetModal">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -1041,22 +1195,28 @@
 
       <div class="space-y-4">
         <div>
-          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NOMINAL ANGGARAN (RP)</label>
+          <label class="font-label-sm text-label-sm text-on-surface-variant font-bold block mb-1">NOMINAL ANGGARAN
+            (RP)</label>
           <input type="number" id="inputQuickBudget" placeholder="350000" inputmode="numeric"
             class="w-full px-3 py-2.5 rounded-xl bg-surface-container-low text-on-surface font-numeric-md text-numeric-md font-bold focus:outline-none focus:ring-2 focus:ring-secondary">
         </div>
         <div class="grid grid-cols-3 gap-2">
-          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+          <button type="button"
+            class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
             onclick="setQuickBudget(250000)">Rp 250.000</button>
-          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+          <button type="button"
+            class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
             onclick="setQuickBudget(350000)">Rp 350.000</button>
-          <button type="button" class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
+          <button type="button"
+            class="py-2 rounded-xl bg-surface-container text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-container-high"
             onclick="setQuickBudget(500000)">Rp 500.000</button>
         </div>
         <div class="flex gap-2 pt-2">
-          <button type="button" class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
+          <button type="button"
+            class="flex-1 py-3 rounded-full bg-surface-container text-primary font-label-md text-label-md font-semibold cursor-pointer"
             id="btnCancelQuickBudget">Batal</button>
-          <button type="button" class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
+          <button type="button"
+            class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
             id="btnSaveQuickBudget">Simpan</button>
         </div>
       </div>
@@ -1064,13 +1224,16 @@
   </div>
 
   <!-- ================= MODAL: STRUK DIGITAL ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalReceiptBackdrop">
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto">
+    <div
+      class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[90vh] overflow-y-auto">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Struk Belanja Kasir</h3>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           onclick="document.getElementById('modalReceiptBackdrop').classList.add('hidden')">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -1080,13 +1243,16 @@
   </div>
 
   <!-- ================= MODAL: SARAN PANGKAS ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalTrimBackdrop">
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[85vh] overflow-y-auto">
+    <div
+      class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30 max-h-[85vh] overflow-y-auto">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-2">
         <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Saran Pangkas Belanja</h3>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           id="btnCloseTrimModal">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -1095,7 +1261,8 @@
         Daftar barang non-pokok dan berbiaya besar yang dapat Anda kurangi untuk menyelamatkan dompet dari defisit:
       </p>
       <div id="trimSuggestionsList" class="space-y-2 mb-4"></div>
-      <button class="w-full py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
+      <button
+        class="w-full py-3 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold cursor-pointer"
         id="btnCloseTrimDone">
         Selesai Memangkas
       </button>
@@ -1103,34 +1270,41 @@
   </div>
 
   <!-- ================= MODAL: PILIH SUPERMARKET ================= -->
-  <div class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  <div
+    class="modal-backdrop hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
     id="modalStoreBackdrop">
-    <div class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
+    <div
+      class="w-full max-w-md bg-surface-container-lowest rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
       <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Pilih Supermarket</h3>
-        <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
+        <button
+          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant cursor-pointer"
           id="btnCloseStoreModal">
           <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
       </div>
       <div class="space-y-2 mb-2">
-        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+        <button
+          class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
           data-store="GrandLucky SCBD" onclick="selectStore('GrandLucky SCBD')">
           <span>GrandLucky SCBD</span>
           <span class="material-symbols-outlined text-secondary store-check-icon">check</span>
         </button>
-        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+        <button
+          class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
           data-store="Superindo Express" onclick="selectStore('Superindo Express')">
           <span>Superindo Express</span>
           <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
         </button>
-        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+        <button
+          class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
           data-store="Hypermart Mega Mall" onclick="selectStore('Hypermart Mega Mall')">
           <span>Hypermart Mega Mall</span>
           <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
         </button>
-        <button class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
+        <button
+          class="store-item-btn w-full p-3 rounded-xl bg-surface-container-low text-primary flex items-center justify-between font-label-md font-semibold cursor-pointer"
           data-store="Alfamidi Super" onclick="selectStore('Alfamidi Super')">
           <span>Alfamidi Super</span>
           <span class="material-symbols-outlined text-secondary store-check-icon hidden">check</span>
