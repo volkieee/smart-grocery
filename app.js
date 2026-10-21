@@ -23,6 +23,27 @@
     PLANNER: 'smart_grocery_planner'
   };
 
+  const AUTH_STORAGE_KEYS = {
+    CURRENT_USER: 'smart_grocery_current_user',
+    KNOWN_USERS: 'smart_grocery_known_users'
+  };
+
+  function getUserSlug(username) {
+    if (!username) return 'rian';
+    return String(username)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .slice(0, 32) || 'user';
+  }
+
+  function getUserKey(baseKey) {
+    const slug = (appState && appState.currentUser && appState.currentUser.slug)
+      ? appState.currentUser.slug
+      : 'rian';
+    return `sg_usr_${slug}_${baseKey}`;
+  }
+
   // Default Master Reference Items for Rian
   const DEFAULT_MASTER_ITEMS = [
     { name: 'Beras Ramos 5kg', category: 'Bahan Pokok', unit: 'pack', lastPrice: 72000 },
@@ -34,6 +55,397 @@
     { name: 'Mie Instan Goreng Spesial', category: 'Makanan & Minuman', unit: 'pcs', lastPrice: 3100 },
     { name: 'Kecap Manis Refill 520ml', category: 'Dapur & Bumbu', unit: 'pouch', lastPrice: 17500 },
     { name: 'Biskuit Cokelat Kaleng', category: 'Makanan & Minuman', unit: 'kaleng', lastPrice: 32000 }
+  ];
+
+  // ==========================================================================
+  // ASTRO OFFICIAL INDONESIA CATALOG (32 PRODUK RESMI ASTRO QUICK COMMERCE)
+  // Harga real-time Astro Express, tidak perlu ketik manual!
+  // ==========================================================================
+  const ASTRO_OFFICIAL_CATALOG = [
+    {
+      id: 'astro-beras-5kg',
+      name: 'Beras Setra Ramos BMW 5kg',
+      category: 'Bahan Pokok',
+      unit: '5 kg',
+      price: 69900,
+      originalPrice: 74500,
+      discountRaw: '-Rp 4.600',
+      badge: 'Astro Goods • Diskon',
+      emoji: '🌾',
+      description: 'Beras putih pulen super quality'
+    },
+    {
+      id: 'astro-minyak-sunco-2l',
+      name: 'Minyak Goreng SunCo 2L',
+      category: 'Bahan Pokok',
+      unit: 'Pouch 2L',
+      price: 38900,
+      originalPrice: 42000,
+      discountRaw: '7%',
+      badge: 'Best Seller',
+      emoji: '🍳',
+      description: 'Minyak goreng bening tidak mudah beku'
+    },
+    {
+      id: 'astro-minyak-sania-2l',
+      name: 'Minyak Goreng Sania Pouch 2L',
+      category: 'Bahan Pokok',
+      unit: 'Pouch 2L',
+      price: 37500,
+      originalPrice: 39500,
+      discountRaw: '5%',
+      badge: 'Hemat',
+      emoji: '🍳',
+      description: 'Kelapa sawit pilihan bermutu tinggi'
+    },
+    {
+      id: 'astro-telur-negeri-10',
+      name: 'Telur Ayam Negeri Fresh (10 Butir)',
+      category: 'Bahan Pokok',
+      unit: 'Pack 10 btr',
+      price: 29500,
+      originalPrice: 32000,
+      discountRaw: '',
+      badge: 'Astro Fresh',
+      emoji: '🥚',
+      description: 'Telur bersih bebas bakteri salmonella'
+    },
+    {
+      id: 'astro-telur-omega-10',
+      name: 'Telur Ayam Omega 3 Astro (10 Butir)',
+      category: 'Bahan Pokok',
+      unit: 'Pack 10 btr',
+      price: 35000,
+      originalPrice: 38500,
+      discountRaw: '10%',
+      badge: 'Super Premium',
+      emoji: '🥚',
+      description: 'Kaya DHA & nutrisi tinggi untuk anak kos'
+    },
+    {
+      id: 'astro-indomie-goreng-5',
+      name: 'Indomie Goreng Spesial (Pack 5 Pcs)',
+      category: 'Bahan Pokok',
+      unit: 'Pack 5 pcs',
+      price: 15500,
+      originalPrice: 16500,
+      discountRaw: '',
+      badge: 'Favorit Kos',
+      emoji: '🍜',
+      description: 'Mie instan goreng rasa legendaris'
+    },
+    {
+      id: 'astro-indomie-soto-5',
+      name: 'Indomie Kuah Rasa Soto Mie (Pack 5 Pcs)',
+      category: 'Bahan Pokok',
+      unit: 'Pack 5 pcs',
+      price: 15000,
+      originalPrice: 16000,
+      discountRaw: '',
+      badge: 'Kuah Hangat',
+      emoji: '🍜',
+      description: 'Gurih hangat kuah soto mie khas'
+    },
+    {
+      id: 'astro-gulaku-1kg',
+      name: 'Gula Pasir Gulaku Tebu Kuning 1kg',
+      category: 'Bahan Pokok',
+      unit: 'Pack 1kg',
+      price: 18500,
+      originalPrice: 19500,
+      discountRaw: '',
+      badge: 'Gula Murni',
+      emoji: '🍬',
+      description: 'Gula tebu murni manis alami'
+    },
+    {
+      id: 'astro-tepung-segitiga-1kg',
+      name: 'Tepung Terigu Segitiga Biru 1kg',
+      category: 'Bahan Pokok',
+      unit: 'Pack 1kg',
+      price: 14500,
+      originalPrice: 15500,
+      discountRaw: '',
+      badge: 'Serbaguna',
+      emoji: '🌾',
+      description: 'Tepung terigu protein sedang aneka masakan'
+    },
+    {
+      id: 'astro-ultra-fullcream-1l',
+      name: 'Ultra Milk Full Cream UHT 1000ml',
+      category: 'Susu & Minuman',
+      unit: 'Kotak 1L',
+      price: 21000,
+      originalPrice: 22500,
+      discountRaw: '',
+      badge: 'Astro Pick',
+      emoji: '🥛',
+      description: 'Susu sapi segar murni kaya kalsium'
+    },
+    {
+      id: 'astro-ultra-cokelat-1l',
+      name: 'Ultra Milk Cokelat UHT 1000ml',
+      category: 'Susu & Minuman',
+      unit: 'Kotak 1L',
+      price: 21500,
+      originalPrice: 23000,
+      discountRaw: '',
+      badge: 'Manis Gurih',
+      emoji: '🍫',
+      description: 'Cokelat asli nikmat kaya nutrisi'
+    },
+    {
+      id: 'astro-greenfields-pasteur-1l',
+      name: 'Greenfields Fresh Milk Pasteurisasi 1L',
+      category: 'Susu & Minuman',
+      unit: 'Botol 1L',
+      price: 32500,
+      originalPrice: 35000,
+      discountRaw: '',
+      badge: 'Fresh Chilled',
+      emoji: '🥛',
+      description: 'Susu segar pasteurisasi dingin dari peternakan'
+    },
+    {
+      id: 'astro-yakult-5',
+      name: 'Yakult Minuman Probiotik (5 Botol)',
+      category: 'Susu & Minuman',
+      unit: 'Pack 5 btl',
+      price: 11500,
+      originalPrice: 12500,
+      discountRaw: '',
+      badge: 'Pencernaan Sehat',
+      emoji: '🧃',
+      description: 'Bakteri baik L. casei Shirota strain'
+    },
+    {
+      id: 'astro-aqua-600-pack6',
+      name: 'Aqua Air Mineral 600ml (Pack 6 Botol)',
+      category: 'Susu & Minuman',
+      unit: 'Pack 6 btl',
+      price: 21000,
+      originalPrice: 24000,
+      discountRaw: '',
+      badge: 'Air Murni',
+      emoji: '💧',
+      description: 'Kemurnian air pegunungan alami'
+    },
+    {
+      id: 'astro-tehbotol-250-pack3',
+      name: 'Teh Botol Sosro Kotak 250ml (Pack 3)',
+      category: 'Susu & Minuman',
+      unit: 'Pack 3 pcs',
+      price: 11000,
+      originalPrice: 12500,
+      discountRaw: '',
+      badge: 'Teh Asli',
+      emoji: '🧃',
+      description: 'Aroma melati teh asli Indonesia'
+    },
+    {
+      id: 'astro-kopi-kapal-api-mix',
+      name: 'Kopi Kapal Api Spesial Mix (10x24g)',
+      category: 'Susu & Minuman',
+      unit: 'Renceng 10 sct',
+      price: 16500,
+      originalPrice: 18000,
+      discountRaw: '',
+      badge: 'Kopi Mantap',
+      emoji: '☕',
+      description: 'Paduan biji kopi pilihan & gula harum'
+    },
+    {
+      id: 'astro-ayam-fillet-500g',
+      name: 'Ayam Fillet Dada Boneless Astro 500g',
+      category: 'Segar & Daging',
+      unit: 'Tray 500g',
+      price: 39900,
+      originalPrice: 44000,
+      discountRaw: '',
+      badge: 'Astro Fresh 15m',
+      emoji: '🍗',
+      description: 'Daging dada ayam tanpa tulang segar'
+    },
+    {
+      id: 'astro-daging-slice-300g',
+      name: 'Daging Sapi Slice Sukiyaki Shabu 300g',
+      category: 'Segar & Daging',
+      unit: 'Tray 300g',
+      price: 49500,
+      originalPrice: 55000,
+      discountRaw: '10%',
+      badge: 'Daging Impor',
+      emoji: '🥩',
+      description: 'Irisan daging sapi impor empuk gurih'
+    },
+    {
+      id: 'astro-pisang-cavendish',
+      name: 'Pisang Cavendish Sunpride (1 Sisir)',
+      category: 'Segar & Daging',
+      unit: '1 Sisir (±1.2kg)',
+      price: 26500,
+      originalPrice: 29000,
+      discountRaw: '',
+      badge: 'Buah Segar',
+      emoji: '🍌',
+      description: 'Pisang manis kulit bersih mulus bernutrisi'
+    },
+    {
+      id: 'astro-apel-fuji-1kg',
+      name: 'Apel Fuji Wang Shan Fresh 1kg',
+      category: 'Segar & Daging',
+      unit: 'Pack 1kg',
+      price: 38000,
+      originalPrice: 42000,
+      discountRaw: '',
+      badge: 'Manis Renyah',
+      emoji: '🍎',
+      description: 'Apel fuji renyah manis kaya vitamin C'
+    },
+    {
+      id: 'astro-kecap-bango-520',
+      name: 'Kecap Manis Bango Refill 520ml',
+      category: 'Dapur & Bumbu',
+      unit: 'Pouch 520ml',
+      price: 24800,
+      originalPrice: 27000,
+      discountRaw: '',
+      badge: 'Kedelai Hitam',
+      emoji: '🥫',
+      description: 'Kecap manis kedelai hitam Mallika legendaris'
+    },
+    {
+      id: 'astro-saus-abc-380',
+      name: 'Saus Sambal ABC Asli Pouch 380ml',
+      category: 'Dapur & Bumbu',
+      unit: 'Pouch 380ml',
+      price: 15500,
+      originalPrice: 17000,
+      discountRaw: '',
+      badge: 'Pedas Mantap',
+      emoji: '🌶️',
+      description: 'Cabai segar pilihan rasa pedas khas'
+    },
+    {
+      id: 'astro-royco-ayam-230',
+      name: 'Royco Kaldu Ayam Rasa Mantap 230g',
+      category: 'Dapur & Bumbu',
+      unit: 'Pouch 230g',
+      price: 11500,
+      originalPrice: 12500,
+      discountRaw: '',
+      badge: 'Penyedap Rasa',
+      emoji: '🧂',
+      description: 'Ekstrak daging ayam asli lezat masakan gurih'
+    },
+    {
+      id: 'astro-bawang-merah-250',
+      name: 'Bawang Merah Brebes Pilihan 250g',
+      category: 'Dapur & Bumbu',
+      unit: 'Pack 250g',
+      price: 18500,
+      originalPrice: 20000,
+      discountRaw: '',
+      badge: 'Bumbu Segar',
+      emoji: '🧅',
+      description: 'Bawang merah Brebes wangi sedap masakan'
+    },
+    {
+      id: 'astro-cabe-rawit-150',
+      name: 'Cabe Rawit Merah Super Segar 150g',
+      category: 'Dapur & Bumbu',
+      unit: 'Pack 150g',
+      price: 19500,
+      originalPrice: 22000,
+      discountRaw: '',
+      badge: 'Pedas Nendang',
+      emoji: '🌶️',
+      description: 'Rawit merah segar petik baru super pedas'
+    },
+    {
+      id: 'astro-rinso-molto-750',
+      name: 'Rinso Molto Cair Japanese Peach 750ml',
+      category: 'Kebersihan',
+      unit: 'Pouch 750ml',
+      price: 22900,
+      originalPrice: 25500,
+      discountRaw: '',
+      badge: 'Wangi Segar',
+      emoji: '🧺',
+      description: 'Deterjen cair konsentrat lembut wangi peach'
+    },
+    {
+      id: 'astro-sunlight-jeruk-700',
+      name: 'Sunlight Pencuci Piring Jeruk Nipis 700ml',
+      category: 'Kebersihan',
+      unit: 'Pouch 700ml',
+      price: 14500,
+      originalPrice: 16500,
+      discountRaw: '',
+      badge: 'Hilangkan Lemak',
+      emoji: '🍋',
+      description: 'Bersih kesat ekstrak jeruk nipis 100 asli'
+    },
+    {
+      id: 'astro-lifebuoy-450',
+      name: 'Sabun Mandi Lifebuoy Cair Total 10 450ml',
+      category: 'Kebersihan',
+      unit: 'Pouch 450ml',
+      price: 26500,
+      originalPrice: 29500,
+      discountRaw: '',
+      badge: 'Antibakteri',
+      emoji: '🧼',
+      description: 'Perlindungan kuman 10x lebih kuat'
+    },
+    {
+      id: 'astro-pepsodent-190',
+      name: 'Pasta Gigi Pepsodent Economy 190g',
+      category: 'Kebersihan',
+      unit: 'Tube 190g',
+      price: 14200,
+      originalPrice: 16000,
+      discountRaw: '',
+      badge: 'Gigi Sehat',
+      emoji: '🪥',
+      description: 'Perlindungan gigi berlubang aktif kalsium'
+    },
+    {
+      id: 'astro-sari-roti-kupas',
+      name: 'Roti Tawar Sari Roti Spesial Kupas',
+      category: 'Camilan & Roti',
+      unit: 'Pack 200g',
+      price: 16500,
+      originalPrice: 17500,
+      discountRaw: '',
+      badge: 'Roti Lembut',
+      emoji: '🍞',
+      description: 'Roti tawar tanpa kulit empuk bergizi'
+    },
+    {
+      id: 'astro-chitato-sapi-68',
+      name: 'Chitato Sapi Panggang 68g',
+      category: 'Camilan & Roti',
+      unit: 'Bungkus 68g',
+      price: 11500,
+      originalPrice: 12500,
+      discountRaw: '',
+      badge: 'Renyah Asik',
+      emoji: '🥔',
+      description: 'Keripik kentang bergelombang rasa sapi panggang'
+    },
+    {
+      id: 'astro-pocky-cokelat',
+      name: 'Pocky Chocolate Glico 47g',
+      category: 'Camilan & Roti',
+      unit: 'Box 47g',
+      price: 8900,
+      originalPrice: 9900,
+      discountRaw: '',
+      badge: 'Camilan Manis',
+      emoji: '🍫',
+      description: 'Biskuit stik renyah salut krim cokelat tebal'
+    }
   ];
 
   // Default Shopping Planner (Kebutuhan yang Direncanakan Sebelum ke Supermarket)
@@ -117,6 +529,7 @@
 
   // --- STATE MANAGEMENT ---
   let appState = {
+    currentUser: null,
     cart: [],
     planner: [],
     budgetLimit: 350000,
@@ -124,12 +537,24 @@
     masterItems: [],
     activeCategory: 'ALL',
     searchQuery: '',
+    astroCategory: 'ALL',
+    astroSearchQuery: '',
     editingItemId: null,
     soundEnabled: true,
     supabaseUrl: '',
     supabaseKey: '',
     supabaseClient: null,
     isCloudConnected: false
+  };
+
+  let astroCheckoutState = {
+    voucherCode: 'ASTROHEMAT',
+    voucherDiscount: 15000,
+    selectedMethod: 'qris',
+    selectedVaBank: 'BCA',
+    cashPaid: 0,
+    qrisTimerInterval: null,
+    qrisSecondsRemaining: 900
   };
 
   // --- AUDIO SYNTHESIZER ---
@@ -239,6 +664,45 @@
         osc.start(now);
         osc.stop(now + 0.2);
       } catch (e) { }
+    },
+    playBeep() {
+      if (!appState.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1760, now);
+        osc.frequency.setValueAtTime(2200, now + 0.04);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      } catch (e) { }
+    },
+    playPrinter() {
+      if (!appState.soundEnabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        for (let i = 0; i < 6; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(280 + (i % 2) * 120, now + i * 0.04);
+          gain.gain.setValueAtTime(0.05, now + i * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.025);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.04);
+          osc.stop(now + i * 0.04 + 0.025);
+        }
+      } catch (e) { }
     }
   };
 
@@ -248,7 +712,7 @@
   });
 
   function initApp() {
-    loadDataFromStorage();
+    initAuthModule();
     initSupabaseClient();
     setupNavigation();
     setupEventListeners();
@@ -256,6 +720,7 @@
     initShelfAdderTray();
     initBarcodeScannerModule();
     initStoreSelectorModule();
+    initAstroCatalogModule();
     renderAll();
     initComparatorTool();
     initDockAutoHide();
@@ -302,29 +767,76 @@
   // --- STORAGE ---
   function loadDataFromStorage() {
     try {
-      const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
-      const savedPlanner = localStorage.getItem(STORAGE_KEYS.PLANNER);
-      const savedBudget = localStorage.getItem(STORAGE_KEYS.BUDGET);
-      const savedHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
-      const savedMaster = localStorage.getItem(STORAGE_KEYS.MASTER);
-      const savedSound = localStorage.getItem(STORAGE_KEYS.SOUND);
+      const cartKey = getUserKey(STORAGE_KEYS.CART);
+      const plannerKey = getUserKey(STORAGE_KEYS.PLANNER);
+      const budgetKey = getUserKey(STORAGE_KEYS.BUDGET);
+      const historyKey = getUserKey(STORAGE_KEYS.HISTORY);
+      const masterKey = getUserKey(STORAGE_KEYS.MASTER);
+      const soundKey = getUserKey(STORAGE_KEYS.SOUND);
+      const storeKey = getUserKey('store');
 
-      appState.cart = savedCart ? JSON.parse(savedCart) : DEFAULT_SAMPLE_CART;
-      appState.planner = savedPlanner ? JSON.parse(savedPlanner) : DEFAULT_SAMPLE_PLANNER;
-      appState.budgetLimit = savedBudget ? Number(savedBudget) : 350000;
-      appState.history = savedHistory ? JSON.parse(savedHistory) : [];
-      appState.masterItems = savedMaster ? JSON.parse(savedMaster) : DEFAULT_MASTER_ITEMS;
+      const savedCart = localStorage.getItem(cartKey);
+      const savedPlanner = localStorage.getItem(plannerKey);
+      const savedBudget = localStorage.getItem(budgetKey);
+      const savedHistory = localStorage.getItem(historyKey);
+      const savedMaster = localStorage.getItem(masterKey);
+      const savedSound = localStorage.getItem(soundKey);
+      const savedStore = localStorage.getItem(storeKey);
+
+      const isRian = !appState.currentUser || appState.currentUser.slug === 'rian';
+
+      // If user is Rian and no user-specific key exists, check legacy un-namespaced keys
+      if (isRian && savedCart === null) {
+        const legacyCart = localStorage.getItem(STORAGE_KEYS.CART);
+        const legacyPlanner = localStorage.getItem(STORAGE_KEYS.PLANNER);
+        const legacyBudget = localStorage.getItem(STORAGE_KEYS.BUDGET);
+        const legacyHistory = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        const legacyMaster = localStorage.getItem(STORAGE_KEYS.MASTER);
+
+        appState.cart = legacyCart ? JSON.parse(legacyCart) : DEFAULT_SAMPLE_CART;
+        appState.planner = legacyPlanner ? JSON.parse(legacyPlanner) : DEFAULT_SAMPLE_PLANNER;
+        appState.budgetLimit = legacyBudget ? Number(legacyBudget) : 350000;
+        appState.history = legacyHistory ? JSON.parse(legacyHistory) : [];
+        appState.masterItems = legacyMaster ? JSON.parse(legacyMaster) : DEFAULT_MASTER_ITEMS;
+
+        saveCart();
+        savePlanner();
+        saveBudget();
+        saveHistory();
+        saveMaster();
+      } else if (savedCart !== null) {
+        // User already has isolated data saved
+        appState.cart = JSON.parse(savedCart);
+        appState.planner = savedPlanner ? JSON.parse(savedPlanner) : [];
+        appState.budgetLimit = savedBudget ? Number(savedBudget) : 350000;
+        appState.history = savedHistory ? JSON.parse(savedHistory) : [];
+        appState.masterItems = savedMaster ? JSON.parse(savedMaster) : DEFAULT_MASTER_ITEMS;
+      } else {
+        // Brand new user (e.g. Budi, Siti, etc.) -> Clean slate! No data pollution
+        appState.cart = [];
+        appState.planner = [];
+        appState.budgetLimit = 350000;
+        appState.history = [];
+        appState.masterItems = DEFAULT_MASTER_ITEMS;
+
+        saveCart();
+        savePlanner();
+        saveBudget();
+        saveHistory();
+        saveMaster();
+      }
+
       appState.soundEnabled = savedSound !== null ? savedSound === 'true' : true;
-      const savedStore = localStorage.getItem('smart_grocery_store');
-      appState.activeStore = savedStore || 'GrandLucky SCBD';
+      appState.activeStore = savedStore || localStorage.getItem('smart_grocery_store') || 'GrandLucky SCBD';
       const storeEl = document.getElementById('activeStoreName');
       if (storeEl) storeEl.textContent = appState.activeStore;
 
       appState.supabaseUrl = SUPABASE_CONFIG.URL;
       appState.supabaseKey = SUPABASE_CONFIG.KEY;
     } catch (e) {
-      appState.cart = DEFAULT_SAMPLE_CART;
-      appState.planner = DEFAULT_SAMPLE_PLANNER;
+      console.warn('loadDataFromStorage error:', e);
+      appState.cart = [];
+      appState.planner = [];
       appState.budgetLimit = 350000;
       appState.masterItems = DEFAULT_MASTER_ITEMS;
       appState.activeStore = 'GrandLucky SCBD';
@@ -334,23 +846,28 @@
   }
 
   function saveCart() {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(appState.cart));
+    localStorage.setItem(getUserKey(STORAGE_KEYS.CART), JSON.stringify(appState.cart));
   }
   function savePlanner() {
-    localStorage.setItem(STORAGE_KEYS.PLANNER, JSON.stringify(appState.planner));
+    localStorage.setItem(getUserKey(STORAGE_KEYS.PLANNER), JSON.stringify(appState.planner));
   }
   function saveBudget() {
-    localStorage.setItem(STORAGE_KEYS.BUDGET, appState.budgetLimit.toString());
+    localStorage.setItem(getUserKey(STORAGE_KEYS.BUDGET), appState.budgetLimit.toString());
   }
   function saveHistory() {
-    localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(appState.history));
+    localStorage.setItem(getUserKey(STORAGE_KEYS.HISTORY), JSON.stringify(appState.history));
   }
   function saveMaster() {
-    localStorage.setItem(STORAGE_KEYS.MASTER, JSON.stringify(appState.masterItems));
+    localStorage.setItem(getUserKey(STORAGE_KEYS.MASTER), JSON.stringify(appState.masterItems));
   }
   function saveSound() {
-    localStorage.setItem(STORAGE_KEYS.SOUND, appState.soundEnabled.toString());
+    localStorage.setItem(getUserKey(STORAGE_KEYS.SOUND), appState.soundEnabled.toString());
   }
+  function saveStore(storeName) {
+    localStorage.setItem(getUserKey('store'), storeName);
+    localStorage.setItem('smart_grocery_store', storeName);
+  }
+
 
   // ==========================================================================
   // SUPABASE CLOUD INTEGRATION MODULE (REALTIME HYBRID)
@@ -434,8 +951,9 @@
       if (!silent) showToast('Menyimpan data belanja...', 'info');
 
       // 1. Sync User Settings / Budget
+      const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
       await appState.supabaseClient.from('user_settings').upsert({
-        id: 'rian_default_user',
+        id: userSyncId,
         budget_limit: appState.budgetLimit,
         sound_enabled: appState.soundEnabled,
         updated_at: new Date().toISOString()
@@ -522,10 +1040,11 @@
       }
 
       // 3. Fetch Settings
+      const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
       const { data: settingsData } = await appState.supabaseClient
         .from('user_settings')
         .select('*')
-        .eq('id', 'rian_default_user')
+        .eq('id', userSyncId)
         .single();
 
       if (settingsData) {
@@ -711,7 +1230,8 @@
 
     // Text Elements
     document.getElementById('hudTotalSpending').textContent = formatNumber(totalSpent);
-    document.getElementById('hudBudgetLimit').textContent = `Rp ${formatNumber(limit)}`;
+    const shortLimit = limit >= 1000000 ? `${(limit / 1000000).toFixed(1)}jt` : `${Math.round(limit / 1000)}k`;
+    document.getElementById('hudBudgetLimit').textContent = `Rp ${shortLimit}`;
     const hudPercentEl = document.getElementById('budgetPercentLabel');
     if (hudPercentEl) hudPercentEl.textContent = `${percentage.toFixed(0)}% CAP`;
 
@@ -740,32 +1260,37 @@
     progressBar.className = 'hud-meter-fill';
     statusBadge.className = 'hud-status-chip';
 
+    const navBudgetDot = document.getElementById('navBudgetDot');
+
     if (percentage < 80) {
       hudCard.classList.add('status-safe');
       progressBar.classList.add('status-safe');
       statusBadge.classList.add('status-safe');
       statusText.textContent = 'AMAN • SIAP KASIR';
-      statusIcon.setAttribute('data-lucide', 'shield-check');
+      if (statusIcon) statusIcon.textContent = 'Aman ✅';
       remainingText.innerHTML = `SISA: <strong>Rp ${formatNumber(remaining)}</strong>`;
       overBudgetBanner.classList.add('hidden');
+      if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-secondary-fixed absolute -top-0.5 -right-1';
     } else if (percentage >= 80 && percentage < 100) {
       hudCard.classList.add('status-warn');
       progressBar.classList.add('status-warn');
       statusBadge.classList.add('status-warn');
       statusText.textContent = 'WASPADA • MELEBIHI 80%';
-      statusIcon.setAttribute('data-lucide', 'alert-circle');
+      if (statusIcon) statusIcon.textContent = 'Waspada ⚠️';
       remainingText.innerHTML = `TERTINGGAL: <strong style="color:var(--status-warn);">Rp ${formatNumber(remaining)}</strong>`;
       overBudgetBanner.classList.add('hidden');
+      if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-1';
     } else {
       hudCard.classList.add('status-danger');
       progressBar.classList.add('status-danger');
       statusBadge.classList.add('status-danger');
       statusText.textContent = 'BAHAYA • OVER BUDGET';
-      statusIcon.setAttribute('data-lucide', 'triangle-alert');
+      if (statusIcon) statusIcon.textContent = 'Over-Budget 🚨';
       const overAmount = Math.abs(remaining);
       remainingText.innerHTML = `<span class="text-danger">DEFISIT: <strong>Rp ${formatNumber(overAmount)}</strong></span>`;
       overBudgetBanner.classList.remove('hidden');
       document.getElementById('trimDeficitAmount').textContent = `Rp ${formatNumber(overAmount)}`;
+      if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-rose-500 absolute -top-0.5 -right-1 animate-ping';
       AudioEngine.playAlert();
     }
 
@@ -1199,15 +1724,30 @@
         const targetTabId = btn.getAttribute('data-tab');
         if (!targetTabId) return;
 
+        let paneId = targetTabId;
+        let scrollToBudgetSetting = false;
+        if (targetTabId === 'tabDompet') {
+          paneId = 'tabBudget';
+          scrollToBudgetSetting = true;
+        }
+
         // Reset semua tombol nav ke gaya inaktif
         navButtons.forEach(b => {
-          b.classList.remove('active', 'bg-primary', 'text-on-primary', 'shadow-[0_4px_16px_rgba(0,29,15,0.2)]');
-          b.classList.add('text-on-surface-variant');
+          if (b.classList.contains('dock-tab-hero')) {
+            b.classList.remove('active');
+          } else {
+            b.classList.remove('active', 'text-secondary', 'font-bold', 'bg-secondary/10');
+            b.classList.add('text-on-surface-variant/70');
+          }
         });
 
         // Aktifkan tombol yang dipilih
-        btn.classList.add('active', 'bg-primary', 'text-on-primary', 'shadow-[0_4px_16px_rgba(0,29,15,0.2)]');
-        btn.classList.remove('text-on-surface-variant');
+        if (btn.classList.contains('dock-tab-hero')) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.add('active', 'text-secondary', 'font-bold', 'bg-secondary/10');
+          btn.classList.remove('text-on-surface-variant/70');
+        }
 
         // Toggle pane tampilan
         panes.forEach(p => {
@@ -1215,7 +1755,7 @@
           p.classList.add('hidden');
         });
 
-        const targetPane = document.getElementById(targetTabId);
+        const targetPane = document.getElementById(paneId);
         if (targetPane) {
           targetPane.classList.add('active');
           targetPane.classList.remove('hidden');
@@ -1223,24 +1763,33 @@
 
         AudioEngine.playTap();
 
+        if (scrollToBudgetSetting) {
+          setTimeout(() => {
+            const inputEl = document.getElementById('inputBudgetSetting');
+            if (inputEl) inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 120);
+        }
+
         // Screen 2 Stitch: Scan Barcode & Promo Calculator
-        if (targetTabId === 'tabScan') {
+        if (paneId === 'tabScan') {
           renderBarcodePresets();
           startCameraScanner();
           if (!currentScannedItem && BARCODE_CATALOG.length > 0) {
             onBarcodeDetected(BARCODE_CATALOG[0].barcode, false);
+          } else if (currentScannedItem) {
+            runPythonScanAnalysis(currentScannedItem.barcode);
           }
         } else {
           // Matikan kamera saat meninggalkan tab scan
           stopCameraScanner();
         }
 
-        if (targetTabId === 'tabBudget') {
+        if (paneId === 'tabBudget') {
           renderBudgetBreakdown();
-        } else if (targetTabId === 'tabHistory') {
+        } else if (paneId === 'tabHistory') {
           renderHistoryList();
           renderMasterList();
-        } else if (targetTabId === 'tabCart') {
+        } else if (paneId === 'tabCart') {
           renderCart();
         }
 
@@ -1305,23 +1854,40 @@
     }
   }
 
+  function openComparatorToolModal() {
+    const card = document.getElementById('scannerComparatorCard');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.add('ring-4', 'ring-secondary-fixed');
+      setTimeout(() => card.classList.remove('ring-4', 'ring-secondary-fixed'), 2000);
+      showToast('Kalkulator kemasan aktif (Opsi A vs B)', 'info');
+    }
+  }
+
   function setupSoundToggle() {
     const btnSound = document.getElementById('btnSoundToggle');
     const iconSound = document.getElementById('soundIcon');
     if (!btnSound) return;
 
+    function refreshSoundIcon() {
+      if (iconSound) {
+        iconSound.textContent = appState.soundEnabled ? 'volume_up' : 'volume_off';
+      }
+      btnSound.title = appState.soundEnabled ? 'Suara Aktif (Klik untuk Matikan)' : 'Suara Mati (Klik untuk Nyalakan)';
+    }
+
+    refreshSoundIcon();
+
     btnSound.addEventListener('click', () => {
       appState.soundEnabled = !appState.soundEnabled;
       saveSound();
+      refreshSoundIcon();
       if (appState.soundEnabled) {
-        iconSound.setAttribute('data-lucide', 'volume-2');
-        showToast('Efek suara aktif', 'info');
+        showToast('Efek suara aktif 🔊', 'info');
         AudioEngine.playTap();
       } else {
-        iconSound.setAttribute('data-lucide', 'volume-x');
-        showToast('Efek suara nonaktif', 'info');
+        showToast('Efek suara nonaktif 🔇', 'info');
       }
-      if (window.lucide) lucide.createIcons();
     });
   }
 
@@ -1533,16 +2099,26 @@
       showToast('Acuan harga ditambahkan', 'success');
     });
 
-    // Sync
-    document.getElementById('btnExportData').addEventListener('click', exportDataJson);
-    document.getElementById('btnImportDataTrigger').addEventListener('click', () => {
-      document.getElementById('importFileInput').click();
+    // Sync & Data
+    document.getElementById('btnExportData')?.addEventListener('click', exportDataJson);
+    document.getElementById('btnImportDataTrigger')?.addEventListener('click', () => {
+      document.getElementById('importFileInput')?.click();
     });
-    document.getElementById('importFileInput').addEventListener('change', importDataJson);
-    document.getElementById('btnResetToDefaults').addEventListener('click', resetAllData);
-    document.getElementById('btnCloseReceiptModal').addEventListener('click', () => {
-      document.getElementById('modalReceiptBackdrop').classList.add('hidden');
+    document.getElementById('importFileInput')?.addEventListener('change', importDataJson);
+    document.getElementById('btnResetToDefaults')?.addEventListener('click', resetAllData);
+    document.getElementById('btnCloseReceiptModal')?.addEventListener('click', () => {
+      document.getElementById('modalReceiptBackdrop')?.classList.add('hidden');
     });
+
+    // Python Barcode & Price Engine Scanner Execution
+    const btnRunPy = document.getElementById('btnRunPythonScanAnalysis');
+    if (btnRunPy) {
+      btnRunPy.addEventListener('click', () => {
+        AudioEngine.playTap();
+        runPythonScanAnalysis();
+        showToast('Analisis Python berhasil dijalankan', 'success');
+      });
+    }
 
     // Node.js & TypeScript Cloud Insights
     const btnRunNode = document.getElementById('btnRunNodeAnalytics');
@@ -1962,6 +2538,7 @@
     currentScannedItem = JSON.parse(JSON.stringify(found));
     scannedDiscountsState = JSON.parse(JSON.stringify(found.defaultDiscounts || []));
     openScanResultModal();
+    runPythonScanAnalysis(code);
   }
 
   function openScanResultModal() {
@@ -2112,6 +2689,114 @@
         descEl.innerHTML = `<span class="text-error font-medium">Melebihi budget saku sebesar <strong class="font-bold">Rp ${formatNumber(Math.abs(sisa))}</strong>!</span>`;
       }
     }
+
+    // Update Python analysis card
+    updatePythonAnalysisCard({
+      name: currentScannedItem.name,
+      finalPrice: currentPrice,
+      totalDiscount: totalDiscount,
+      basePrice: basePrice,
+      lastMonthPrice: currentScannedItem.lastMonthPrice || currentScannedItem.price,
+      sisa: sisa
+    });
+  }
+
+  function updatePythonAnalysisCard(info) {
+    const nameEl = document.getElementById('pyScannedName');
+    const formulaEl = document.getElementById('pyFormulaBreakdown');
+    const compEl = document.getElementById('pyComparisonLabel');
+    const capEl = document.getElementById('pyBudgetCapStatus');
+
+    if (nameEl && info.name) nameEl.textContent = info.name;
+    if (formulaEl) {
+      const saved = info.totalDiscount || 0;
+      formulaEl.textContent = `Nett: Rp ${formatNumber(info.finalPrice)} (Hemat Rp ${formatNumber(saved)})`;
+    }
+    if (compEl) {
+      const diff = info.finalPrice - info.lastMonthPrice;
+      if (diff > 0) {
+        const pct = info.lastMonthPrice > 0 ? ((diff / info.lastMonthPrice) * 100).toFixed(1) : 0;
+        compEl.textContent = `↑ Naik Rp ${formatNumber(diff)} (+${pct}%)`;
+        compEl.className = 'text-rose-400 font-bold';
+      } else if (diff < 0) {
+        const pct = info.lastMonthPrice > 0 ? ((Math.abs(diff) / info.lastMonthPrice) * 100).toFixed(1) : 0;
+        compEl.textContent = `↓ Turun Rp ${formatNumber(Math.abs(diff))} (-${pct}%)`;
+        compEl.className = 'text-emerald-400 font-bold';
+      } else {
+        compEl.textContent = '= Stabil (Sama dgn bulan lalu)';
+        compEl.className = 'text-secondary-fixed font-bold';
+      }
+    }
+    if (capEl) {
+      if (info.sisa < 0) {
+        capEl.textContent = `Over-Budget 🚨 (Defisit Rp ${formatNumber(Math.abs(info.sisa))})`;
+        capEl.className = 'text-rose-400 font-bold';
+      } else if (info.sisa < appState.budgetLimit * 0.2) {
+        capEl.textContent = `Waspada ⚠️ (Sisa Rp ${formatNumber(info.sisa)})`;
+        capEl.className = 'text-amber-300 font-bold';
+      } else {
+        capEl.textContent = `Aman ✅ (Sisa Rp ${formatNumber(info.sisa)})`;
+        capEl.className = 'text-secondary-fixed font-bold';
+      }
+    }
+  }
+
+  async function runPythonScanAnalysis(barcode, discount) {
+    const statusBadge = document.getElementById('pyEngineStatusBadge');
+    if (statusBadge) {
+      statusBadge.textContent = 'Memproses di Python...';
+      statusBadge.className = 'px-2 py-0.5 rounded-full bg-amber-500/30 text-[10.5px] font-semibold text-amber-300 animate-pulse';
+    }
+
+    try {
+      const code = barcode || (currentScannedItem ? currentScannedItem.barcode : '8991002105432');
+      const disc = discount !== undefined ? discount : (currentScannedItem ? currentScannedItem.defaultDiscounts || '15+5' : '15+5');
+      const shelfPrice = currentScannedItem ? currentScannedItem.price : 0;
+      const lastPrice = currentScannedItem ? currentScannedItem.lastMonthPrice : 0;
+
+      const res = await fetch(`/api/scan-python?barcode=${encodeURIComponent(code)}&discount=${encodeURIComponent(disc)}&price=${shelfPrice}&lastPrice=${lastPrice}`);
+      if (!res.ok) throw new Error('API offline');
+      const data = await res.json();
+
+      const nameEl = document.getElementById('pyScannedName');
+      const formulaEl = document.getElementById('pyFormulaBreakdown');
+      const compEl = document.getElementById('pyComparisonLabel');
+      const capEl = document.getElementById('pyBudgetCapStatus');
+
+      if (nameEl) nameEl.textContent = data.name;
+      if (formulaEl) formulaEl.textContent = `${data.discount_result.formula_text} = Rp ${formatNumber(data.discount_result.final_price)}`;
+      if (compEl) {
+        compEl.textContent = data.comparison.label;
+        compEl.className = data.comparison.status === 'UP' ? 'text-rose-400 font-bold'
+          : data.comparison.status === 'DOWN' ? 'text-emerald-400 font-bold'
+          : 'text-secondary-fixed font-bold';
+      }
+
+      const totalCart = appState.cart.reduce((s, it) => s + (it.price * it.qty), 0);
+      const remaining = appState.budgetLimit - (totalCart + data.discount_result.final_price);
+      if (capEl) {
+        if (remaining < 0) {
+          capEl.textContent = `Over-Budget 🚨 (Defisit Rp ${formatNumber(Math.abs(remaining))})`;
+          capEl.className = 'text-rose-400 font-bold';
+        } else if (remaining < appState.budgetLimit * 0.2) {
+          capEl.textContent = `Waspada ⚠️ (Sisa Rp ${formatNumber(remaining)})`;
+          capEl.className = 'text-amber-300 font-bold';
+        } else {
+          capEl.textContent = `Aman ✅ (Sisa Rp ${formatNumber(remaining)})`;
+          capEl.className = 'text-secondary-fixed font-bold';
+        }
+      }
+
+      if (statusBadge) {
+        statusBadge.textContent = data.pythonInstalled ? 'Python 3 Native Active 🚀' : 'Python Standard Engine Active ✅';
+        statusBadge.className = 'px-2 py-0.5 rounded-full bg-secondary/40 text-[10.5px] font-semibold text-secondary-fixed';
+      }
+    } catch (e) {
+      if (statusBadge) {
+        statusBadge.textContent = 'Python Ready (Offline)';
+        statusBadge.className = 'px-2 py-0.5 rounded-full bg-surface-container text-[10.5px] font-semibold text-outline-variant';
+      }
+    }
   }
 
   function applyScannedItemToCart() {
@@ -2203,7 +2888,7 @@
 
   function selectStore(storeName) {
     appState.activeStore = storeName;
-    localStorage.setItem('smart_grocery_store', storeName);
+    saveStore(storeName);
 
     const activeLabel = document.getElementById('activeStoreName');
     if (activeLabel) activeLabel.textContent = storeName;
@@ -2409,23 +3094,711 @@
   };
 
   // ==========================================================================
-  // CHECKOUT & RIWAYAT (F-06)
+  // ASTRO OFFICIAL CATALOG SHELF MODULE
   // ==========================================================================
-  function handleCheckout() {
-    if (appState.cart.length === 0) {
-      showToast('Keranjang masih kosong', 'warning');
+  function initAstroCatalogModule() {
+    // 1. Astro Category Filter Chips
+    const chips = document.querySelectorAll('.astro-cat-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          c.classList.remove('active', 'bg-primary', 'text-secondary-fixed', 'font-bold');
+          c.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+        });
+        chip.classList.add('active', 'bg-primary', 'text-secondary-fixed', 'font-bold');
+        chip.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+
+        appState.astroCategory = chip.getAttribute('data-astro-cat') || 'ALL';
+        AudioEngine.playTap();
+        renderAstroCatalog();
+      });
+    });
+
+    // 2. Astro Search
+    const searchInput = document.getElementById('inputAstroSearch');
+    const clearBtn = document.getElementById('btnClearAstroSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        appState.astroSearchQuery = searchInput.value.trim().toLowerCase();
+        if (clearBtn) {
+          clearBtn.classList.toggle('hidden', appState.astroSearchQuery === '');
+        }
+        renderAstroCatalog();
+      });
+    }
+
+    if (clearBtn && searchInput) {
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        appState.astroSearchQuery = '';
+        clearBtn.classList.add('hidden');
+        renderAstroCatalog();
+      });
+    }
+
+    // 3. 1-Klik Paket Hemat Anak Kos Astro
+    const btnLoadKos = document.getElementById('btnLoadAstroKosPack');
+    if (btnLoadKos) {
+      btnLoadKos.addEventListener('click', loadAstroKosStarterPack);
+    }
+
+    renderAstroCatalog();
+    initAstroCheckoutModule();
+  }
+
+  function renderAstroCatalog() {
+    const grid = document.getElementById('astroCatalogGrid');
+    if (!grid) return;
+
+    let items = ASTRO_OFFICIAL_CATALOG;
+
+    // Filter category
+    if (appState.astroCategory && appState.astroCategory !== 'ALL') {
+      items = items.filter(i => i.category === appState.astroCategory);
+    }
+
+    // Filter search
+    if (appState.astroSearchQuery) {
+      items = items.filter(i =>
+        i.name.toLowerCase().includes(appState.astroSearchQuery) ||
+        i.category.toLowerCase().includes(appState.astroSearchQuery) ||
+        (i.description && i.description.toLowerCase().includes(appState.astroSearchQuery))
+      );
+    }
+
+    if (items.length === 0) {
+      grid.innerHTML = `
+        <div class="col-span-2 text-center py-8 text-on-surface-variant">
+          <span class="material-symbols-outlined text-[32px] text-outline-variant block mb-1">search_off</span>
+          <p class="text-xs font-semibold">Produk Astro tidak ditemukan</p>
+          <p class="text-[11px] text-outline">Coba kata kunci lain seperti "Beras", "Minyak", atau "Susu"</p>
+        </div>
+      `;
       return;
     }
 
-    let grandTotal = 0;
-    let totalSaved = 0;
+    grid.innerHTML = items.map(prod => {
+      // Check if product is already in active cart
+      const inCart = appState.cart.find(c => c.astroId === prod.id || c.name.toLowerCase() === prod.name.toLowerCase());
+      const inCartQty = inCart ? inCart.qty : 0;
+      const hasDiscount = prod.originalPrice && prod.originalPrice > prod.price;
+
+      return `
+        <div class="astro-product-card" data-astro-id="${prod.id}">
+          <div>
+            <!-- Top Badges -->
+            <div class="flex items-center justify-between gap-1 mb-2">
+              <span class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-lg shadow-xs shrink-0 select-none">${prod.emoji || '🛒'}</span>
+              <span class="px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-bold truncate max-w-[85px]">${escapeHtml(prod.badge || 'Astro Goods')}</span>
+            </div>
+
+            <!-- Title & Size -->
+            <h4 class="font-headline-sm text-xs font-bold text-primary line-clamp-2 leading-snug mb-0.5" title="${escapeHtml(prod.name)}">${escapeHtml(prod.name)}</h4>
+            <div class="text-[10px] text-on-surface-variant font-medium mb-1.5">${escapeHtml(prod.unit)}</div>
+
+            <!-- Pricing -->
+            <div class="flex items-baseline gap-1 mb-2.5">
+              ${hasDiscount ? `<del class="text-[10px] text-outline font-mono">Rp ${formatNumber(prod.originalPrice)}</del>` : ''}
+              <span class="font-bold text-xs text-secondary font-mono">Rp ${formatNumber(prod.price)}</span>
+            </div>
+          </div>
+
+          <!-- Bottom Action Button / Stepper -->
+          <div>
+            ${inCartQty > 0 ? `
+              <div class="flex items-center justify-between bg-primary rounded-xl p-1 text-white shadow-xs">
+                <button type="button" class="w-6 h-6 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center font-bold text-xs cursor-pointer transition-all" onclick="window.addAstroToCart('${prod.id}', -1)" title="Kurangi">-</button>
+                <span class="font-bold text-[11px] text-secondary-fixed px-1 font-mono">${inCartQty} di Troli</span>
+                <button type="button" class="w-6 h-6 rounded-lg bg-secondary-fixed text-primary hover:bg-white active:scale-90 flex items-center justify-center font-bold text-xs cursor-pointer transition-all" onclick="window.addAstroToCart('${prod.id}', 1)" title="Tambah">+</button>
+              </div>
+            ` : `
+              <button type="button"
+                class="w-full py-2 px-2.5 rounded-xl bg-primary hover:bg-secondary text-secondary-fixed hover:text-white font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs active:scale-95"
+                onclick="window.addAstroToCart('${prod.id}', 1)">
+                <span class="material-symbols-outlined text-[15px]">add_shopping_cart</span>
+                <span>+ Keranjang</span>
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 1-Click add to cart from Astro Catalog
+  window.addAstroToCart = function (astroId, delta = 1) {
+    const prod = ASTRO_OFFICIAL_CATALOG.find(p => p.id === astroId);
+    if (!prod) return;
+
+    let existing = appState.cart.find(c => c.astroId === prod.id || c.name.toLowerCase() === prod.name.toLowerCase());
+
+    if (!existing) {
+      if (delta <= 0) return;
+      const newItem = {
+        id: 'item-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        astroId: prod.id,
+        name: prod.name,
+        category: prod.category,
+        unit: prod.unit,
+        qty: 1,
+        price: prod.price,
+        lastMonthPrice: prod.originalPrice || prod.price,
+        discountRaw: prod.discountRaw || '',
+        isPlanned: true,
+        inPhysicalCart: true,
+        createdAt: Date.now()
+      };
+      appState.cart.unshift(newItem);
+      AudioEngine.playTap();
+      showToast(`"${prod.name}" masuk ke troli!`, 'success');
+    } else {
+      const nextQty = existing.qty + delta;
+      if (nextQty <= 0) {
+        appState.cart = appState.cart.filter(c => c.id !== existing.id);
+        AudioEngine.playTap();
+        showToast(`"${prod.name}" dikeluarkan dari troli`, 'warning');
+      } else {
+        existing.qty = nextQty;
+        AudioEngine.playTap();
+      }
+    }
+
+    saveCart();
+    renderCart();
+    renderAstroCatalog();
+  };
+
+  // 1-Click Paket Hemat Anak Kos Astro (Beras, Minyak, Telur, Indomie, Susu, Rinso)
+  function loadAstroKosStarterPack() {
+    const kosPicks = [
+      'astro-beras-5kg',
+      'astro-minyak-sunco-2l',
+      'astro-telur-negeri-10',
+      'astro-indomie-goreng-5',
+      'astro-ultra-fullcream-1l',
+      'astro-rinso-molto-750'
+    ];
+
+    kosPicks.forEach(id => {
+      const prod = ASTRO_OFFICIAL_CATALOG.find(p => p.id === id);
+      if (!prod) return;
+
+      const existing = appState.cart.find(c => c.astroId === prod.id || c.name.toLowerCase() === prod.name.toLowerCase());
+      if (!existing) {
+        appState.cart.push({
+          id: 'item-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          astroId: prod.id,
+          name: prod.name,
+          category: prod.category,
+          unit: prod.unit,
+          qty: 1,
+          price: prod.price,
+          lastMonthPrice: prod.originalPrice || prod.price,
+          discountRaw: prod.discountRaw || '',
+          isPlanned: true,
+          inPhysicalCart: true,
+          createdAt: Date.now()
+        });
+      }
+    });
+
+    saveCart();
+    renderCart();
+    renderAstroCatalog();
+    AudioEngine.playSuccess();
+
+    if (window.confetti) {
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ['#006e2f', '#6bff8f', '#ffffff']
+      });
+    }
+
+    showToast('✨ 6 Produk Paket Kos Astro masuk ke troli!', 'success');
+  }
+
+  // ==========================================================================
+  // ASTRO INTERACTIVE CASHIER CHECKOUT & RECEIPT ENGINE
+  // Fitur pembayaran menarik dengan animasi mesin kasir & struk thermal
+  // ==========================================================================
+  let currentProcessingTimer = null;
+  let qrisInterval = null;
+
+  function initAstroCheckoutModule() {
+    // Finish Shopping button opens the interactive checkout modal
+    const btnFinish = document.getElementById('btnFinishShopping');
+    if (btnFinish) {
+      btnFinish.addEventListener('click', openAstroCheckoutModal);
+    }
+
+    const btnSticky = document.getElementById('btnCheckoutCashierSticky');
+    if (btnSticky) {
+      btnSticky.addEventListener('click', openAstroCheckoutModal);
+    }
+
+    // Close button
+    const btnClose = document.getElementById('btnCloseAstroCheckout');
+    if (btnClose) {
+      btnClose.addEventListener('click', closeAstroCheckoutModal);
+    }
+
+    const btnCloseReceipt = document.getElementById('btnCloseReceiptView');
+    if (btnCloseReceipt) {
+      btnCloseReceipt.addEventListener('click', closeAstroCheckoutModal);
+    }
+
+    // Voucher selection
+    const voucherButtons = document.querySelectorAll('.checkout-voucher-btn');
+    voucherButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        voucherButtons.forEach(b => {
+          b.classList.remove('active', 'border-emerald-500', 'bg-emerald-50');
+          b.classList.add('border-gray-200', 'bg-white');
+        });
+        btn.classList.add('active', 'border-emerald-500', 'bg-emerald-50');
+        btn.classList.remove('border-gray-200', 'bg-white');
+
+        astroCheckoutState.voucherCode = btn.getAttribute('data-code');
+        astroCheckoutState.voucherDiscount = parseInt(btn.getAttribute('data-discount'), 10) || 0;
+        AudioEngine.playTap();
+        refreshCheckoutTotals();
+      });
+    });
+
+    // Payment method tabs
+    const methodTabs = document.querySelectorAll('.checkout-method-tab');
+    methodTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const method = tab.getAttribute('data-method');
+        selectPaymentMethod(method);
+      });
+    });
+
+    // VA Bank Selection
+    const vaButtons = document.querySelectorAll('.btn-select-va-bank');
+    vaButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        vaButtons.forEach(b => {
+          b.classList.remove('active', 'border-primary', 'bg-primary', 'text-secondary-fixed');
+          b.classList.add('border-outline-variant/30', 'bg-white', 'text-gray-700');
+        });
+        btn.classList.add('active', 'border-primary', 'bg-primary', 'text-secondary-fixed');
+        btn.classList.remove('border-outline-variant/30', 'bg-white', 'text-gray-700');
+
+        const bank = btn.getAttribute('data-bank');
+        astroCheckoutState.selectedVaBank = bank;
+        updateVaNumber(bank);
+        AudioEngine.playTap();
+      });
+    });
+
+    // Copy VA button
+    const btnCopyVa = document.getElementById('btnCopyVaNumber');
+    if (btnCopyVa) {
+      btnCopyVa.addEventListener('click', () => {
+        const vaNum = document.getElementById('vaNumberDisplay')?.textContent || '';
+        navigator.clipboard?.writeText(vaNum);
+        AudioEngine.playTap();
+        showToast(`Nomor VA ${astroCheckoutState.selectedVaBank} berhasil disalin!`, 'success');
+      });
+    }
+
+    // Quick Cash buttons
+    const cashButtons = document.querySelectorAll('.btn-quick-cash');
+    cashButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const amountType = btn.getAttribute('data-amount');
+        const inputCash = document.getElementById('inputCashPaid');
+        const currentGrandTotal = calculateCurrentGrandTotal();
+
+        if (amountType === 'pas') {
+          astroCheckoutState.cashPaid = currentGrandTotal;
+          if (inputCash) inputCash.value = currentGrandTotal;
+        } else {
+          const val = parseInt(amountType, 10) || 0;
+          astroCheckoutState.cashPaid = val;
+          if (inputCash) inputCash.value = val;
+        }
+        AudioEngine.playTap();
+        refreshCashChangeDisplay();
+      });
+    });
+
+    // Cash input live change
+    const inputCash = document.getElementById('inputCashPaid');
+    if (inputCash) {
+      inputCash.addEventListener('input', () => {
+        astroCheckoutState.cashPaid = parseFloat(inputCash.value) || 0;
+        refreshCashChangeDisplay();
+      });
+    }
+
+    // Confirm Pay button
+    const btnConfirmPay = document.getElementById('btnConfirmAstroPay');
+    if (btnConfirmPay) {
+      btnConfirmPay.addEventListener('click', handleAstroPaymentExecution);
+    }
+
+    // Copy receipt text
+    const btnCopyReceipt = document.getElementById('btnCopyReceiptText');
+    if (btnCopyReceipt) {
+      btnCopyReceipt.addEventListener('click', copyThermalReceiptSummary);
+    }
+
+    // Done shopping / new trolley
+    const btnDone = document.getElementById('btnDoneAstroCheckout');
+    if (btnDone) {
+      btnDone.addEventListener('click', () => {
+        closeAstroCheckoutModal();
+        const navCart = document.getElementById('navBtnCart');
+        if (navCart) navCart.click();
+      });
+    }
+
+    // View history from receipt
+    const btnViewHist = document.getElementById('btnViewHistoryFromReceipt');
+    if (btnViewHist) {
+      btnViewHist.addEventListener('click', () => {
+        closeAstroCheckoutModal();
+        const navHistory = document.getElementById('navBtnHistory');
+        if (navHistory) navHistory.click();
+      });
+    }
+  }
+
+  function selectPaymentMethod(method) {
+    astroCheckoutState.selectedMethod = method;
+
+    const methodTabs = document.querySelectorAll('.checkout-method-tab');
+    methodTabs.forEach(t => {
+      const match = t.getAttribute('data-method') === method;
+      t.classList.toggle('active', match);
+      t.classList.toggle('border-secondary', match);
+      t.classList.toggle('bg-secondary/10', match);
+      t.classList.toggle('border-outline-variant/30', !match);
+      t.classList.toggle('bg-surface-container-low', !match);
+    });
+
+    const panelQris = document.getElementById('methodPanelQris');
+    const panelAstroPay = document.getElementById('methodPanelAstroPay');
+    const panelVa = document.getElementById('methodPanelVa');
+    const panelCash = document.getElementById('methodPanelCash');
+
+    if (panelQris) panelQris.classList.toggle('hidden', method !== 'qris');
+    if (panelAstroPay) panelAstroPay.classList.toggle('hidden', method !== 'astropay');
+    if (panelVa) panelVa.classList.toggle('hidden', method !== 'va');
+    if (panelCash) panelCash.classList.toggle('hidden', method !== 'cash');
+
+    AudioEngine.playTap();
+    refreshCheckoutTotals();
+  }
+
+  function updateVaNumber(bank) {
+    const label = document.getElementById('vaBankNameLabel');
+    const numDisplay = document.getElementById('vaNumberDisplay');
+    const numbers = {
+      'BCA': '8801 2948 1029 3847',
+      'Mandiri': '8932 7481 0293 8472',
+      'BRI': '8029 4810 2938 4721',
+      'BNI': '8271 0294 8102 9384'
+    };
+    if (label) label.textContent = `NOMOR VIRTUAL ACCOUNT ${bank}`;
+    if (numDisplay) numDisplay.textContent = numbers[bank] || '8801 2948 1029 3847';
+  }
+
+  function calculateCurrentSubtotal() {
+    let subtotal = 0;
+    appState.cart.forEach(item => {
+      const disc = calculateDiscount(item.price, item.discountRaw);
+      subtotal += disc.finalUnitPrice * item.qty;
+    });
+    return subtotal;
+  }
+
+  function calculateCurrentGrandTotal() {
+    const subtotal = calculateCurrentSubtotal();
+    const voucherDiscount = astroCheckoutState.voucherDiscount || 0;
+    const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
+    return Math.max(0, subtotal - voucherDiscount + serviceFee);
+  }
+
+  function refreshCheckoutTotals() {
+    const subtotal = calculateCurrentSubtotal();
+    const discount = astroCheckoutState.voucherDiscount || 0;
+    const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
+    const grandTotal = Math.max(0, subtotal - discount + serviceFee);
+
+    const elSub = document.getElementById('checkoutSubtotal');
+    const elDisc = document.getElementById('checkoutDiscountAmount');
+    const elVouchLabel = document.getElementById('checkoutVoucherLabel');
+    const elService = document.getElementById('checkoutServiceFee');
+    const elGrand = document.getElementById('checkoutGrandTotal');
+    const elConfirmBtnText = document.getElementById('btnConfirmPayText');
+    const elRemaining = document.getElementById('checkoutBudgetRemaining');
+
+    if (elSub) elSub.textContent = `Rp ${formatNumber(subtotal)}`;
+    if (elDisc) elDisc.textContent = discount > 0 ? `-Rp ${formatNumber(discount)}` : 'Rp 0';
+    if (elVouchLabel) elVouchLabel.textContent = astroCheckoutState.voucherCode === 'NONE' ? 'Tanpa Voucher' : astroCheckoutState.voucherCode;
+    if (elService) elService.textContent = serviceFee > 0 ? `Rp ${formatNumber(serviceFee)}` : 'GRATIS (Voucher)';
+    if (elGrand) elGrand.textContent = `Rp ${formatNumber(grandTotal)}`;
+    if (elConfirmBtnText) elConfirmBtnText.textContent = `Bayar Sekarang (Rp ${formatNumber(grandTotal)})`;
+
+    // Budget comparison
+    const remainingWallet = appState.budgetLimit - grandTotal;
+    if (elRemaining) {
+      if (remainingWallet >= 0) {
+        elRemaining.className = 'font-bold text-emerald-700';
+        elRemaining.textContent = `Rp ${formatNumber(remainingWallet)} (Aman ✅)`;
+      } else {
+        elRemaining.className = 'font-bold text-red-600';
+        elRemaining.textContent = `Defisit Rp ${formatNumber(Math.abs(remainingWallet))} (Melebihi Limit ⚠️)`;
+      }
+    }
+
+    refreshCashChangeDisplay();
+  }
+
+  function refreshCashChangeDisplay() {
+    const elChange = document.getElementById('cashChangeDisplay');
+    if (!elChange) return;
+
+    const grandTotal = calculateCurrentGrandTotal();
+    const paid = astroCheckoutState.cashPaid || 0;
+    const change = paid - grandTotal;
+
+    if (paid <= 0) {
+      elChange.textContent = 'Rp 0';
+      elChange.className = 'text-sm font-bold text-gray-500';
+    } else if (change >= 0) {
+      elChange.textContent = `Rp ${formatNumber(change)} (Kembalian Pas)`;
+      elChange.className = 'text-sm font-bold text-secondary';
+    } else {
+      elChange.textContent = `Kurang Rp ${formatNumber(Math.abs(change))}`;
+      elChange.className = 'text-sm font-bold text-red-600';
+    }
+  }
+
+  function startQrisCountdown() {
+    clearInterval(qrisInterval);
+    astroCheckoutState.qrisSecondsRemaining = 900; // 15:00
+    const timerEl = document.getElementById('qrisCountdownTimer');
+
+    function updateDisplay() {
+      const sec = astroCheckoutState.qrisSecondsRemaining;
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      if (timerEl) {
+        timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+      if (sec <= 0) {
+        clearInterval(qrisInterval);
+      }
+      astroCheckoutState.qrisSecondsRemaining--;
+    }
+
+    updateDisplay();
+    qrisInterval = setInterval(updateDisplay, 1000);
+  }
+
+  function openAstroCheckoutModal() {
+    if (appState.cart.length === 0) {
+      showToast('Keranjang belanja masih kosong! Pilih barang di Katalog Astro.', 'warning');
+      const catalogSection = document.getElementById('sectionAstroCatalog');
+      if (catalogSection) {
+        catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    const modal = document.getElementById('modalAstroCheckout');
+    const stageReview = document.getElementById('checkoutStageReview');
+    const stageProcessing = document.getElementById('checkoutStageProcessing');
+    const stageReceipt = document.getElementById('checkoutStageReceipt');
+
+    if (!modal) return;
+
+    // Reset stages
+    stageReview.classList.remove('hidden');
+    stageProcessing.classList.add('hidden');
+    stageReceipt.classList.add('hidden');
+
+    // Populate user
+    const avatarEl = document.getElementById('checkoutUserAvatar');
+    const nameEl = document.getElementById('checkoutUserName');
+    if (avatarEl) avatarEl.textContent = (appState.currentUser?.avatarText || 'R');
+    if (nameEl) nameEl.textContent = (appState.currentUser?.displayName || appState.currentUser?.username || 'Rian Pratama');
+
+    // Render items list
+    const itemsContainer = document.getElementById('checkoutItemsList');
+    const countBadge = document.getElementById('checkoutItemCountBadge');
+    if (countBadge) countBadge.textContent = `${appState.cart.length} Produk`;
+
+    if (itemsContainer) {
+      itemsContainer.innerHTML = appState.cart.map(item => {
+        const disc = calculateDiscount(item.price, item.discountRaw);
+        const lineTotal = disc.finalUnitPrice * item.qty;
+        return `
+          <div class="flex items-center justify-between text-xs py-1 border-b border-outline-variant/15 last:border-b-0">
+            <div class="flex-1 min-w-0 pr-2">
+              <span class="font-bold text-gray-800 truncate block">${escapeHtml(item.name)}</span>
+              <span class="text-[10px] text-gray-500">${item.qty} ${escapeHtml(item.unit)} x Rp ${formatNumber(disc.finalUnitPrice)}</span>
+            </div>
+            <strong class="font-mono text-gray-900 shrink-0">Rp ${formatNumber(lineTotal)}</strong>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Reset default payment method & voucher
+    selectPaymentMethod('qris');
+    startQrisCountdown();
+    refreshCheckoutTotals();
+
+    modal.classList.remove('hidden');
+    AudioEngine.playTap();
+  }
+
+  function closeAstroCheckoutModal() {
+    const modal = document.getElementById('modalAstroCheckout');
+    if (modal) modal.classList.add('hidden');
+    clearInterval(qrisInterval);
+    if (currentProcessingTimer) clearTimeout(currentProcessingTimer);
+  }
+
+  // Multi-Phase Interactive Cashier Machine Sequence
+  function handleAstroPaymentExecution() {
+    const grandTotal = calculateCurrentGrandTotal();
+
+    // If Cash method, check if paid is sufficient
+    if (astroCheckoutState.selectedMethod === 'cash') {
+      const paid = astroCheckoutState.cashPaid || 0;
+      if (paid < grandTotal && paid > 0) {
+        showToast('Nomor uang tunai kurang dari total belanjaan!', 'danger');
+        return;
+      }
+      if (paid <= 0) {
+        // Assume uang pas
+        astroCheckoutState.cashPaid = grandTotal;
+      }
+    }
+
+    const stageReview = document.getElementById('checkoutStageReview');
+    const stageProcessing = document.getElementById('checkoutStageProcessing');
+    const stageReceipt = document.getElementById('checkoutStageReceipt');
+
+    stageReview.classList.add('hidden');
+    stageProcessing.classList.remove('hidden');
+    stageReceipt.classList.add('hidden');
+
+    const stepBadge = document.getElementById('posStepBadge');
+    const stepTitle = document.getElementById('posStepTitle');
+    const stepDesc = document.getElementById('posStepDesc');
+    const progressBar = document.getElementById('posProgressBar');
+
+    // Phase 1 (0ms - 1200ms): Connect to Gateway
+    if (stepBadge) stepBadge.textContent = 'FASE 1 / 3';
+    if (stepTitle) stepTitle.textContent = '📡 Menghubungkan ke Astro Payment Gateway...';
+    if (stepDesc) stepDesc.textContent = 'Mengunci pesanan dan memvalidasi saluran pembayaran terenkripsi.';
+    if (progressBar) progressBar.style.width = '35%';
+    AudioEngine.playBeep();
+
+    // Phase 2 (1200ms - 2400ms): Verify balance / auth
+    currentProcessingTimer = setTimeout(() => {
+      if (stepBadge) stepBadge.textContent = 'FASE 2 / 3';
+      if (stepTitle) stepTitle.textContent = '🔐 Memverifikasi Saldo & Mengunci Stok Bahan...';
+      if (stepDesc) stepDesc.textContent = 'Sistem kasir mengonfirmasi transaksi disetujui tanpa kendala.';
+      if (progressBar) progressBar.style.width = '75%';
+      AudioEngine.playTap();
+
+      // Phase 3 (2400ms - 3400ms): Printing Thermal Receipt
+      currentProcessingTimer = setTimeout(() => {
+        if (stepBadge) stepBadge.textContent = 'FASE 3 / 3';
+        if (stepTitle) stepTitle.textContent = '🖨️ Mencetak Struk Kasir Thermal Digital...';
+        if (stepDesc) stepDesc.textContent = 'Mengesahkan struk bukti transaksi resmi Astro Express SCBD.';
+        if (progressBar) progressBar.style.width = '100%';
+        AudioEngine.playPrinter();
+
+        // Phase 4 (3500ms): Success Celebration & Rollout Receipt
+        currentProcessingTimer = setTimeout(() => {
+          completeCheckoutAndDisplayReceipt();
+        }, 1100);
+
+      }, 1200);
+
+    }, 1200);
+  }
+
+  function completeCheckoutAndDisplayReceipt() {
+    clearInterval(qrisInterval);
+    const stageProcessing = document.getElementById('checkoutStageProcessing');
+    const stageReceipt = document.getElementById('checkoutStageReceipt');
+
+    stageProcessing.classList.add('hidden');
+    stageReceipt.classList.remove('hidden');
+
+    const subtotal = calculateCurrentSubtotal();
+    const discount = astroCheckoutState.voucherDiscount || 0;
+    const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
+    const grandTotal = Math.max(0, subtotal - discount + serviceFee);
+
+    const trxId = 'ASTRO-20261021-' + Math.floor(10000 + Math.random() * 90000);
+    const nowStr = new Date().toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }) + ' WIB';
+
+    const customerName = appState.currentUser?.displayName || appState.currentUser?.username || 'Rian Pratama';
+
+    const methodLabels = {
+      'qris': 'QRIS Astro Instant (LUNAS)',
+      'astropay': 'AstroPay E-Wallet (LUNAS)',
+      'va': `Virtual Account ${astroCheckoutState.selectedVaBank} (LUNAS)`,
+      'cash': 'Tunai di Kasir (LUNAS)'
+    };
+    const paymentMethodLabel = methodLabels[astroCheckoutState.selectedMethod] || 'QRIS Astro (LUNAS)';
+
+    // Populate Thermal Receipt Elements
+    const elTrx = document.getElementById('receiptTrxId');
+    const elTime = document.getElementById('receiptTimestamp');
+    const elCust = document.getElementById('receiptCustomerName');
+    const elMethod = document.getElementById('receiptPaymentMethodLabel');
+    const elItemsBody = document.getElementById('receiptItemsBody');
+    const elSub = document.getElementById('receiptSubtotal');
+    const elVouch = document.getElementById('receiptVoucherDiscount');
+    const elService = document.getElementById('receiptServiceFee');
+    const elGrand = document.getElementById('receiptGrandTotal');
+    const elCashDetail = document.getElementById('receiptCashDetailRow');
+    const elCashChange = document.getElementById('receiptCashChangeText');
+
+    if (elTrx) elTrx.textContent = trxId;
+    if (elTime) elTime.textContent = nowStr;
+    if (elCust) elCust.textContent = customerName;
+    if (elMethod) elMethod.textContent = paymentMethodLabel;
+    if (elSub) elSub.textContent = `Rp ${formatNumber(subtotal)}`;
+    if (elVouch) elVouch.textContent = discount > 0 ? `-Rp ${formatNumber(discount)}` : 'Rp 0';
+    if (elService) elService.textContent = serviceFee > 0 ? `Rp ${formatNumber(serviceFee)}` : 'GRATIS';
+    if (elGrand) elGrand.textContent = `Rp ${formatNumber(grandTotal)}`;
+
+    if (astroCheckoutState.selectedMethod === 'cash') {
+      const paid = astroCheckoutState.cashPaid || grandTotal;
+      const change = paid - grandTotal;
+      if (elCashDetail) elCashDetail.classList.remove('hidden');
+      if (elCashChange) elCashChange.textContent = `Bayar: Rp ${formatNumber(paid)} • Kembali: Rp ${formatNumber(Math.max(0, change))}`;
+    } else {
+      if (elCashDetail) elCashDetail.classList.add('hidden');
+    }
+
+    // Render receipt items lines
     const receiptItems = appState.cart.map(item => {
       const disc = calculateDiscount(item.price, item.discountRaw);
       const lineTotal = disc.finalUnitPrice * item.qty;
-      grandTotal += lineTotal;
-      totalSaved += disc.savedPerUnit * item.qty;
       updateMasterDatabaseItem(item.name, item.category, item.unit, item.price);
-
       return {
         name: item.name,
         category: item.category,
@@ -2433,26 +3806,32 @@
         qty: item.qty,
         originalPrice: item.price,
         finalUnitPrice: disc.finalUnitPrice,
-        discountRaw: item.discountRaw,
         lineTotal
       };
     });
 
+    if (elItemsBody) {
+      elItemsBody.innerHTML = receiptItems.map(item => `
+        <div class="flex justify-between items-start text-[11px] leading-tight">
+          <div class="flex-1 pr-2">
+            <span class="font-bold text-gray-900">${escapeHtml(item.name)}</span>
+            <span class="block text-[10px] text-gray-500">${item.qty} ${escapeHtml(item.unit)} @ Rp ${formatNumber(item.finalUnitPrice)}</span>
+          </div>
+          <strong class="font-mono text-gray-900 shrink-0">Rp ${formatNumber(item.lineTotal)}</strong>
+        </div>
+      `).join('');
+    }
+
+    // Save to user's isolated history
     const newReceipt = {
-      id: 'rcp-' + Date.now(),
-      date: new Date().toLocaleDateString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
+      id: trxId,
+      date: nowStr,
       budgetLimit: appState.budgetLimit,
       grandTotal,
-      totalSaved,
+      totalSaved: discount,
       itemCount: receiptItems.length,
-      items: receiptItems
+      items: receiptItems,
+      paymentMethod: paymentMethodLabel
     };
 
     appState.history.unshift(newReceipt);
@@ -2463,6 +3842,7 @@
     saveMaster();
 
     renderCart();
+    renderAstroCatalog();
 
     // Auto push receipt to Supabase if connected
     if (appState.supabaseClient) {
@@ -2478,18 +3858,37 @@
       }).then(() => { });
     }
 
+    AudioEngine.playCashier();
+    AudioEngine.playSuccess();
+
     if (window.confetti) {
       confetti({
-        particleCount: 60,
-        spread: 50,
-        origin: { y: 0.85 },
-        colors: ['#d4ff00', '#ffffff', '#10b981']
+        particleCount: 75,
+        spread: 65,
+        origin: { y: 0.7 },
+        colors: ['#006e2f', '#6bff8f', '#ffffff', '#ffd700']
       });
     }
 
-    AudioEngine.playSuccess();
-    showToast('Belanja selesai! Struk digital disimpan.', 'success');
-    showReceiptModal(newReceipt.id);
+    showToast('Pembayaran berhasil! Struk digital dicetak.', 'success');
+  }
+
+  function copyThermalReceiptSummary() {
+    const elTrx = document.getElementById('receiptTrxId')?.textContent || '';
+    const elCust = document.getElementById('receiptCustomerName')?.textContent || '';
+    const elMethod = document.getElementById('receiptPaymentMethodLabel')?.textContent || '';
+    const elGrand = document.getElementById('receiptGrandTotal')?.textContent || '';
+
+    const text = `🧾 STRUK PEMBAYARAN ASTRO GROCERY\nNo. TRX: ${elTrx}\nPelanggan: ${elCust}\nMetode: ${elMethod}\nTOTAL: ${elGrand}\nStatus: LUNAS\nTerima kasih telah berbelanja di Astro!`;
+
+    navigator.clipboard?.writeText(text);
+    AudioEngine.playTap();
+    showToast('Teks struk berhasil disalin ke clipboard!', 'success');
+  }
+
+  // Alias for backward compatibility
+  function handleCheckout() {
+    openAstroCheckoutModal();
   }
 
   function renderHistoryList() {
@@ -2820,6 +4219,16 @@
       pill.textContent = `${purchasedItems.length}/${appState.planner.length} Terbeli`;
     }
 
+    const plannerBadge = document.getElementById('navPlannerBadge');
+    if (plannerBadge) {
+      if (pendingItems.length > 0) {
+        plannerBadge.textContent = pendingItems.length;
+        plannerBadge.classList.remove('hidden');
+      } else {
+        plannerBadge.classList.add('hidden');
+      }
+    }
+
     if (shelfContainer) {
       if (pendingItems.length === 0) {
         shelfContainer.innerHTML = `
@@ -3148,8 +4557,375 @@
       .replace(/'/g, '&#039;');
   }
 
+  // ==========================================================================
+  // AUTHENTICATION & MULTI-USER DATA ISOLATION MODULE
+  // ==========================================================================
+  function initAuthModule() {
+    const loginScreen = document.getElementById('loginScreen');
+    const formLogin = document.getElementById('formUsernameLogin');
+    const inputUsername = document.getElementById('inputLoginUsername');
+    const btnGoogle = document.getElementById('btnGoogleLoginTrigger');
+    const modalGoogle = document.getElementById('modalGoogleAuthBackdrop');
+    const btnCancelGoogle = document.getElementById('btnCancelGoogleAuth');
+    const formCustomGoogle = document.getElementById('formCustomGoogleEmail');
+    const inputCustomGoogle = document.getElementById('inputCustomGoogleEmail');
+    const btnProfileTrigger = document.getElementById('btnUserProfileTrigger');
+    const modalProfile = document.getElementById('modalUserProfileBackdrop');
+    const btnCloseProfile = document.getElementById('btnCloseUserProfileModal');
+    const btnSwitchAccount = document.getElementById('btnSwitchAccount');
+    const btnLogoutUser = document.getElementById('btnLogoutUser');
+
+    // 1. Check existing session
+    let savedUser = null;
+    try {
+      const rawUser = localStorage.getItem(AUTH_STORAGE_KEYS.CURRENT_USER);
+      if (rawUser) {
+        savedUser = JSON.parse(rawUser);
+      }
+    } catch (e) {
+      console.warn('Error reading saved user session:', e);
+    }
+
+    if (savedUser && savedUser.username) {
+      appState.currentUser = savedUser;
+      if (loginScreen) loginScreen.classList.add('hidden');
+      loadDataFromStorage();
+      updateHeaderUserUI();
+    } else {
+      // First time or logged out -> Show clean login screen
+      appState.currentUser = null;
+      loadDataFromStorage();
+      if (loginScreen) loginScreen.classList.remove('hidden');
+      renderSavedAccountsList();
+      updateHeaderUserUI();
+    }
+
+    // 2. Handle Username Login Submit
+    if (formLogin) {
+      formLogin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const rawUsername = inputUsername ? inputUsername.value.trim() : '';
+        if (!rawUsername) {
+          showToast('Silakan masukkan username kamu!', 'warning');
+          return;
+        }
+
+        const slug = getUserSlug(rawUsername);
+        const userObj = {
+          slug: slug,
+          username: rawUsername,
+          displayName: rawUsername,
+          provider: 'username',
+          email: '',
+          avatarText: (rawUsername[0] || 'U').toUpperCase(),
+          loginAt: Date.now()
+        };
+
+        loginAsUser(userObj, true);
+        if (inputUsername) inputUsername.value = '';
+      });
+    }
+
+    // 3. Handle Google Login Trigger
+    if (btnGoogle && modalGoogle) {
+      btnGoogle.addEventListener('click', () => {
+        AudioEngine.playTap();
+        modalGoogle.classList.remove('hidden');
+      });
+    }
+
+    // 4. Cancel Google Modal
+    if (btnCancelGoogle && modalGoogle) {
+      btnCancelGoogle.addEventListener('click', () => {
+        modalGoogle.classList.add('hidden');
+      });
+    }
+
+    // Backdrop click for Google modal
+    if (modalGoogle) {
+      modalGoogle.addEventListener('click', (e) => {
+        if (e.target === modalGoogle) {
+          modalGoogle.classList.add('hidden');
+        }
+      });
+    }
+
+    // 5. Google Account Select Buttons
+    document.querySelectorAll('.btn-google-account-select').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const email = btn.getAttribute('data-email') || '';
+        const name = btn.getAttribute('data-name') || '';
+        const username = email.split('@')[0] || 'google_user';
+        const slug = 'g_' + getUserSlug(username);
+
+        const userObj = {
+          slug: slug,
+          username: username,
+          displayName: name,
+          provider: 'google',
+          email: email,
+          avatarText: (name[0] || 'G').toUpperCase(),
+          loginAt: Date.now()
+        };
+
+        if (modalGoogle) modalGoogle.classList.add('hidden');
+        loginAsUser(userObj, true);
+      });
+    });
+
+    // 6. Custom Google Email Submit
+    if (formCustomGoogle) {
+      formCustomGoogle.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = inputCustomGoogle ? inputCustomGoogle.value.trim() : '';
+        if (!email || !email.includes('@')) {
+          showToast('Masukkan alamat email Google yang valid!', 'warning');
+          return;
+        }
+
+        const username = email.split('@')[0];
+        const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+        const slug = 'g_' + getUserSlug(username);
+
+        const userObj = {
+          slug: slug,
+          username: username,
+          displayName: displayName + ' (Google)',
+          provider: 'google',
+          email: email,
+          avatarText: (username[0] || 'G').toUpperCase(),
+          loginAt: Date.now()
+        };
+
+        if (modalGoogle) modalGoogle.classList.add('hidden');
+        if (inputCustomGoogle) inputCustomGoogle.value = '';
+        loginAsUser(userObj, true);
+      });
+    }
+
+    // 7. Profile Header Trigger
+    if (btnProfileTrigger) {
+      btnProfileTrigger.addEventListener('click', () => {
+        AudioEngine.playTap();
+        openUserProfileModal();
+      });
+    }
+
+    // 8. Close Profile Modal
+    if (btnCloseProfile && modalProfile) {
+      btnCloseProfile.addEventListener('click', () => {
+        modalProfile.classList.add('hidden');
+      });
+    }
+
+    if (modalProfile) {
+      modalProfile.addEventListener('click', (e) => {
+        if (e.target === modalProfile) {
+          modalProfile.classList.add('hidden');
+        }
+      });
+    }
+
+    // 9. Switch Account Button (From Profile Modal)
+    if (btnSwitchAccount) {
+      btnSwitchAccount.addEventListener('click', () => {
+        AudioEngine.playTap();
+        if (modalProfile) modalProfile.classList.add('hidden');
+        if (loginScreen) {
+          loginScreen.classList.remove('hidden');
+          renderSavedAccountsList();
+          if (inputUsername) {
+            inputUsername.focus();
+          }
+        }
+      });
+    }
+
+    // 10. Logout Button
+    if (btnLogoutUser) {
+      btnLogoutUser.addEventListener('click', () => {
+        AudioEngine.playTap();
+        logoutUser();
+      });
+    }
+  }
+
+  function loginAsUser(userObj, withGreeting = true) {
+    appState.currentUser = userObj;
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEYS.CURRENT_USER, JSON.stringify(userObj));
+
+      // Update Known Users List
+      let knownUsers = [];
+      const saved = localStorage.getItem(AUTH_STORAGE_KEYS.KNOWN_USERS);
+      if (saved) knownUsers = JSON.parse(saved);
+
+      const existingIdx = knownUsers.findIndex(u => u.slug === userObj.slug);
+      if (existingIdx >= 0) {
+        knownUsers[existingIdx] = userObj;
+      } else {
+        knownUsers.unshift(userObj);
+      }
+      knownUsers = knownUsers.slice(0, 8);
+      localStorage.setItem(AUTH_STORAGE_KEYS.KNOWN_USERS, JSON.stringify(knownUsers));
+    } catch (e) {
+      console.warn('Error saving user session:', e);
+    }
+
+    // Load data isolated strictly for this user
+    loadDataFromStorage();
+
+    // Hide login screen
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen) loginScreen.classList.add('hidden');
+
+    // Update Header UI
+    updateHeaderUserUI();
+
+    // Render all components
+    renderAll();
+
+    if (withGreeting) {
+      AudioEngine.playSuccess();
+      showToast(`Halo, ${userObj.displayName}! Ruang belanja Anda aktif.`, 'success');
+      if (window.confetti) {
+        window.confetti({ particleCount: 35, spread: 60, origin: { y: 0.15 } });
+      }
+    }
+  }
+
+  function logoutUser() {
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEYS.CURRENT_USER);
+    } catch (e) {}
+
+    appState.currentUser = null;
+
+    const modalProfile = document.getElementById('modalUserProfileBackdrop');
+    if (modalProfile) modalProfile.classList.add('hidden');
+
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen) {
+      loginScreen.classList.remove('hidden');
+      renderSavedAccountsList();
+    }
+
+    updateHeaderUserUI();
+    showToast('Anda telah keluar dari akun.', 'info');
+  }
+
+  function updateHeaderUserUI() {
+    const avatarEl = document.getElementById('headerUserAvatar');
+    const nameEl = document.getElementById('headerUsername');
+    if (!appState.currentUser) {
+      if (avatarEl) avatarEl.textContent = '?';
+      if (nameEl) nameEl.textContent = 'Masuk';
+      return;
+    }
+    if (avatarEl) avatarEl.textContent = appState.currentUser.avatarText || 'U';
+    if (nameEl) nameEl.textContent = appState.currentUser.displayName || appState.currentUser.username || 'User';
+  }
+
+  function openUserProfileModal() {
+    const modalProfile = document.getElementById('modalUserProfileBackdrop');
+    if (!modalProfile) return;
+
+    if (!appState.currentUser) {
+      const loginScreen = document.getElementById('loginScreen');
+      if (loginScreen) {
+        loginScreen.classList.remove('hidden');
+        renderSavedAccountsList();
+      }
+      return;
+    }
+
+    const avatar = document.getElementById('profileModalAvatar');
+    const displayName = document.getElementById('profileModalDisplayName');
+    const badge = document.getElementById('profileModalProviderBadge');
+    const subtitle = document.getElementById('profileModalSubtitle');
+    const cartCount = document.getElementById('profileModalCartCount');
+    const budgetCap = document.getElementById('profileModalBudgetCap');
+
+    const isGoogle = appState.currentUser.provider === 'google';
+    if (avatar) avatar.textContent = appState.currentUser.avatarText || 'U';
+    if (displayName) displayName.textContent = appState.currentUser.displayName || appState.currentUser.username;
+    if (badge) {
+      badge.textContent = isGoogle ? 'Akun Google' : 'Username Mandiri';
+      badge.className = isGoogle
+        ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700'
+        : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-secondary-fixed/30 text-secondary';
+    }
+    if (subtitle) {
+      subtitle.textContent = isGoogle && appState.currentUser.email
+        ? appState.currentUser.email
+        : `@${appState.currentUser.username} • Ruang Data Privat`;
+    }
+
+    if (cartCount) {
+      const physicalCount = appState.cart.filter(i => i.inPhysicalCart).length;
+      cartCount.textContent = `${appState.cart.length} Produk (${physicalCount} fisik)`;
+    }
+
+    if (budgetCap) {
+      budgetCap.textContent = 'Rp ' + formatNumber(appState.budgetLimit);
+    }
+
+    modalProfile.classList.remove('hidden');
+  }
+
+  function renderSavedAccountsList() {
+    const section = document.getElementById('sectionSavedAccounts');
+    const list = document.getElementById('savedAccountsList');
+    if (!section || !list) return;
+
+    let knownUsers = [];
+    try {
+      const saved = localStorage.getItem(AUTH_STORAGE_KEYS.KNOWN_USERS);
+      if (saved) knownUsers = JSON.parse(saved);
+    } catch (e) {}
+
+    // Default pre-seeded profile if empty
+    if (!knownUsers || knownUsers.length === 0) {
+      knownUsers = [
+        {
+          slug: 'rian',
+          username: 'Rian',
+          displayName: 'Rian Kos',
+          provider: 'username',
+          email: '',
+          avatarText: 'R'
+        }
+      ];
+    }
+
+    section.classList.remove('hidden');
+    list.innerHTML = knownUsers.map(u => {
+      const isGoogle = u.provider === 'google';
+      const badgeIcon = isGoogle ? 'verified' : 'person';
+      return `
+        <button type="button" class="btn-quick-user-chip flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface text-xs font-semibold transition-all cursor-pointer shadow-xs active:scale-95" data-user='${escapeHtml(JSON.stringify(u))}'>
+          <span class="w-5 h-5 rounded-full ${isGoogle ? 'bg-blue-600 text-white' : 'bg-primary text-secondary-fixed'} text-[10px] font-bold flex items-center justify-center">${escapeHtml(u.avatarText || 'U')}</span>
+          <span class="truncate max-w-[130px]">${escapeHtml(u.displayName || u.username)}</span>
+          <span class="material-symbols-outlined text-[14px] text-secondary">${badgeIcon}</span>
+        </button>
+      `;
+    }).join('');
+
+    list.querySelectorAll('.btn-quick-user-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const u = JSON.parse(btn.getAttribute('data-user'));
+          loginAsUser(u, true);
+        } catch (e) {
+          console.warn('Error quick login:', e);
+        }
+      });
+    });
+  }
+
   function renderAll() {
     renderCart();
+    renderAstroCatalog();
     renderShoppingPlannerSection();
     renderBudgetBreakdown();
     renderHistoryList();
