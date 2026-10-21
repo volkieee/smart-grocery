@@ -180,7 +180,10 @@ const server = http.createServer(async (req, res) => {
 
     // Coba eksekusi skrip python asli jika python terpasang di sistem
     import('node:child_process').then(({ exec }) => {
-      exec(`python "${path.join(rootDir, 'scanner.py')}" ${barcode}`, (pyErr, pyStdout) => {
+      const pyScript = fs.existsSync(path.join(rootDir, 'scripts', 'scanner.py'))
+        ? path.join(rootDir, 'scripts', 'scanner.py')
+        : path.join(rootDir, 'scanner.py');
+      exec(`python "${pyScript}" ${barcode}`, (pyErr, pyStdout) => {
         if (!pyErr && pyStdout) {
           try {
             const data = JSON.parse(pyStdout.trim());

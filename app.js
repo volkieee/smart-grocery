@@ -548,8 +548,8 @@
   };
 
   let astroCheckoutState = {
-    voucherCode: 'ASTROHEMAT',
-    voucherDiscount: 15000,
+    voucherCode: 'NONE',
+    voucherDiscount: 0,
     selectedMethod: 'qris',
     selectedVaBank: 'BCA',
     cashPaid: 0,
@@ -1253,50 +1253,57 @@
     const remainingText = document.getElementById('hudRemainingText');
     const overBudgetBanner = document.getElementById('overBudgetBanner');
 
-    progressBar.style.width = `${clampedPercentage}%`;
-
-    // Reset Class Names
-    hudCard.className = 'neo-hud-card';
-    progressBar.className = 'hud-meter-fill';
-    statusBadge.className = 'hud-status-chip';
+    if (progressBar) {
+      progressBar.style.width = `${clampedPercentage}%`;
+    }
 
     const navBudgetDot = document.getElementById('navBudgetDot');
 
     if (percentage < 80) {
-      hudCard.classList.add('status-safe');
-      progressBar.classList.add('status-safe');
-      statusBadge.classList.add('status-safe');
-      statusText.textContent = 'AMAN • SIAP KASIR';
+      if (progressBar) {
+        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]';
+      }
+      if (statusBadge) {
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-secondary-fixed';
+      }
+      if (statusText) statusText.textContent = 'AMAN • SIAP KASIR';
       if (statusIcon) statusIcon.textContent = 'Aman ✅';
-      remainingText.innerHTML = `SISA: <strong>Rp ${formatNumber(remaining)}</strong>`;
-      overBudgetBanner.classList.add('hidden');
+      if (remainingText) remainingText.innerHTML = `SISA: <strong>Rp ${formatNumber(remaining)}</strong>`;
+      if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-secondary-fixed absolute -top-0.5 -right-1';
     } else if (percentage >= 80 && percentage < 100) {
-      hudCard.classList.add('status-warn');
-      progressBar.classList.add('status-warn');
-      statusBadge.classList.add('status-warn');
-      statusText.textContent = 'WASPADA • MELEBIHI 80%';
+      if (progressBar) {
+        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)]';
+      }
+      if (statusBadge) {
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 backdrop-blur-md';
+      }
+      if (statusText) statusText.textContent = 'WASPADA • MELEBIHI 80%';
       if (statusIcon) statusIcon.textContent = 'Waspada ⚠️';
-      remainingText.innerHTML = `TERTINGGAL: <strong style="color:var(--status-warn);">Rp ${formatNumber(remaining)}</strong>`;
-      overBudgetBanner.classList.add('hidden');
+      if (remainingText) remainingText.innerHTML = `TERTINGGAL: <strong class="text-amber-300">Rp ${formatNumber(remaining)}</strong>`;
+      if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-1';
     } else {
-      hudCard.classList.add('status-danger');
-      progressBar.classList.add('status-danger');
-      statusBadge.classList.add('status-danger');
-      statusText.textContent = 'BAHAYA • OVER BUDGET';
+      if (progressBar) {
+        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-rose-600 to-rose-400 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(225,29,72,0.6)] animate-pulse';
+      }
+      if (statusBadge) {
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/25 text-rose-300 backdrop-blur-md';
+      }
+      if (statusText) statusText.textContent = 'BAHAYA • OVER BUDGET';
       if (statusIcon) statusIcon.textContent = 'Over-Budget 🚨';
       const overAmount = Math.abs(remaining);
-      remainingText.innerHTML = `<span class="text-danger">DEFISIT: <strong>Rp ${formatNumber(overAmount)}</strong></span>`;
-      overBudgetBanner.classList.remove('hidden');
-      document.getElementById('trimDeficitAmount').textContent = `Rp ${formatNumber(overAmount)}`;
+      if (remainingText) remainingText.innerHTML = `<span class="text-rose-400 font-bold">DEFISIT: <strong>Rp ${formatNumber(overAmount)}</strong></span>`;
+      if (overBudgetBanner) overBudgetBanner.classList.remove('hidden');
+      const trimDeficit = document.getElementById('trimDeficitAmount');
+      if (trimDeficit) trimDeficit.textContent = `Rp ${formatNumber(overAmount)}`;
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-rose-500 absolute -top-0.5 -right-1 animate-ping';
       AudioEngine.playAlert();
     }
 
     // Dock Badges & Sticky Checkout Total
     const stickyGrandTotal = document.getElementById('cartBottomGrandTotal');
-    if (stickyGrandTotal) stickyGrandTotal.textContent = formatNumber(totalSpent);
+    if (stickyGrandTotal) stickyGrandTotal.textContent = `Rp ${formatNumber(totalSpent)}`;
 
     const navCartBadge = document.getElementById('navCartBadge');
     if (navCartBadge) navCartBadge.textContent = appState.cart.length;
@@ -2018,7 +2025,8 @@
     const btnCompareHeader = document.getElementById('btnQuickCompareHeader');
     if (btnCompareHeader) {
       btnCompareHeader.addEventListener('click', () => {
-        document.getElementById('navBtnCompare').click();
+        const navScan = document.getElementById('navBtnScan');
+        if (navScan) navScan.click();
       });
     }
 
@@ -2060,13 +2068,13 @@
     const btnCloseScanRes = document.getElementById('btnCloseScanResultModal');
     if (btnCloseScanRes) {
       btnCloseScanRes.addEventListener('click', () => {
-        document.getElementById('modalScanResultBackdrop').classList.add('hidden');
+        document.getElementById('modalScanResultBackdrop')?.classList.add('hidden');
       });
     }
     const btnCancelScanRes = document.getElementById('btnCancelScanResult');
     if (btnCancelScanRes) {
       btnCancelScanRes.addEventListener('click', () => {
-        document.getElementById('modalScanResultBackdrop').classList.add('hidden');
+        document.getElementById('modalScanResultBackdrop')?.classList.add('hidden');
         openBarcodeScanner();
       });
     }
@@ -2110,13 +2118,13 @@
       document.getElementById('modalReceiptBackdrop')?.classList.add('hidden');
     });
 
-    // Python Barcode & Price Engine Scanner Execution
+    // Smart Price & Discount Scanner Execution
     const btnRunPy = document.getElementById('btnRunPythonScanAnalysis');
     if (btnRunPy) {
       btnRunPy.addEventListener('click', () => {
         AudioEngine.playTap();
         runPythonScanAnalysis();
-        showToast('Analisis Python berhasil dijalankan', 'success');
+        showToast('Analisis harga dan diskon berhasil diperbarui', 'success');
       });
     }
 
@@ -2744,19 +2752,44 @@
   async function runPythonScanAnalysis(barcode, discount) {
     const statusBadge = document.getElementById('pyEngineStatusBadge');
     if (statusBadge) {
-      statusBadge.textContent = 'Memproses di Python...';
-      statusBadge.className = 'px-2 py-0.5 rounded-full bg-amber-500/30 text-[10.5px] font-semibold text-amber-300 animate-pulse';
+      statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Menganalisis Promo...';
+      statusBadge.className = 'px-2.5 py-0.5 rounded-full bg-amber-500/30 text-[10.5px] font-semibold text-amber-300 flex items-center gap-1';
     }
 
-    try {
-      const code = barcode || (currentScannedItem ? currentScannedItem.barcode : '8991002105432');
-      const disc = discount !== undefined ? discount : (currentScannedItem ? currentScannedItem.defaultDiscounts || '15+5' : '15+5');
-      const shelfPrice = currentScannedItem ? currentScannedItem.price : 0;
-      const lastPrice = currentScannedItem ? currentScannedItem.lastMonthPrice : 0;
+    const code = barcode || (currentScannedItem ? currentScannedItem.barcode : '8991002105432');
+    const disc = discount !== undefined ? discount : (currentScannedItem ? currentScannedItem.defaultDiscounts || '15+5' : '15+5');
+    const shelfPrice = currentScannedItem ? currentScannedItem.price : 38500;
+    const lastPrice = currentScannedItem ? currentScannedItem.lastMonthPrice : 34000;
+    const itemName = currentScannedItem ? currentScannedItem.name : 'Minyak Goreng Sania Pouch';
 
-      const res = await fetch(`/api/scan-python?barcode=${encodeURIComponent(code)}&discount=${encodeURIComponent(disc)}&price=${shelfPrice}&lastPrice=${lastPrice}`);
-      if (!res.ok) throw new Error('API offline');
-      const data = await res.json();
+    try {
+      let data = null;
+      try {
+        const res = await fetch(`/api/scan-python?barcode=${encodeURIComponent(code)}&discount=${encodeURIComponent(disc)}&price=${shelfPrice}&lastPrice=${lastPrice}`);
+        if (res.ok) data = await res.json();
+      } catch (netErr) {
+        // Fallback offline calculation
+      }
+
+      if (!data) {
+        // High-precision local calculation fallback
+        const discRes = calculateDiscount(shelfPrice, disc);
+        const diff = discRes.finalUnitPrice - lastPrice;
+        const pct = lastPrice > 0 ? ((diff / lastPrice) * 100).toFixed(1) : 0;
+        data = {
+          name: itemName,
+          discount_result: {
+            formula_text: discRes.discountTag || (disc ? `${disc}%` : 'Harga Normal'),
+            final_price: discRes.finalUnitPrice
+          },
+          comparison: {
+            status: diff > 0 ? 'UP' : diff < 0 ? 'DOWN' : 'EQUAL',
+            label: diff > 0 ? `↑ Naik Rp ${formatNumber(diff)} (+${pct}%)`
+              : diff < 0 ? `↓ Turun Rp ${formatNumber(Math.abs(diff))} (${pct}%)`
+              : '= Stabil (Sama dng Bulan Lalu)'
+          }
+        };
+      }
 
       const nameEl = document.getElementById('pyScannedName');
       const formulaEl = document.getElementById('pyFormulaBreakdown');
@@ -2788,13 +2821,13 @@
       }
 
       if (statusBadge) {
-        statusBadge.textContent = data.pythonInstalled ? 'Python 3 Native Active 🚀' : 'Python Standard Engine Active ✅';
-        statusBadge.className = 'px-2 py-0.5 rounded-full bg-secondary/40 text-[10.5px] font-semibold text-secondary-fixed';
+        statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed animate-ping"></span> Sistem Aktif & Terhubung';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full bg-secondary/30 text-[10.5px] font-semibold text-secondary-fixed flex items-center gap-1';
       }
     } catch (e) {
       if (statusBadge) {
-        statusBadge.textContent = 'Python Ready (Offline)';
-        statusBadge.className = 'px-2 py-0.5 rounded-full bg-surface-container text-[10.5px] font-semibold text-outline-variant';
+        statusBadge.textContent = 'Sistem Siap (Mode Offline)';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full bg-surface-container text-[10.5px] font-semibold text-outline-variant';
       }
     }
   }
@@ -2888,10 +2921,13 @@
 
   function selectStore(storeName) {
     appState.activeStore = storeName;
+    appState.selectedStore = storeName;
     saveStore(storeName);
 
     const activeLabel = document.getElementById('activeStoreName');
     if (activeLabel) activeLabel.textContent = storeName;
+    const scanViewStore = document.getElementById('scanViewStoreName');
+    if (scanViewStore) scanViewStore.textContent = storeName;
 
     const storeButtons = document.querySelectorAll('.store-item-btn');
     storeButtons.forEach(btn => {
@@ -2905,6 +2941,7 @@
     AudioEngine.playSuccess();
     showToast(`Lokasi diubah: ${storeName}`, 'info');
   }
+  window.selectStore = selectStore;
 
   // ==========================================================================
   // NODE.JS & TYPESCRIPT CLOUD INSIGHTS SERVICE (/api/insights)
@@ -2983,36 +3020,50 @@
       }
 
       // Render Insight Box
-      const scoreClass = (insightData.status || 'SAFE').toLowerCase();
+      const isDanger = (insightData.status || 'SAFE') === 'DANGER';
+      const isWarning = (insightData.status || 'SAFE') === 'WARNING';
+      const scoreBadgeColor = isDanger ? 'bg-rose-100 text-rose-700 border-rose-300'
+        : isWarning ? 'bg-amber-100 text-amber-800 border-amber-300'
+        : 'bg-emerald-100 text-emerald-800 border-emerald-300';
+
       let recomHtml = '';
       (insightData.recommendations || []).forEach(r => {
-        const typeClass = r.type === 'WARNING' ? 'warning' : 'savings';
+        const isWarn = r.type === 'WARNING';
+        const cardStyle = isWarn
+          ? 'bg-rose-50/80 border-rose-200 text-rose-950'
+          : 'bg-emerald-50/80 border-emerald-200 text-emerald-950';
+        const iconName = isWarn ? 'warning' : 'tips_and_updates';
+        const iconColor = isWarn ? 'text-rose-600' : 'text-emerald-600';
+
         recomHtml += `
-          <div class="node-recom-item ${typeClass}">
-            <div class="node-recom-title">${escapeHtml(r.title)}</div>
-            <div class="node-recom-desc">${escapeHtml(r.description)}</div>
+          <div class="p-3 rounded-xl border ${cardStyle} flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-[18px] ${iconColor} shrink-0 mt-0.5">${iconName}</span>
+            <div class="min-w-0 flex-1">
+              <div class="font-bold text-xs leading-snug">${escapeHtml(r.title)}</div>
+              <div class="text-[11px] mt-0.5 opacity-90 leading-relaxed">${escapeHtml(r.description)}</div>
+            </div>
           </div>
         `;
       });
 
       container.innerHTML = `
-        <div class="node-insight-deck">
-          <div class="node-score-bar">
+        <div class="p-4 bg-white rounded-2xl border border-outline-variant/30 shadow-md space-y-3 mt-3">
+          <div class="flex items-center justify-between pb-2 border-b border-outline-variant/20">
             <div>
-              <span style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-muted); display:block;">HEALTH SCORE:</span>
-              <strong style="font-family:var(--font-display); font-size:1.1rem; color:#ffffff;">${insightData.healthScore}/100</strong>
+              <span class="font-label-sm text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Health Score Belanja</span>
+              <strong class="font-numeric-lg text-2xl text-primary font-bold">${insightData.healthScore}<span class="text-xs text-gray-500 font-normal">/100</span></strong>
             </div>
-            <span class="score-badge ${scoreClass}">${insightData.status}</span>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${scoreBadgeColor}">${insightData.status}</span>
           </div>
-          <p style="font-size:0.75rem; color:var(--text-main); line-height:1.4; margin:0;">
+          <p class="text-xs text-gray-700 leading-relaxed font-medium">
             ${escapeHtml(insightData.summary)}
           </p>
-          <div style="display:flex; flex-direction:column; gap:6px;">
+          <div class="space-y-2">
             ${recomHtml}
           </div>
-          <small style="font-family:var(--font-mono); font-size:0.62rem; color:var(--text-muted); text-align:right;">
-            💡 Panduan belanja bijak otomatis sesuai sisa uang saku
-          </small>
+          <div class="text-[10px] text-gray-500 text-right pt-1">
+            💡 Dianalisis oleh Smart Grocery Node.js Engine
+          </div>
         </div>
       `;
 
@@ -3056,27 +3107,35 @@
     });
 
     let html = '';
-    sorted.forEach(item => {
-      const disc = calculateDiscount(item.price, item.discountRaw);
-      const lineTotal = disc.finalUnitPrice * item.qty;
-
-      html += `
-        <div class="trim-cell-neo">
-          <div>
-            <strong style="font-family:var(--font-display); font-size:0.82rem; color:#ffffff; display:block;">${escapeHtml(item.name)}</strong>
-            <small style="font-family:var(--font-mono); color:var(--text-muted); font-size:0.68rem;">${item.qty} ${escapeHtml(item.unit)} • Rp ${formatNumber(lineTotal)}</small>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <button class="neo-pill-btn" onclick="window.reduceItemFromTrim('${item.id}')">
-              -1 Qty
-            </button>
-            <button class="neo-pill-btn" style="color:var(--status-danger);" onclick="window.removeItemFromTrim('${item.id}')">
-              Batal
-            </button>
-          </div>
+    if (sorted.length === 0) {
+      html = `
+        <div class="p-4 rounded-xl bg-surface-container text-center text-xs text-on-surface-variant font-medium">
+          Keranjang belanja masih kosong.
         </div>
       `;
-    });
+    } else {
+      sorted.forEach(item => {
+        const disc = calculateDiscount(item.price, item.discountRaw);
+        const lineTotal = disc.finalUnitPrice * item.qty;
+
+        html += `
+          <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 border border-outline-variant/30">
+            <div class="min-w-0 flex-1">
+              <strong class="font-headline-sm text-xs font-bold text-primary block truncate">${escapeHtml(item.name)}</strong>
+              <span class="text-[11px] text-on-surface-variant font-medium">${item.qty} ${escapeHtml(item.unit)} • Rp ${formatNumber(lineTotal)}</span>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" class="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-bold text-xs transition-all cursor-pointer active:scale-95" onclick="window.reduceItemFromTrim('${item.id}')">
+                -1 Qty
+              </button>
+              <button type="button" class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs transition-all cursor-pointer active:scale-95" onclick="window.removeItemFromTrim('${item.id}')">
+                Hapus
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    }
 
     list.innerHTML = html;
     modal.classList.remove('hidden');
@@ -3349,10 +3408,20 @@
       btnCloseReceipt.addEventListener('click', closeAstroCheckoutModal);
     }
 
-    // Voucher selection
+    // Voucher selection with Minimum Spend Validation
     const voucherButtons = document.querySelectorAll('.checkout-voucher-btn');
     voucherButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        const code = btn.getAttribute('data-code');
+        const disc = parseInt(btn.getAttribute('data-discount'), 10) || 0;
+        const minSpend = parseInt(btn.getAttribute('data-min-spend') || '0', 10);
+        const subtotal = calculateCurrentSubtotal();
+
+        if (code !== 'NONE' && subtotal < minSpend) {
+          showToast(`Voucher ${code} butuh min. belanja Rp ${formatNumber(minSpend)} (kurang Rp ${formatNumber(minSpend - subtotal)})`, 'warning');
+          return;
+        }
+
         voucherButtons.forEach(b => {
           b.classList.remove('active', 'border-emerald-500', 'bg-emerald-50');
           b.classList.add('border-gray-200', 'bg-white');
@@ -3360,10 +3429,11 @@
         btn.classList.add('active', 'border-emerald-500', 'bg-emerald-50');
         btn.classList.remove('border-gray-200', 'bg-white');
 
-        astroCheckoutState.voucherCode = btn.getAttribute('data-code');
-        astroCheckoutState.voucherDiscount = parseInt(btn.getAttribute('data-discount'), 10) || 0;
+        astroCheckoutState.voucherCode = code;
+        astroCheckoutState.voucherDiscount = disc;
         AudioEngine.playTap();
         refreshCheckoutTotals();
+        showToast(code === 'NONE' ? 'Belanja tanpa voucher promo' : `Voucher ${code} berhasil dipasang!`, 'success');
       });
     });
 
@@ -3519,16 +3589,18 @@
 
   function calculateCurrentGrandTotal() {
     const subtotal = calculateCurrentSubtotal();
-    const voucherDiscount = astroCheckoutState.voucherDiscount || 0;
+    const rawDiscount = astroCheckoutState.voucherDiscount || 0;
+    const effectiveDiscount = Math.min(rawDiscount, subtotal);
     const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
-    return Math.max(0, subtotal - voucherDiscount + serviceFee);
+    return Math.max(0, (subtotal - effectiveDiscount) + serviceFee);
   }
 
   function refreshCheckoutTotals() {
     const subtotal = calculateCurrentSubtotal();
-    const discount = astroCheckoutState.voucherDiscount || 0;
+    const rawDiscount = astroCheckoutState.voucherDiscount || 0;
+    const effectiveDiscount = Math.min(rawDiscount, subtotal);
     const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
-    const grandTotal = Math.max(0, subtotal - discount + serviceFee);
+    const grandTotal = Math.max(0, (subtotal - effectiveDiscount) + serviceFee);
 
     const elSub = document.getElementById('checkoutSubtotal');
     const elDisc = document.getElementById('checkoutDiscountAmount');
@@ -3539,7 +3611,7 @@
     const elRemaining = document.getElementById('checkoutBudgetRemaining');
 
     if (elSub) elSub.textContent = `Rp ${formatNumber(subtotal)}`;
-    if (elDisc) elDisc.textContent = discount > 0 ? `-Rp ${formatNumber(discount)}` : 'Rp 0';
+    if (elDisc) elDisc.textContent = effectiveDiscount > 0 ? `-Rp ${formatNumber(effectiveDiscount)}` : 'Rp 0';
     if (elVouchLabel) elVouchLabel.textContent = astroCheckoutState.voucherCode === 'NONE' ? 'Tanpa Voucher' : astroCheckoutState.voucherCode;
     if (elService) elService.textContent = serviceFee > 0 ? `Rp ${formatNumber(serviceFee)}` : 'GRATIS (Voucher)';
     if (elGrand) elGrand.textContent = `Rp ${formatNumber(grandTotal)}`;
@@ -3651,7 +3723,32 @@
       }).join('');
     }
 
-    // Reset default payment method & voucher
+    // Validate voucher eligibility against current subtotal
+    const subtotal = calculateCurrentSubtotal();
+    const activeBtn = document.querySelector(`.checkout-voucher-btn[data-code="${astroCheckoutState.voucherCode}"]`);
+    const minSpend = activeBtn ? parseInt(activeBtn.getAttribute('data-min-spend') || '0', 10) : 0;
+    if (subtotal < minSpend) {
+      astroCheckoutState.voucherCode = 'NONE';
+      astroCheckoutState.voucherDiscount = 0;
+    }
+
+    // Update voucher buttons UI (highlight selected, dim ineligible)
+    document.querySelectorAll('.checkout-voucher-btn').forEach(b => {
+      const bCode = b.getAttribute('data-code');
+      const bMin = parseInt(b.getAttribute('data-min-spend') || '0', 10);
+      const isEligible = subtotal >= bMin || bCode === 'NONE';
+      const isSelected = bCode === astroCheckoutState.voucherCode;
+
+      b.classList.toggle('active', isSelected);
+      b.classList.toggle('border-emerald-500', isSelected);
+      b.classList.toggle('bg-emerald-50', isSelected);
+      b.classList.toggle('border-gray-200', !isSelected);
+      b.classList.toggle('bg-white', !isSelected);
+      b.classList.toggle('opacity-50', !isEligible);
+      b.classList.toggle('grayscale', !isEligible);
+    });
+
+    // Reset default payment method & refresh totals
     selectPaymentMethod('qris');
     startQrisCountdown();
     refreshCheckoutTotals();
@@ -4054,14 +4151,18 @@
     const calcDiscountInput = document.getElementById('calcDiscountInput');
 
     function runPromoCalc() {
+      if (!calcOrigPrice || !calcDiscountInput) return;
       const price = parseFloat(calcOrigPrice.value) || 0;
       const discStr = calcDiscountInput.value;
       const res = calculateDiscount(price, discStr);
 
-      document.getElementById('calcFinalPrice').textContent = `Rp ${formatNumber(res.finalUnitPrice)}`;
+      const elFinal = document.getElementById('calcFinalPrice');
+      if (elFinal) elFinal.textContent = `Rp ${formatNumber(res.finalUnitPrice)}`;
       const savedPct = price > 0 ? ((res.savedPerUnit / price) * 100).toFixed(1) : 0;
-      document.getElementById('calcSavedAmount').textContent = `Hemat Rp ${formatNumber(res.savedPerUnit)} (${savedPct}%)`;
-      document.getElementById('calcFormulaBreakdown').textContent = res.formulaText;
+      const elSaved = document.getElementById('calcSavedAmount');
+      if (elSaved) elSaved.textContent = `Hemat Rp ${formatNumber(res.savedPerUnit)} (${savedPct}%)`;
+      const elFormula = document.getElementById('calcFormulaBreakdown');
+      if (elFormula) elFormula.textContent = res.formulaText;
     }
 
     if (calcOrigPrice && calcDiscountInput) {
@@ -4081,30 +4182,32 @@
     const cmpPriceB = document.getElementById('cmpPriceB');
 
     function runUnitComparison() {
-      const sizeA = parseFloat(cmpSizeA.value) || 1;
-      const priceA = parseFloat(cmpPriceA.value) || 0;
-      const sizeB = parseFloat(cmpSizeB.value) || 1;
-      const priceB = parseFloat(cmpPriceB.value) || 0;
+      const sizeA = parseFloat(cmpSizeA?.value) || 1;
+      const priceA = parseFloat(cmpPriceA?.value) || 0;
+      const sizeB = parseFloat(cmpSizeB?.value) || 1;
+      const priceB = parseFloat(cmpPriceB?.value) || 0;
 
       let normSizeA = sizeA;
-      if (cmpUnitA.value === 'ml' || cmpUnitA.value === 'gram') normSizeA = sizeA / 1000;
+      if (cmpUnitA && (cmpUnitA.value === 'ml' || cmpUnitA.value === 'gram')) normSizeA = sizeA / 1000;
 
       let normSizeB = sizeB;
-      if (cmpUnitB.value === 'ml' || cmpUnitB.value === 'gram') normSizeB = sizeB / 1000;
+      if (cmpUnitB && (cmpUnitB.value === 'ml' || cmpUnitB.value === 'gram')) normSizeB = sizeB / 1000;
 
       const unitCostA = normSizeA > 0 ? priceA / normSizeA : 0;
       const unitCostB = normSizeB > 0 ? priceB / normSizeB : 0;
 
-      const unitName = (cmpUnitA.value === 'ml' || cmpUnitA.value === 'liter') ? 'Liter' :
-        (cmpUnitA.value === 'gram' || cmpUnitA.value === 'kg') ? 'Kg' : 'pcs';
+      const unitName = (cmpUnitA && (cmpUnitA.value === 'ml' || cmpUnitA.value === 'liter')) ? 'Liter' :
+        (cmpUnitA && (cmpUnitA.value === 'gram' || cmpUnitA.value === 'kg')) ? 'Kg' : 'pcs';
 
-      document.getElementById('unitCostA').textContent = `Rp ${formatNumber(Math.round(unitCostA))} / ${unitName}`;
-      document.getElementById('unitCostB').textContent = `Rp ${formatNumber(Math.round(unitCostB))} / ${unitName}`;
+      const elCostA = document.getElementById('unitCostA');
+      if (elCostA) elCostA.textContent = `Rp ${formatNumber(Math.round(unitCostA))} / ${unitName}`;
+      const elCostB = document.getElementById('unitCostB');
+      if (elCostB) elCostB.textContent = `Rp ${formatNumber(Math.round(unitCostB))} / ${unitName}`;
 
       const title = document.getElementById('cmpVerdictTitle');
       const desc = document.getElementById('cmpVerdictDesc');
 
-      if (unitCostA > 0 && unitCostB > 0) {
+      if (title && desc && unitCostA > 0 && unitCostB > 0) {
         if (unitCostA < unitCostB) {
           const diff = unitCostB - unitCostA;
           const pct = ((diff / unitCostB) * 100).toFixed(1);
@@ -4123,7 +4226,10 @@
     }
 
     [cmpSizeA, cmpUnitA, cmpPriceA, cmpSizeB, cmpUnitB, cmpPriceB].forEach(el => {
-      if (el) el.addEventListener('input', runUnitComparison);
+      if (el) {
+        el.addEventListener('input', runUnitComparison);
+        el.addEventListener('change', runUnitComparison);
+      }
     });
     runUnitComparison();
   }
@@ -4748,6 +4854,20 @@
         logoutUser();
       });
     }
+
+    // 11. Data Management in Profile Modal
+    const btnExpProfile = document.getElementById('btnExportDataProfile');
+    if (btnExpProfile) btnExpProfile.addEventListener('click', exportDataJson);
+
+    const btnImpProfile = document.getElementById('btnImportDataProfile');
+    if (btnImpProfile) {
+      btnImpProfile.addEventListener('click', () => {
+        document.getElementById('importFileInput')?.click();
+      });
+    }
+
+    const btnResetProfile = document.getElementById('btnResetDataProfile');
+    if (btnResetProfile) btnResetProfile.addEventListener('click', resetAllData);
   }
 
   function loginAsUser(userObj, withGreeting = true) {
