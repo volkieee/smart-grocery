@@ -863,3 +863,51 @@ body {
 .animate-slide-up {
   animation: slideUpModal 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Autocomplete suggestion item */
+.auto-row-neo {
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(17, 51, 34, 0.08);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.auto-row-neo:hover {
+  background: rgba(0, 110, 47, 0.08);
+}
+
+.auto-row-neo:last-child {
+  border-bottom: none;
+}
+
+/* Empty box state for history */
+.neo-empty-box {
+  padding: 32px 16px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px dashed rgba(17, 51, 34, 0.2);
+}
+
+.neo-empty-box .empty-glyph {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.neo-empty-box h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.neo-empty-box p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  max-width: 260px;
+  margin: 0 auto;
+  line-height: 1.4;
+}

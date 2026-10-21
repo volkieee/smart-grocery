@@ -151,3 +151,22 @@ export interface SmartBasketInsight {
   }>;
   timestamp: string;
 }
+
+export interface AstroVoucher {
+  code: string;
+  discount: number;
+  minSpend: number;
+  description: string;
+}
+
+export type PaymentMethod = 'qris' | 'astropay' | 'va' | 'cash';
+
+export interface AstroCheckoutState {
+  voucherCode: string;
+  voucherDiscount: number;
+  selectedMethod: PaymentMethod;
+  selectedVaBank: string;
+  cashPaid: number;
+  qrisTimerInterval: any;
+  qrisSecondsRemaining: number;
+}
