@@ -5561,65 +5561,105 @@
     }
 
     // Deteksi jika jendela ini adalah POPUP CALLBACK OAuth dari Supabase/Google
-    if (window.opener && window.opener !== window) {
-      const hash = window.location.hash || '';
-      const search = window.location.search || '';
-      if (hash.includes('access_token') || search.includes('code=')) {
-        (async function resolvePopupOAuth() {
-          let resolvedUser = null;
-          if (!appState.supabaseClient) {
-            initSupabaseClient();
-          }
+    const isLikelyOAuthPopup = (window.opener && window.opener !== window) || window.name === 'GoogleSignInPopup';
+    const currentHash = window.location.hash || '';
+    const currentSearch = window.location.search || '';
 
-          // Segera tukar code atau set session di context popup agar tersimpan di localStorage browser
-          if (appState.supabaseClient) {
-            if (search.includes('code=')) {
-              try {
-                const code = new URLSearchParams(search.replace(/^\?/, '')).get('code');
-                if (code) {
-                  const { data } = await appState.supabaseClient.auth.exchangeCodeForSession(code);
-                  if (data && data.user) resolvedUser = data.user;
-                }
-              } catch (e) {}
-            } else if (hash.includes('access_token')) {
-              try {
-                const params = new URLSearchParams(hash.replace(/^#/, ''));
-                const at = params.get('access_token');
-                const rt = params.get('refresh_token');
-                if (at) {
-                  const { data } = await appState.supabaseClient.auth.setSession({
-                    access_token: at,
-                    refresh_token: rt || ''
-                  });
-                  if (data && data.user) resolvedUser = data.user;
-                }
-              } catch (e) {}
-            }
-          }
+    if (currentHash.includes('access_token') || currentSearch.includes('code=')) {
+      (async function resolveAnyOAuthCallback() {
+        if (!appState.supabaseClient) {
+          initSupabaseClient();
+        }
 
-          // Kirim pesan ke parent window
+        let resolvedUser = null;
+
+        // 1. Tangani code atau access_token
+        if (currentSearch.includes('code=') && appState.supabaseClient) {
           try {
-            window.opener.postMessage({
-              type: 'SUPABASE_OAUTH_TOKEN_TRANSFER',
-              hash: hash,
-              search: search,
-              user: resolvedUser
-            }, '*');
-          } catch (e) {
-            console.warn('postMessage to opener failed:', e);
+            const code = new URLSearchParams(currentSearch.replace(/^\?/, '')).get('code');
+            if (code) {
+              const { data } = await appState.supabaseClient.auth.exchangeCodeForSession(code);
+              if (data && data.user) resolvedUser = data.user;
+            }
+          } catch (e) {}
+        } else if (currentHash.includes('access_token')) {
+          try {
+            const params = new URLSearchParams(currentHash.replace(/^#/, ''));
+            const at = params.get('access_token');
+            const rt = params.get('refresh_token');
+            if (at && appState.supabaseClient) {
+              const { data } = await appState.supabaseClient.auth.setSession({
+                access_token: at,
+                refresh_token: rt || ''
+              });
+              if (data && data.user) resolvedUser = data.user;
+            }
+            if (!resolvedUser && at) {
+              const jwt = parseJwtPayload(at);
+              if (jwt && (jwt.email || jwt.user_metadata)) {
+                resolvedUser = { email: jwt.email, user_metadata: jwt.user_metadata || {} };
+              }
+            }
+          } catch (e) {}
+        }
+
+        // 2. Jika user berhasil didapat: simpan ke localStorage agar jendela utama mendeteksi seketika
+        if (resolvedUser) {
+          const meta = resolvedUser.user_metadata || {};
+          const email = resolvedUser.email || meta.email || '';
+          const name = meta.full_name || meta.name || (email ? email.split('@')[0] : 'User Google');
+          const username = email ? email.split('@')[0] : 'google_user';
+          const avatarUrl = meta.avatar_url || meta.picture || '';
+
+          const userObj = {
+            slug: 'g_' + getUserSlug(username),
+            username: username,
+            displayName: name,
+            provider: 'google',
+            email: email,
+            avatarUrl: avatarUrl,
+            avatarText: (name[0] || 'G').toUpperCase(),
+            loginAt: Date.now()
+          };
+
+          try {
+            localStorage.setItem('sg_oauth_sync_user', JSON.stringify(userObj));
+            localStorage.setItem(AUTH_STORAGE_KEYS.CURRENT_USER, JSON.stringify(userObj));
+          } catch (e) {}
+
+          // Kirim postMessage jika opener masih terhubung
+          if (window.opener && !window.opener.closed) {
+            try {
+              window.opener.postMessage({
+                type: 'SUPABASE_OAUTH_TOKEN_TRANSFER',
+                hash: currentHash,
+                search: currentSearch,
+                user: resolvedUser
+              }, '*');
+            } catch (e) {}
           }
 
-          // Tutup popup setelah mengirim token
-          setTimeout(() => {
-            try {
-              window.close();
-            } catch (e) {}
-          }, 350);
-        })();
-      }
+          // Jika ini jendela popup, tutup otomatis
+          if (isLikelyOAuthPopup) {
+            setTimeout(() => {
+              try { window.close(); } catch (e) {}
+            }, 300);
+            return;
+          }
+
+          // Jika ini jendela utama (direct redirect), langsung masuk
+          loginAsUser(userObj, true);
+          const ls = document.getElementById('loginScreen');
+          if (ls) {
+            ls.classList.add('hidden');
+            ls.style.display = 'none';
+          }
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      })();
     }
 
-    // Parent window: Dengarkan token/user dari popup
+    // Parent window: Dengarkan token/user dari popup via postMessage
     window.addEventListener('message', async (event) => {
       if (event.data && event.data.type === 'SUPABASE_OAUTH_TOKEN_TRANSFER') {
         await processOAuthIncoming(event.data);
@@ -5628,26 +5668,20 @@
 
     // Parent window: Dengarkan perubahan localStorage jika popup menulis auth token
     window.addEventListener('storage', (e) => {
-      if (e.key && e.key.includes('auth-token') && e.newValue) {
+      if ((e.key === 'sg_oauth_sync_user' || e.key === AUTH_STORAGE_KEYS.CURRENT_USER || (e.key && e.key.includes('auth-token'))) && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
-          const u = parsed.user || (parsed.currentSession && parsed.currentSession.user);
-          if (u) {
-            handleSupabaseUserSession(u);
+          const u = parsed.user || (parsed.currentSession && parsed.currentSession.user) || parsed;
+          if (u && (u.email || u.username)) {
+            if (u.provider === 'google') {
+              loginAsUser(u, true);
+            } else {
+              handleSupabaseUserSession(u);
+            }
           }
         } catch (err) {}
       }
     });
-
-    // Deteksi jika OAuth selesai via direct redirect di window utama
-    (async function checkDirectOAuth() {
-      const hash = window.location.hash || '';
-      const search = window.location.search || '';
-      if (hash.includes('access_token') || search.includes('code=')) {
-        window.history.replaceState(null, '', window.location.pathname);
-        await processOAuthIncoming({ hash, search });
-      }
-    })();
 
     // 4. Handle Official Supabase Google OAuth Flow (Popup Mengambang Tanpa Beralih Halaman)
     if (btnGoogle) {
@@ -5691,6 +5725,9 @@
               const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
               const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
 
+              // Hapus flag sinkronisasi lama sebelum mulai
+              try { localStorage.removeItem('sg_oauth_sync_user'); } catch (e) {}
+
               // Buka di popup window terpisah agar halaman utama tidak beralih halaman
               const popup = window.open(
                 data.url,
@@ -5699,47 +5736,61 @@
               );
 
               if (popup) {
-                // Pantau popup hingga user selesai memilih akun
-                let checkCount = 0;
+                // Pantau sinkronisasi aktif setiap 300ms dari localStorage dan session
                 const checkInterval = setInterval(async () => {
-                  checkCount++;
                   try {
-                    if (popup.closed) {
+                    // A. Cek sync user dari localStorage (paling cepat & aman dari pemutusan opener)
+                    const syncRaw = localStorage.getItem('sg_oauth_sync_user');
+                    if (syncRaw) {
+                      localStorage.removeItem('sg_oauth_sync_user');
                       clearInterval(checkInterval);
-                      if (appState.currentUser && appState.currentUser.provider === 'google') return;
-
-                      // 1. Cek session Supabase aktif
-                      const { data: sData } = await appState.supabaseClient.auth.getSession();
-                      if (sData && sData.session && sData.session.user) {
-                        handleSupabaseUserSession(sData.session.user);
+                      const u = JSON.parse(syncRaw);
+                      if (u) {
+                        loginAsUser(u, true);
+                        try { popup.close(); } catch (e) {}
                         return;
                       }
+                    }
 
-                      // 2. Cek token di localStorage
-                      for (let i = 0; i < localStorage.length; i++) {
-                        const k = localStorage.key(i);
-                        if (k && k.includes('auth-token')) {
-                          try {
-                            const raw = localStorage.getItem(k);
-                            const parsed = JSON.parse(raw);
-                            const u = parsed.user || (parsed.currentSession && parsed.currentSession.user);
-                            if (u) {
-                              handleSupabaseUserSession(u);
-                              return;
-                            }
-                          } catch (e) {}
-                        }
+                    // B. Cek session aktif di Supabase Client
+                    if (appState.supabaseClient) {
+                      const { data: sData } = await appState.supabaseClient.auth.getSession();
+                      if (sData && sData.session && sData.session.user) {
+                        clearInterval(checkInterval);
+                        handleSupabaseUserSession(sData.session.user);
+                        try { popup.close(); } catch (e) {}
+                        return;
                       }
+                    }
 
-                      // 3. Jika popup ditutup tanpa login
+                    // C. Cek current user di localStorage
+                    const curRaw = localStorage.getItem(AUTH_STORAGE_KEYS.CURRENT_USER);
+                    if (curRaw) {
+                      const cur = JSON.parse(curRaw);
+                      if (cur && cur.provider === 'google' && cur.loginAt > Date.now() - 30000) {
+                        clearInterval(checkInterval);
+                        loginAsUser(cur, true);
+                        try { popup.close(); } catch (e) {}
+                        return;
+                      }
+                    }
+
+                    // D. Jika popup sudah ditutup user
+                    if (popup.closed) {
+                      clearInterval(checkInterval);
+                      // Cek sekali lagi apakah login sudah tersimpan
                       setTimeout(() => {
-                        if (!appState.currentUser) {
-                          showToast('Login Google belum selesai. Pastikan akun dipilih.', 'warning');
+                        const finalCheck = localStorage.getItem(AUTH_STORAGE_KEYS.CURRENT_USER);
+                        if (finalCheck) {
+                          const u = JSON.parse(finalCheck);
+                          if (u && u.provider === 'google') {
+                            loginAsUser(u, true);
+                          }
                         }
-                      }, 1200);
+                      }, 400);
                     }
                   } catch (e) {}
-                }, 500);
+                }, 300);
               } else {
                 showToast('Izinkan pop-up di browser Anda agar tidak beralih halaman.', 'warning');
               }
