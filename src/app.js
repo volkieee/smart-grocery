@@ -1257,43 +1257,52 @@
       progressBar.style.width = `${clampedPercentage}%`;
     }
 
+    // Stitch Screen 2: 10-Segment Discrete Gauge Blocks
+    const segmentBlocks = document.querySelectorAll('#budgetSegmentMeter .segment-block');
+    if (segmentBlocks.length === 10) {
+      const activeCount = Math.min(10, Math.ceil((percentage / 100) * 10));
+      segmentBlocks.forEach((blk, idx) => {
+        blk.className = 'segment-block';
+        if (percentage > 0 && idx < activeCount) {
+          if (percentage < 80) {
+            blk.classList.add('active-safe');
+          } else if (percentage < 100) {
+            blk.classList.add('active-warn');
+          } else {
+            blk.classList.add('active-danger');
+          }
+        }
+      });
+    }
+
     const navBudgetDot = document.getElementById('navBudgetDot');
 
     if (percentage < 80) {
-      if (progressBar) {
-        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]';
-      }
       if (statusBadge) {
-        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-secondary-fixed';
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-[10px] font-black tracking-widest';
       }
-      if (statusText) statusText.textContent = 'AMAN • SIAP KASIR';
-      if (statusIcon) statusIcon.textContent = 'Aman ✅';
-      if (remainingText) remainingText.innerHTML = `SISA: <strong>Rp ${formatNumber(remaining)}</strong>`;
+      if (statusText) statusText.textContent = '● RADAR-ACTIVE';
+      if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">verified_user</span> STATUS: AMAN';
+      if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-stone-800/80 border border-stone-700/80"><span class="text-stone-400 text-[10px]">Sisa Aman:</span><strong class="text-citrus font-black text-[12px]">Rp ${formatNumber(remaining)}</strong></span>`;
       if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
-      if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-secondary-fixed absolute -top-0.5 -right-1';
+      if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-citrus absolute -top-0.5 -right-1';
     } else if (percentage >= 80 && percentage < 100) {
-      if (progressBar) {
-        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.5)]';
-      }
       if (statusBadge) {
-        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 backdrop-blur-md';
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[10px] font-black tracking-widest';
       }
-      if (statusText) statusText.textContent = 'WASPADA • MELEBIHI 80%';
-      if (statusIcon) statusIcon.textContent = 'Waspada ⚠️';
-      if (remainingText) remainingText.innerHTML = `TERTINGGAL: <strong class="text-amber-300">Rp ${formatNumber(remaining)}</strong>`;
+      if (statusText) statusText.textContent = '▲ RADAR-WASPADA';
+      if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">warning</span> WASPADA 80%';
+      if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-stone-800/80 border border-amber-500/40"><span class="text-stone-400 text-[10px]">Sisa Kritis:</span><strong class="text-amber-300 font-black text-[12px]">Rp ${formatNumber(remaining)}</strong></span>`;
       if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-1';
     } else {
-      if (progressBar) {
-        progressBar.className = 'h-full rounded-full bg-gradient-to-r from-rose-600 to-rose-400 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(225,29,72,0.6)] animate-pulse';
-      }
       if (statusBadge) {
-        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/25 text-rose-300 backdrop-blur-md';
+        statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/25 text-rose-300 border border-rose-500/50 font-mono text-[10px] font-black tracking-widest animate-pulse';
       }
-      if (statusText) statusText.textContent = 'BAHAYA • OVER BUDGET';
-      if (statusIcon) statusIcon.textContent = 'Over-Budget 🚨';
+      if (statusText) statusText.textContent = '🚨 OVER BUDGET';
+      if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">emergency</span> DEFISIT KUOTA';
       const overAmount = Math.abs(remaining);
-      if (remainingText) remainingText.innerHTML = `<span class="text-rose-400 font-bold">DEFISIT: <strong>Rp ${formatNumber(overAmount)}</strong></span>`;
+      if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-950/80 border border-rose-600/60"><span class="text-rose-300 text-[10px]">Defisit:</span><strong class="text-rose-400 font-black text-[12px]">Rp ${formatNumber(overAmount)}</strong></span>`;
       if (overBudgetBanner) overBudgetBanner.classList.remove('hidden');
       const trimDeficit = document.getElementById('trimDeficitAmount');
       if (trimDeficit) trimDeficit.textContent = `Rp ${formatNumber(overAmount)}`;
@@ -1325,14 +1334,14 @@
   }
 
   // ==========================================================================
-  // RENDER CART ITEMS (NEO-BENTO CARDS)
+  // RENDER CART ITEMS (STITCH SCREEN 2: TACTILE TICKET LOT CARDS)
   // ==========================================================================
   function renderCart() {
     const container = document.getElementById('cartItemsList');
     const emptyState = document.getElementById('emptyCartState');
     const summaryBottom = document.getElementById('cartSummaryBottom');
     const headerCount = document.getElementById('cartHeaderPillCount');
-    if (headerCount) headerCount.textContent = `${appState.cart.length} Produk`;
+    if (headerCount) headerCount.textContent = `${appState.cart.length} LOT`;
 
     let filteredItems = appState.cart.filter(item => {
       const matchCat = appState.activeCategory === 'ALL' || item.category === appState.activeCategory;
@@ -1353,8 +1362,8 @@
 
     if (filteredItems.length === 0) {
       container.innerHTML = `
-        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.78rem; font-family: var(--font-mono);">
-          TIDAK ADA ITEM DITEMUKAN
+        <div class="p-6 text-center bg-white rounded-2xl border-2 border-dashed border-stone-300 text-stone-500 font-mono text-xs">
+          TIDAK ADA ITEM DITEMUKAN PADA KATEGORI INI
         </div>
       `;
       updateBudgetHud();
@@ -1362,58 +1371,71 @@
     }
 
     let html = '';
-    filteredItems.forEach(item => {
+    filteredItems.forEach((item, index) => {
       const discount = calculateDiscount(item.price, item.discountRaw);
       const comparison = comparePriceWithLastMonth(item.price, item.lastMonthPrice);
       const lineTotal = discount.finalUnitPrice * item.qty;
       const hasDiscount = discount.savedPerUnit > 0;
       const isChecked = !!item.inPhysicalCart;
+      const lotNumber = String(index + 1).padStart(2, '0');
 
       html += `
-        <div class="neo-card-row ${isChecked ? 'in-physical-cart' : ''}" data-id="${item.id}">
-          <div class="card-top-header">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <button type="button" class="cart-check-btn ${isChecked ? 'checked' : ''}" onclick="window.toggleItemInCart('${item.id}')" title="Centang jika sudah di troli fisik">
+        <div class="neo-ticket-card ticket-perforation-left ${isChecked ? 'is-checked' : 'is-pending'}" data-id="${item.id}">
+          <!-- Top Row: Checkbox, LOT #, Category, Barcode Strip & Quick Actions -->
+          <div class="flex items-center justify-between border-b border-stone-200/80 pb-2">
+            <div class="flex items-center gap-2">
+              <button type="button" class="cart-check-btn ${isChecked ? 'checked' : ''}" onclick="window.toggleItemInCart('${item.id}')" title="Centang jika sudah di rak troli">
                 <i data-lucide="check"></i>
               </button>
-              <span class="cat-mono-tag">${escapeHtml(item.category)}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="font-mono text-[11px] font-black text-ink tracking-tight">LOT #${lotNumber}</span>
+                <span class="cat-mono-tag">${escapeHtml(item.category)}</span>
+              </div>
+              <span class="barcode-strip hidden sm:inline-block" title="Barcode Lot"></span>
             </div>
-            <div class="card-action-mini">
-              <button class="btn-ico-subtle" onclick="window.editCartItem('${item.id}')" title="Edit">
-                <i data-lucide="edit-3"></i>
-              </button>
-              <button class="btn-ico-subtle trash" onclick="window.deleteCartItem('${item.id}')" title="Hapus">
-                <i data-lucide="trash-2"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <h4 class="card-item-title">${escapeHtml(item.name)}</h4>
-              <span class="card-item-spec">Kemasan: ${escapeHtml(item.unit)}</span>
-            </div>
-            <!-- Status Sesuai Rencana vs Impulsif -->
-            <div>
-              ${item.isPlanned !== false ? `
-                <span class="inline-flex items-center gap-1 font-label-sm text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  <span class="material-symbols-outlined text-[12px]">check_circle</span>
-                  <span>Sesuai Rencana</span>
-                </span>
+            <div class="flex items-center gap-1.5">
+              ${isChecked ? `
+                <span class="rubber-stamp rubber-stamp-green text-[9px]">DI RAK ✓</span>
               ` : `
-                <span class="inline-flex items-center gap-1 font-label-sm text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200" title="Barang ini dimasukkan di luar daftar Shopping Planner">
-                  <span class="material-symbols-outlined text-[12px]">warning</span>
-                  <span>Di Luar Rencana</span>
-                </span>
+                <span class="rubber-stamp rubber-stamp-amber text-[9px]">PENDING</span>
               `}
+              <div class="flex items-center gap-0.5 ml-1">
+                <button class="btn-ico-subtle" onclick="window.editCartItem('${item.id}')" title="Edit">
+                  <i data-lucide="edit-3"></i>
+                </button>
+                <button class="btn-ico-subtle trash" onclick="window.deleteCartItem('${item.id}')" title="Hapus">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Badges Row -->
-          <div class="card-badges-flow">
+          <!-- Middle Row: Title, Spec & Status Rencana -->
+          <div class="flex items-start justify-between gap-2 pt-0.5">
+            <div>
+              <h4 class="card-item-title text-[15px] font-extrabold text-ink leading-snug">${escapeHtml(item.name)}</h4>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="font-mono text-[11px] text-stone-500 font-semibold">Kemasan: ${escapeHtml(item.unit)}</span>
+                ${item.isPlanned !== false ? `
+                  <span class="inline-flex items-center gap-1 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <i data-lucide="check-circle-2" class="w-2.5 h-2.5"></i>
+                    <span>Rencana</span>
+                  </span>
+                ` : `
+                  <span class="inline-flex items-center gap-1 font-mono text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200" title="Di luar daftar rencana">
+                    <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i>
+                    <span>Impulsif</span>
+                  </span>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing Flow & Badges Row -->
+          <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-dashed border-stone-200">
             <span class="unit-rate-mono">
-              ${hasDiscount ? `<span class="strike">Rp ${formatNumber(item.price)}</span>` : ''}
-              <strong>Rp ${formatNumber(discount.finalUnitPrice)}</strong>/${escapeHtml(item.unit)}
+              ${hasDiscount ? `<span class="strike text-stone-400">Rp ${formatNumber(item.price)}</span>` : ''}
+              <strong>Rp ${formatNumber(discount.finalUnitPrice)}</strong><span class="text-stone-500">/${escapeHtml(item.unit)}</span>
             </span>
 
             <!-- F-04: Comparison Badge -->
@@ -1422,30 +1444,30 @@
               <span>${comparison.text}</span>
             </span>
 
-            <!-- F-03: Discount Badge -->
+            <!-- F-03: Stamped Discount Rubber Stamp -->
             ${hasDiscount ? `
-              <span class="neo-promo-chip">
+              <span class="rubber-stamp rubber-stamp-terracotta text-[9px]">
                 <i data-lucide="tag"></i>
                 <span>${discount.discountLabel}</span>
               </span>
             ` : ''}
           </div>
 
-          <!-- Stepper & Subtotal -->
-          <div class="card-bottom-line">
-            <div class="neo-stepper-touch">
-              <button type="button" class="stepper-tap-btn ${item.qty === 1 ? 'is-trash' : ''}" onclick="window.changeItemQty('${item.id}', -1)" title="${item.qty === 1 ? 'Hapus Barang' : 'Kurangi'}">
+          <!-- Bottom Row: Tactile POS Stepper & Chunky Subtotal -->
+          <div class="flex items-center justify-between pt-2 border-t border-stone-200/80 mt-1">
+            <div class="flex items-center gap-1.5 bg-[#FAF8F5] p-1 rounded-xl border border-stone-300 shadow-pos-key">
+              <button type="button" class="w-8 h-8 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer ${item.qty === 1 ? 'text-rose-600' : ''}" onclick="window.changeItemQty('${item.id}', -1)" title="${item.qty === 1 ? 'Hapus Barang' : 'Kurangi'}">
                 <i data-lucide="${item.qty === 1 ? 'trash-2' : 'minus'}"></i>
               </button>
-              <input type="number" value="${item.qty}" min="1" onchange="window.setItemQty('${item.id}', this.value)" inputmode="numeric">
-              <button type="button" class="stepper-tap-btn" onclick="window.changeItemQty('${item.id}', 1)" title="Tambah">
+              <span class="w-8 text-center font-mono font-black text-sm text-ink">${item.qty}</span>
+              <button type="button" class="w-8 h-8 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer" onclick="window.changeItemQty('${item.id}', 1)" title="Tambah">
                 <i data-lucide="plus"></i>
               </button>
             </div>
 
-            <div class="card-total-box">
-              <div class="t-sub">SUBTOTAL (${item.qty} ${item.unit})</div>
-              <div class="t-digits">Rp ${formatNumber(lineTotal)}</div>
+            <div class="text-right">
+              <div class="font-mono text-[9px] text-stone-500 font-bold uppercase tracking-wider">SUBTOTAL (${item.qty} ${item.unit})</div>
+              <div class="font-headline-md text-[18px] font-black text-ink tracking-tight">Rp ${formatNumber(lineTotal)}</div>
             </div>
           </div>
         </div>
@@ -4666,10 +4688,23 @@
   // ==========================================================================
   // AUTHENTICATION & MULTI-USER DATA ISOLATION MODULE
   // ==========================================================================
+  // AUTHENTICATION & MULTI-USER SYSTEM (USERNAME & PASSWORD / GOOGLE)
+  // ==========================================================================
+  const USERS_CREDENTIALS_KEY = 'smart_grocery_user_credentials';
+
   function initAuthModule() {
     const loginScreen = document.getElementById('loginScreen');
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegisterBtn = document.getElementById('tabRegisterBtn');
     const formLogin = document.getElementById('formUsernameLogin');
+    const formRegister = document.getElementById('formRegisterUser');
     const inputUsername = document.getElementById('inputLoginUsername');
+    const inputPassword = document.getElementById('inputLoginPassword');
+    const inputRegUsername = document.getElementById('inputRegUsername');
+    const inputRegPassword = document.getElementById('inputRegPassword');
+    const btnToggleLoginPwd = document.getElementById('btnToggleLoginPwd');
+    const btnToggleRegPwd = document.getElementById('btnToggleRegPwd');
+
     const btnGoogle = document.getElementById('btnGoogleLoginTrigger');
     const modalGoogle = document.getElementById('modalGoogleAuthBackdrop');
     const btnCancelGoogle = document.getElementById('btnCancelGoogleAuth');
@@ -4680,6 +4715,59 @@
     const btnCloseProfile = document.getElementById('btnCloseUserProfileModal');
     const btnSwitchAccount = document.getElementById('btnSwitchAccount');
     const btnLogoutUser = document.getElementById('btnLogoutUser');
+
+    // Tab Switching Logic: Masuk vs Daftar
+    if (tabLoginBtn && tabRegisterBtn && formLogin && formRegister) {
+      tabLoginBtn.addEventListener('click', () => {
+        tabLoginBtn.className = 'py-2 rounded-lg bg-ink text-white shadow-xs transition-all cursor-pointer';
+        tabRegisterBtn.className = 'py-2 rounded-lg text-stone-600 hover:text-ink transition-all cursor-pointer';
+        formLogin.classList.remove('hidden');
+        formRegister.classList.add('hidden');
+        if (inputUsername) inputUsername.focus();
+      });
+
+      tabRegisterBtn.addEventListener('click', () => {
+        tabRegisterBtn.className = 'py-2 rounded-lg bg-ink text-white shadow-xs transition-all cursor-pointer';
+        tabLoginBtn.className = 'py-2 rounded-lg text-stone-600 hover:text-ink transition-all cursor-pointer';
+        formRegister.classList.remove('hidden');
+        formLogin.classList.add('hidden');
+        if (inputRegUsername) inputRegUsername.focus();
+      });
+    }
+
+    // Password visibility toggles
+    if (btnToggleLoginPwd && inputPassword) {
+      btnToggleLoginPwd.addEventListener('click', () => {
+        const isPwd = inputPassword.type === 'password';
+        inputPassword.type = isPwd ? 'text' : 'password';
+        const icon = btnToggleLoginPwd.querySelector('.material-symbols-outlined');
+        if (icon) icon.textContent = isPwd ? 'visibility_off' : 'visibility';
+      });
+    }
+    if (btnToggleRegPwd && inputRegPassword) {
+      btnToggleRegPwd.addEventListener('click', () => {
+        const isPwd = inputRegPassword.type === 'password';
+        inputRegPassword.type = isPwd ? 'text' : 'password';
+        const icon = btnToggleRegPwd.querySelector('.material-symbols-outlined');
+        if (icon) icon.textContent = isPwd ? 'visibility_off' : 'visibility';
+      });
+    }
+
+    // Helper: Get stored user credentials
+    function getStoredCredentials() {
+      try {
+        const raw = localStorage.getItem(USERS_CREDENTIALS_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveCredentials(creds) {
+      try {
+        localStorage.setItem(USERS_CREDENTIALS_KEY, JSON.stringify(creds));
+      } catch (e) {}
+    }
 
     // 1. Check existing session
     let savedUser = null;
@@ -4706,17 +4794,162 @@
       updateHeaderUserUI();
     }
 
-    // 2. Handle Username Login Submit
+    // Inline Alert Helper on Login Card
+    const alertEl = document.getElementById('loginFeedbackAlert');
+    const alertText = document.getElementById('loginFeedbackText');
+    const alertIcon = document.getElementById('loginFeedbackIcon');
+
+    function showLoginAlert(msg, type = 'danger') {
+      if (!alertEl || !alertText) return;
+      alertText.textContent = msg;
+      alertEl.classList.remove('hidden');
+      if (type === 'danger') {
+        alertEl.style.display = 'flex';
+        alertEl.className = 'mb-3.5 p-3.5 rounded-xl bg-red-100 border-2 border-red-500 text-red-900 font-body-md text-xs font-black flex items-start gap-2 shadow-sm animate-shake';
+        if (alertIcon) alertIcon.textContent = 'warning';
+      } else if (type === 'warning') {
+        alertEl.style.display = 'flex';
+        alertEl.className = 'mb-3.5 p-3.5 rounded-xl bg-amber-100 border-2 border-amber-500 text-amber-900 font-body-md text-xs font-black flex items-start gap-2 shadow-sm';
+        if (alertIcon) alertIcon.textContent = 'info';
+      } else {
+        alertEl.style.display = 'flex';
+        alertEl.className = 'mb-3.5 p-3.5 rounded-xl bg-emerald-100 border-2 border-emerald-500 text-emerald-900 font-body-md text-xs font-black flex items-start gap-2 shadow-sm';
+        if (alertIcon) alertIcon.textContent = 'check_circle';
+      }
+    }
+
+    function hideLoginAlert() {
+      if (alertEl) {
+        alertEl.classList.add('hidden');
+        alertEl.style.display = 'none';
+      }
+    }
+
+    const btnSubmitLogin = document.getElementById('btnSubmitLogin');
+    if (btnSubmitLogin && formLogin) {
+      btnSubmitLogin.addEventListener('click', (e) => {
+        // If form is valid, trigger submit manually if needed
+        if (!formLogin.checkValidity()) {
+          formLogin.reportValidity();
+        }
+      });
+    }
+
+    // 2. Handle Login Submit
     if (formLogin) {
       formLogin.addEventListener('submit', (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        hideLoginAlert();
         const rawUsername = inputUsername ? inputUsername.value.trim() : '';
+        const rawPassword = inputPassword ? inputPassword.value : '';
+
         if (!rawUsername) {
+          AudioEngine.playLimitAlert();
+          showLoginAlert('Silakan masukkan username kamu!', 'warning');
           showToast('Silakan masukkan username kamu!', 'warning');
+          if (inputUsername) inputUsername.focus();
+          return;
+        }
+
+        if (!rawPassword) {
+          AudioEngine.playLimitAlert();
+          showLoginAlert('Silakan masukkan password akun kamu!', 'warning');
+          showToast('Silakan masukkan password akun kamu!', 'warning');
+          if (inputPassword) inputPassword.focus();
           return;
         }
 
         const slug = getUserSlug(rawUsername);
+        const creds = getStoredCredentials();
+
+        // Akun harus terdaftar terlebih dahulu lewat Sign Up (Daftar Akun)
+        if (!creds[slug]) {
+          AudioEngine.playLimitAlert();
+          const notRegMsg = `Akun "${rawUsername}" belum terdaftar! Silakan klik tab "Daftar Akun" di atas untuk mendaftar.`;
+          showLoginAlert(notRegMsg, 'danger');
+          showToast(notRegMsg, 'danger');
+          if (inputUsername) {
+            inputUsername.style.borderColor = '#ef4444';
+            inputUsername.focus();
+          }
+          // Native browser alert guarantee
+          setTimeout(() => {
+            alert(notRegMsg);
+          }, 50);
+          return;
+        }
+
+        // Verifikasi password akun terdaftar
+        if (creds[slug].password !== rawPassword) {
+          AudioEngine.playLimitAlert();
+          const wrongPwdMsg = 'Password salah! Cek kembali password Anda.';
+          showLoginAlert(wrongPwdMsg, 'danger');
+          showToast(wrongPwdMsg, 'danger');
+          if (inputPassword) {
+            inputPassword.value = '';
+            inputPassword.style.borderColor = '#ef4444';
+            inputPassword.focus();
+          }
+          setTimeout(() => {
+            alert(wrongPwdMsg);
+          }, 50);
+          return;
+        }
+
+        const userObj = {
+          slug: slug,
+          username: creds[slug].username || rawUsername,
+          displayName: creds[slug].displayName || creds[slug].username || rawUsername,
+          provider: 'username',
+          email: '',
+          avatarText: (rawUsername[0] || 'U').toUpperCase(),
+          loginAt: Date.now()
+        };
+
+        hideLoginAlert();
+        loginAsUser(userObj, true);
+        if (inputUsername) inputUsername.value = '';
+        if (inputPassword) inputPassword.value = '';
+      });
+    }
+
+    // 3. Handle Register Submit
+    if (formRegister) {
+      formRegister.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const rawUsername = inputRegUsername ? inputRegUsername.value.trim() : '';
+        const rawPassword = inputRegPassword ? inputRegPassword.value : '';
+
+        if (!rawUsername) {
+          showToast('Masukkan username pilihan kamu!', 'warning');
+          return;
+        }
+        if (!rawPassword || rawPassword.length < 4) {
+          showToast('Password minimal 4 karakter!', 'warning');
+          return;
+        }
+
+        const slug = getUserSlug(rawUsername);
+        const creds = getStoredCredentials();
+
+        if (creds[slug]) {
+          showToast('Username sudah terdaftar! Silakan login di tab Masuk.', 'warning');
+          // Switch to login tab
+          if (tabLoginBtn) tabLoginBtn.click();
+          if (inputUsername) inputUsername.value = rawUsername;
+          if (inputPassword) inputPassword.focus();
+          return;
+        }
+
+        // Save new user credentials
+        creds[slug] = {
+          username: rawUsername,
+          password: rawPassword,
+          createdAt: Date.now()
+        };
+        saveCredentials(creds);
+
         const userObj = {
           slug: slug,
           username: rawUsername,
@@ -4727,20 +4960,30 @@
           loginAt: Date.now()
         };
 
+        if (inputRegUsername) inputRegUsername.value = '';
+        if (inputRegPassword) inputRegPassword.value = '';
+
         loginAsUser(userObj, true);
-        if (inputUsername) inputUsername.value = '';
+        showToast(`Akun ${rawUsername} berhasil dibuat!`, 'success');
       });
     }
 
-    // 3. Handle Google Login Trigger
-    if (btnGoogle && modalGoogle) {
+    // 4. Handle Google Login Trigger
+    if (btnGoogle) {
       btnGoogle.addEventListener('click', () => {
         AudioEngine.playTap();
-        modalGoogle.classList.remove('hidden');
+        // Open the clean Google Sign-In dialog directly so user can sign in with their Gmail
+        if (modalGoogle) {
+          modalGoogle.classList.remove('hidden');
+          if (inputCustomGoogle) {
+            inputCustomGoogle.focus();
+            inputCustomGoogle.select();
+          }
+        }
       });
     }
 
-    // 4. Cancel Google Modal
+    // 5. Cancel Google Modal
     if (btnCancelGoogle && modalGoogle) {
       btnCancelGoogle.addEventListener('click', () => {
         modalGoogle.classList.add('hidden');
@@ -4755,29 +4998,6 @@
         }
       });
     }
-
-    // 5. Google Account Select Buttons
-    document.querySelectorAll('.btn-google-account-select').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const email = btn.getAttribute('data-email') || '';
-        const name = btn.getAttribute('data-name') || '';
-        const username = email.split('@')[0] || 'google_user';
-        const slug = 'g_' + getUserSlug(username);
-
-        const userObj = {
-          slug: slug,
-          username: username,
-          displayName: name,
-          provider: 'google',
-          email: email,
-          avatarText: (name[0] || 'G').toUpperCase(),
-          loginAt: Date.now()
-        };
-
-        if (modalGoogle) modalGoogle.classList.add('hidden');
-        loginAsUser(userObj, true);
-      });
-    });
 
     // 6. Custom Google Email Submit
     if (formCustomGoogle) {
@@ -4796,7 +5016,7 @@
         const userObj = {
           slug: slug,
           username: username,
-          displayName: displayName + ' (Google)',
+          displayName: displayName,
           provider: 'google',
           email: email,
           avatarText: (username[0] || 'G').toUpperCase(),
@@ -4806,6 +5026,8 @@
         if (modalGoogle) modalGoogle.classList.add('hidden');
         if (inputCustomGoogle) inputCustomGoogle.value = '';
         loginAsUser(userObj, true);
+        AudioEngine.playSuccess();
+        showToast(`Selamat datang, ${displayName}!`, 'success');
       });
     }
 
@@ -5023,24 +5245,70 @@
       const isGoogle = u.provider === 'google';
       const badgeIcon = isGoogle ? 'verified' : 'person';
       return `
-        <button type="button" class="btn-quick-user-chip flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/30 text-on-surface text-xs font-semibold transition-all cursor-pointer shadow-xs active:scale-95" data-user='${escapeHtml(JSON.stringify(u))}'>
-          <span class="w-5 h-5 rounded-full ${isGoogle ? 'bg-blue-600 text-white' : 'bg-primary text-secondary-fixed'} text-[10px] font-bold flex items-center justify-center">${escapeHtml(u.avatarText || 'U')}</span>
-          <span class="truncate max-w-[130px]">${escapeHtml(u.displayName || u.username)}</span>
-          <span class="material-symbols-outlined text-[14px] text-secondary">${badgeIcon}</span>
-        </button>
+        <div class="inline-flex items-center rounded-full bg-[#FAF8F5] border-2 border-stone-300 hover:border-stone-800 transition-all shadow-xs group">
+          <button type="button" class="btn-quick-user-chip flex items-center gap-1.5 py-1.5 pl-2.5 pr-1 text-on-surface text-xs font-semibold cursor-pointer active:scale-95 transition-transform" data-user='${escapeHtml(JSON.stringify(u))}'>
+            <span class="w-5 h-5 rounded-full ${isGoogle ? 'bg-blue-600 text-white' : 'bg-primary text-secondary-fixed'} text-[10px] font-bold flex items-center justify-center shrink-0">${escapeHtml(u.avatarText || 'U')}</span>
+            <span class="truncate max-w-[110px]">${escapeHtml(u.displayName || u.username)}</span>
+            <span class="material-symbols-outlined text-[13px] text-stone-400">${badgeIcon}</span>
+          </button>
+          <button type="button" class="btn-delete-saved-user w-6 h-6 mr-1 rounded-full text-stone-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors cursor-pointer" data-slug="${escapeHtml(u.slug)}" title="Hapus dari daftar tersimpan">
+            <span class="material-symbols-outlined text-[14px]">close</span>
+          </button>
+        </div>
       `;
     }).join('');
 
+    // Click on saved account chip to log in
     list.querySelectorAll('.btn-quick-user-chip').forEach(btn => {
       btn.addEventListener('click', () => {
         try {
           const u = JSON.parse(btn.getAttribute('data-user'));
-          loginAsUser(u, true);
+          AudioEngine.playTap();
+          if (u.provider === 'google') {
+            loginAsUser(u, true);
+          } else {
+            if (tabLoginBtn) tabLoginBtn.click();
+            if (inputUsername) inputUsername.value = u.username || u.displayName;
+            if (inputPassword) {
+              inputPassword.value = '';
+              inputPassword.focus();
+            }
+            showToast(`Masukkan password untuk akun ${u.displayName || u.username}`, 'info');
+          }
         } catch (e) {
-          console.warn('Error quick login:', e);
+          console.warn('Error selecting saved user:', e);
         }
       });
     });
+
+    // Click on delete button to remove saved account
+    list.querySelectorAll('.btn-delete-saved-user').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const slugToDelete = btn.getAttribute('data-slug');
+        if (!slugToDelete) return;
+        AudioEngine.playTap();
+        deleteSavedAccount(slugToDelete);
+      });
+    });
+  }
+
+  function deleteSavedAccount(slugToDelete) {
+    try {
+      let knownUsers = [];
+      const saved = localStorage.getItem(AUTH_STORAGE_KEYS.KNOWN_USERS);
+      if (saved) knownUsers = JSON.parse(saved);
+
+      const removedUser = knownUsers.find(u => u.slug === slugToDelete);
+      const updated = knownUsers.filter(u => u.slug !== slugToDelete);
+      localStorage.setItem(AUTH_STORAGE_KEYS.KNOWN_USERS, JSON.stringify(updated));
+
+      renderSavedAccountsList();
+      const name = removedUser ? (removedUser.displayName || removedUser.username) : 'Akun';
+      showToast(`Akun ${name} dihapus dari daftar tersimpan`, 'info');
+    } catch (e) {
+      console.warn('Error deleting saved user:', e);
+    }
   }
 
   function renderAll() {
