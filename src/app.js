@@ -5731,12 +5731,12 @@
                         }
                       }
 
-                      // 3. Fallback pemberitahuan jika popup tertutup tanpa kirim data (misal redirect ke localhost:3000)
+                      // 3. Jika popup ditutup tanpa login
                       setTimeout(() => {
                         if (!appState.currentUser) {
-                          showSupabaseRedirectNotice();
+                          showToast('Login Google belum selesai. Pastikan akun dipilih.', 'warning');
                         }
-                      }, 400);
+                      }, 1200);
                     }
                   } catch (e) {}
                 }, 500);
@@ -5752,23 +5752,6 @@
           showToast('Koneksi Supabase belum siap', 'warning');
         }
       });
-    }
-
-    function showSupabaseRedirectNotice() {
-      const noticeText =
-        'TIPS PENGATURAN REDIRECT SUPABASE:\n\n' +
-        'Jika setelah memilih akun Google Anda tidak masuk ke aplikasi, ini karena Supabase secara default mengarahkan callback ke http://localhost:3000.\n\n' +
-        'Cara mudah menyelesaikannya (1 menit):\n' +
-        '1. Buka Supabase Dashboard:\n' +
-        '   https://supabase.com/dashboard/project/szhtgpjvudguknevurfh/auth/url-configuration\n\n' +
-        '2. Pada "Site URL", ubah menjadi:\n' +
-        '   ' + window.location.origin + '\n\n' +
-        '3. Pada "Redirect URLs", tambahkan:\n' +
-        '   ' + window.location.origin + '/**\n\n' +
-        '4. Klik Save.\n' +
-        'Setelah itu login Google resmi akan langsung masuk seketika!';
-
-      alert(noticeText);
     }
 
     function showSupabaseGoogleGuide() {
