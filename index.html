@@ -15,11 +15,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SmartGrocery">
 
-  <!-- Typography: Hanken Grotesk, Space Grotesk, JetBrains Mono -->
+  <!-- Typography: Plus Jakarta Sans, Space Grotesk, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
   <link
-    href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300..900;1,300..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;600;700&display=swap"
     rel="stylesheet" />
   <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
@@ -33,44 +33,55 @@
       theme: {
         extend: {
           colors: {
-            "primary": "#001d0f",
-            "primary-container": "#113322",
+            "primary": "#181512",
+            "primary-container": "#241f1a",
             "on-primary": "#ffffff",
-            "on-primary-container": "#799c86",
-            "secondary": "#006e2f",
-            "secondary-container": "#6bff8f",
+            "on-primary-container": "#e4dbd2",
+            "secondary": "#007432",
+            "secondary-container": "#dcf4e3",
             "on-secondary": "#ffffff",
-            "on-secondary-container": "#007432",
-            "secondary-fixed": "#6bff8f",
-            "secondary-fixed-dim": "#4ae176",
-            "on-secondary-fixed": "#002109",
-            "on-secondary-fixed-variant": "#005321",
-            "tertiary": "#2b1100",
-            "tertiary-container": "#4a2200",
-            "on-tertiary-container": "#e57600",
-            "tertiary-fixed": "#ffdcc6",
-            "tertiary-fixed-dim": "#ffb784",
+            "on-secondary-container": "#005321",
+            "secondary-fixed": "#f59e0b",
+            "secondary-fixed-dim": "#d97706",
+            "on-secondary-fixed": "#181512",
+            "on-secondary-fixed-variant": "#78350f",
+            "tertiary": "#ea580c",
+            "tertiary-container": "#ffedd5",
+            "on-tertiary-container": "#9a3412",
+            "tertiary-fixed": "#ffedd5",
+            "tertiary-fixed-dim": "#fed7aa",
             "on-tertiary-fixed": "#301400",
             "on-tertiary-fixed-variant": "#713700",
-            "surface": "#f0fdf1",
-            "surface-bright": "#f0fdf1",
-            "surface-dim": "#d0ddd2",
+            "surface": "#FAF8F5",
+            "surface-bright": "#ffffff",
+            "surface-dim": "#ede5dc",
             "surface-container-lowest": "#ffffff",
-            "surface-container-low": "#eaf7ec",
-            "surface-container": "#e4f1e6",
-            "surface-container-high": "#dfebe0",
-            "surface-container-highest": "#d9e6db",
-            "on-surface": "#131e17",
-            "on-surface-variant": "#424843",
-            "outline": "#727973",
-            "outline-variant": "#c1c8c1",
-            "error": "#ba1a1a",
-            "error-container": "#ffdad6",
+            "surface-container-low": "#f8f3ee",
+            "surface-container": "#f3ece5",
+            "surface-container-high": "#ebe3db",
+            "surface-container-highest": "#e2d8ce",
+            "on-surface": "#181512",
+            "on-surface-variant": "#5e564e",
+            "outline": "#8c7f73",
+            "outline-variant": "#dcd2c6",
+            "citrus": "#f59e0b",
+            "citrus-glow": "#ffb703",
+            "terracotta": "#ea580c",
+            "ink": "#181512",
+            "ink-card": "#211d19",
+            "error": "#dc2626",
+            "error-container": "#fee2e2",
             "on-error": "#ffffff",
-            "on-error-container": "#93000a",
-            "background": "#f0fdf1",
-            "on-background": "#131e17",
-            "surface-tint": "#446652"
+            "on-error-container": "#991b1b",
+            "background": "#FAF8F5",
+            "on-background": "#181512",
+            "surface-tint": "#f59e0b"
+          },
+          boxShadow: {
+            "tactile": "0 4px 0 #181512, 0 8px 16px rgba(24,21,18,0.08)",
+            "tactile-press": "0 2px 0 #181512, 0 4px 8px rgba(24,21,18,0.1)",
+            "pos-key": "0 3px 0 #d8cfc6, 0 4px 8px rgba(0,0,0,0.04)",
+            "pill-inset": "inset 0 2px 4px rgba(0,0,0,0.06)"
           },
           borderRadius: {
             "DEFAULT": "0.25rem",
@@ -99,9 +110,9 @@
             "numeric-md": ["Space Grotesk", "monospace"],
             "label-lg": ["Space Grotesk", "sans-serif"],
             "label-sm": ["Space Grotesk", "sans-serif"],
-            "body-lg": ["Hanken Grotesk", "sans-serif"],
-            "body-md": ["Hanken Grotesk", "sans-serif"],
-            "body-sm": ["Hanken Grotesk", "sans-serif"],
+            "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "sans-serif"],
+            "body-sm": ["Plus Jakarta Sans", "sans-serif"],
             "mono": ["JetBrains Mono", "monospace"]
           }
         }
@@ -116,71 +127,119 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 
   <!-- Base Stitch App Styling -->
-  <link rel="stylesheet" href="styles.css?v=5.4.0">
+  <link rel="stylesheet" href="styles.css?v=5.4.2">
 </head>
 
-<body class="bg-surface-container font-body-md text-on-surface antialiased flex flex-col min-h-screen">
+<body class="bg-[#FAF8F5] font-body-md text-on-surface antialiased flex flex-col min-h-screen selection:bg-citrus selection:text-ink">
 
   <!-- ================= AUTHENTICATION / LOGIN SCREEN ================= -->
   <div id="loginScreen"
-    class="hidden fixed inset-0 z-[100] bg-surface-container flex flex-col justify-between overflow-y-auto">
+    class="hidden fixed inset-0 z-[100] bg-[#FAF8F5] flex flex-col justify-between overflow-y-auto">
     <div
-      class="w-full max-w-[480px] mx-auto min-h-screen flex flex-col justify-between p-6 bg-surface border-x border-outline-variant/20 shadow-2xl">
+      class="w-full max-w-[440px] mx-auto min-h-screen flex flex-col justify-between p-6 bg-[#FAF8F5] border-x border-[#e8dfd5] shadow-2xl">
 
-      <!-- Top Branding -->
-      <div class="pt-8 text-center">
+      <!-- Top Branding (Clean & Minimalist) -->
+      <div class="pt-12 text-center">
         <div
-          class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#002b15] via-secondary to-[#4ae176] text-white mx-auto flex items-center justify-center shadow-2xl mb-4 ring-8 ring-secondary/10">
-          <span class="material-symbols-outlined text-[42px] text-secondary-fixed">shopping_bag</span>
+          class="w-16 h-16 rounded-2xl bg-ink text-citrus mx-auto flex items-center justify-center shadow-md mb-3.5 border-2 border-stone-800">
+          <span class="material-symbols-outlined text-[32px] text-citrus" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
         </div>
-        <h1 class="font-headline-sm text-[26px] text-primary font-bold tracking-tight">Smart Grocery & Price Tracker
-        </h1>
-        <p class="font-body-sm text-[13px] text-on-surface-variant mt-1.5 max-w-xs mx-auto leading-relaxed">
-          Sistem Belanja Cerdas & Kontrol Budget Mandiri untuk Anak Kos & Pelajar
-        </p>
+        <h1 class="font-headline-sm text-[24px] text-ink font-black tracking-tight">KeranjangPintar</h1>
+        <p class="font-body-sm text-[13px] text-stone-500 mt-1">Smart grocery &amp; budget companion</p>
       </div>
 
-      <!-- Main Login Form Card -->
-      <div class="bg-surface-container-lowest rounded-[32px] p-6 shadow-xl border border-outline-variant/30 my-6">
+      <!-- Main Auth Card -->
+      <div class="bg-white rounded-[28px] p-6 shadow-tactile border-2 border-stone-900 my-auto">
 
-        <div class="mb-4">
-          <span class="font-label-sm text-[11px] font-bold text-secondary uppercase tracking-wider block mb-1">Masuk
-            dengan Username</span>
-          <h2 class="font-headline-sm text-[18px] text-primary font-bold">Siapa yang Belanja Hari Ini?</h2>
-          <p class="font-body-sm text-[12px] text-on-surface-variant">Setiap username memiliki troli, dompet, dan struk
-            terpisah (privat & tidak tertukar).</p>
+        <!-- Tabs: Masuk / Daftar -->
+        <div class="grid grid-cols-2 p-1 bg-[#FAF8F5] border border-stone-300 rounded-xl mb-4 font-mono text-xs font-bold">
+          <button type="button" id="tabLoginBtn" class="py-2 rounded-lg bg-ink text-white shadow-xs transition-all cursor-pointer">
+            Masuk
+          </button>
+          <button type="button" id="tabRegisterBtn" class="py-2 rounded-lg text-stone-600 hover:text-ink transition-all cursor-pointer">
+            Daftar Akun
+          </button>
         </div>
 
-        <form id="formUsernameLogin" class="space-y-3.5">
+        <!-- Form Masuk (Login) -->
+        <form id="formUsernameLogin" class="space-y-3">
+          <!-- Inline Feedback Alert Banner -->
+          <div id="loginFeedbackAlert" style="display: none;" class="p-3.5 rounded-xl border-2 font-body-md text-xs font-black flex items-start gap-2 shadow-sm animate-shake">
+            <span class="material-symbols-outlined text-[18px] shrink-0" id="loginFeedbackIcon">error</span>
+            <div class="flex-1" id="loginFeedbackText">Pesan pemberitahuan</div>
+          </div>
+
           <div>
-            <label class="font-label-sm text-[12px] font-bold text-on-surface block mb-1">USERNAME KAMU</label>
+            <label class="font-mono text-[11px] font-bold text-stone-600 uppercase tracking-wider block mb-1.5">Username</label>
             <div class="relative">
-              <span
-                class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px]">person</span>
-              <input type="text" id="inputLoginUsername" placeholder="Contoh: Rian, Budi, atau Siti" required
-                autocomplete="username"
-                class="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface-container-low text-on-surface font-body-md text-base border border-outline-variant/40 focus:outline-none focus:ring-2 focus:ring-secondary focus:bg-white transition-all font-semibold">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">person</span>
+              <input type="text" id="inputLoginUsername" placeholder="Username atau email kamu" required autocomplete="username"
+                class="w-full pl-10 pr-4 py-3 rounded-xl bg-[#FAF8F5] text-ink font-body-md text-sm font-bold border-2 border-stone-300 focus:border-stone-900 focus:outline-none transition-all placeholder:font-normal placeholder:text-stone-400">
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="font-mono text-[11px] font-bold text-stone-600 uppercase tracking-wider">Password</label>
+            </div>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">lock</span>
+              <input type="password" id="inputLoginPassword" placeholder="Masukkan password akun kamu" required autocomplete="current-password"
+                class="w-full pl-10 pr-10 py-3 rounded-xl bg-[#FAF8F5] text-ink font-body-md text-sm font-bold border-2 border-stone-300 focus:border-stone-900 focus:outline-none transition-all placeholder:font-normal placeholder:text-stone-400">
+              <button type="button" id="btnToggleLoginPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">visibility</span>
+              </button>
             </div>
           </div>
 
           <button type="submit" id="btnSubmitLogin"
-            class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary to-primary-container text-white font-headline-sm text-base font-bold shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
-            <span class="material-symbols-outlined text-[20px] text-secondary-fixed">login</span>
-            <span>Masuk ke Keranjang Saya</span>
+            class="w-full py-3.5 rounded-xl bg-ink text-white font-headline-md text-sm font-black shadow-pos-key hover:bg-stone-900 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
+            <span>Masuk ke Akun</span>
+            <span class="material-symbols-outlined text-[18px] text-citrus">arrow_forward</span>
+          </button>
+        </form>
+
+        <!-- Form Daftar (Sign Up / Register) -->
+        <form id="formRegisterUser" class="space-y-3 hidden">
+          <div>
+            <label class="font-mono text-[11px] font-bold text-stone-600 uppercase tracking-wider block mb-1.5">Pilih Username</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">badge</span>
+              <input type="text" id="inputRegUsername" placeholder="Contoh: joni atau siska" required autocomplete="username"
+                class="w-full pl-10 pr-4 py-3 rounded-xl bg-[#FAF8F5] text-ink font-body-md text-sm font-bold border-2 border-stone-300 focus:border-stone-900 focus:outline-none transition-all placeholder:font-normal placeholder:text-stone-400">
+            </div>
+          </div>
+
+          <div>
+            <label class="font-mono text-[11px] font-bold text-stone-600 uppercase tracking-wider block mb-1.5">Buat Password</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">lock</span>
+              <input type="password" id="inputRegPassword" placeholder="Minimal 4 karakter" required autocomplete="new-password"
+                class="w-full pl-10 pr-10 py-3 rounded-xl bg-[#FAF8F5] text-ink font-body-md text-sm font-bold border-2 border-stone-300 focus:border-stone-900 focus:outline-none transition-all placeholder:font-normal placeholder:text-stone-400">
+              <button type="button" id="btnToggleRegPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">visibility</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmitRegister"
+            class="w-full py-3.5 rounded-xl bg-citrus text-ink border-2 border-stone-900 font-headline-md text-sm font-black shadow-pos-key hover:bg-amber-400 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer mt-1">
+            <span>Daftar &amp; Mulai Belanja</span>
+            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
           </button>
         </form>
 
         <!-- Divider -->
-        <div class="flex items-center my-5 gap-3">
-          <div class="h-px bg-outline-variant/40 flex-1"></div>
-          <span class="text-[11px] font-bold text-outline uppercase tracking-wider select-none shrink-0">atau</span>
-          <div class="h-px bg-outline-variant/40 flex-1"></div>
+        <div class="flex items-center my-4 gap-3">
+          <div class="h-px bg-stone-200 flex-1"></div>
+          <span class="text-[10px] font-mono font-bold text-stone-400 uppercase tracking-wider select-none shrink-0">atau</span>
+          <div class="h-px bg-stone-200 flex-1"></div>
         </div>
 
-        <!-- Google Sign In Button -->
+        <!-- Official Google Sign In Button -->
         <button type="button" id="btnGoogleLoginTrigger"
-          class="w-full py-3 px-4 rounded-2xl bg-white border border-outline-variant/40 text-on-surface font-headline-sm text-[14px] font-bold shadow-sm hover:shadow-md hover:bg-surface-container-lowest active:scale-[0.98] transition-all flex items-center justify-center gap-3 cursor-pointer">
-          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+          class="w-full py-3 px-4 rounded-xl bg-white border-2 border-stone-300 hover:border-stone-900 text-ink font-body-md text-sm font-bold shadow-xs hover:shadow-sm active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 cursor-pointer">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853"
@@ -194,21 +253,20 @@
         </button>
 
         <!-- Saved Accounts on this Device -->
-        <div id="sectionSavedAccounts" class="mt-5 pt-4 border-t border-outline-variant/20 hidden">
-          <span class="text-[11px] font-bold text-on-surface-variant block mb-2 uppercase tracking-wide">Pilih Akun
-            Tersimpan:</span>
-          <div class="flex flex-wrap gap-2" id="savedAccountsList">
-            <!-- Rendered by JS -->
+        <div id="sectionSavedAccounts" class="mt-4 pt-3 border-t border-stone-200 hidden">
+          <span class="text-[10px] font-mono font-bold text-stone-500 block mb-2 uppercase">Akun Tersimpan di Perangkat:</span>
+          <div class="flex flex-wrap gap-1.5" id="savedAccountsList">
+            <!-- Rendered dynamically by JS from real user logins -->
           </div>
         </div>
 
       </div>
 
       <!-- Bottom Info -->
-      <div class="text-center pb-4">
-        <span class="font-body-sm text-[11px] text-on-surface-variant flex items-center justify-center gap-1">
-          <span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
-          <span>Data tersimpan privat & mandiri per username</span>
+      <div class="text-center pb-6">
+        <span class="font-mono text-[10px] text-stone-400 font-semibold flex items-center justify-center gap-1">
+          <span class="material-symbols-outlined text-[13px] text-emerald-600">verified_user</span>
+          <span>Data tersimpan privat &amp; mandiri per akun</span>
         </span>
       </div>
 
@@ -217,24 +275,33 @@
 
   <!-- ================= TOP APP HEADER ================= -->
   <header
-    class="fixed top-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-white/95 backdrop-blur-xl pt-safe border-b border-x border-outline-variant/20 shadow-[0_1px_10px_rgba(0,0,0,0.03)]">
+    class="fixed top-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5]/92 backdrop-blur-xl pt-safe border-b border-x border-[#e8dfd5] shadow-[0_2px_12px_rgba(24,21,18,0.03)]">
     <div class="h-16 px-4 flex items-center justify-between gap-2">
       <!-- Left: Logo & Store Selector -->
       <div class="flex items-center gap-2 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm shrink-0">
-          <span class="material-symbols-outlined text-[20px] text-secondary-fixed">shopping_bag</span>
+        <div class="w-9 h-9 rounded-xl bg-ink flex items-center justify-center text-citrus shadow-sm shrink-0 border border-stone-800">
+          <span class="material-symbols-outlined text-[20px] text-citrus" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
         </div>
         <div class="flex flex-col min-w-0">
-          <span
-            class="font-headline-sm text-[16px] text-primary tracking-tight font-bold leading-tight">KeranjangPintar</span>
-          <button
-            class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface transition-colors text-left cursor-pointer mt-0.5"
-            id="btnStoreSelector">
-            <span class="material-symbols-outlined text-[13px] text-secondary shrink-0">store</span>
-            <span class="font-label-sm text-[11px] font-semibold text-primary truncate max-w-[95px] sm:max-w-[150px]"
-              id="activeStoreName">GrandLucky SCBD</span>
-            <span class="material-symbols-outlined text-[13px] shrink-0">expand_more</span>
-          </button>
+          <div class="flex items-center gap-1.5 leading-none">
+            <span class="font-headline-sm text-[15px] text-ink tracking-tight font-extrabold truncate">KeranjangPintar</span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-citrus-dark font-mono text-[9px] font-bold">PRO</span>
+          </div>
+          <div class="flex items-center gap-1.5 mt-1">
+            <button
+              class="flex items-center gap-0.5 text-on-surface-variant hover:text-ink transition-colors text-left cursor-pointer"
+              id="btnStoreSelector">
+              <span class="material-symbols-outlined text-[13px] text-citrus-dark shrink-0">storefront</span>
+              <span class="font-label-sm text-[11px] font-bold text-ink truncate max-w-[85px] sm:max-w-[120px]"
+                id="activeStoreName">GrandLucky SCBD</span>
+              <span class="material-symbols-outlined text-[13px] shrink-0">expand_more</span>
+            </button>
+            <span class="w-1 h-1 rounded-full bg-stone-300 shrink-0"></span>
+            <span class="flex items-center gap-1 px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-mono text-[9px] font-black shrink-0" id="cloudStatusTag" title="Koneksi Cloud Supabase Aktif">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="cloudStatusDot"></span>
+              <span>ONLINE</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -242,29 +309,28 @@
       <div class="flex items-center gap-1.5 shrink-0">
         <!-- Sound Toggle -->
         <button id="btnSoundToggle"
-          class="w-7 h-7 rounded-full bg-surface-container text-secondary flex items-center justify-center border border-outline-variant/30 hover:bg-surface-container-high transition-all cursor-pointer shrink-0"
+          class="w-8 h-8 rounded-full bg-white text-ink flex items-center justify-center border border-[#dcd2c6] shadow-pos-key hover:bg-stone-100 transition-all cursor-pointer shrink-0 active:scale-95"
           title="Toggle Suara">
-          <span class="material-symbols-outlined text-[15px]" id="soundIcon">volume_up</span>
+          <span class="material-symbols-outlined text-[16px] text-stone-700" id="soundIcon">volume_up</span>
         </button>
 
         <!-- Budget Quick Trigger -->
         <button
-          class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary-fixed/20 text-secondary border border-secondary/20 hover:bg-secondary-fixed/30 transition-all cursor-pointer whitespace-nowrap shrink-0 shadow-xs active:scale-95"
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white text-ink border border-[#dcd2c6] shadow-pos-key hover:bg-stone-50 transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95"
           id="btnEditBudgetTrigger" title="Ketuk untuk ubah limit dompet">
-          <span class="material-symbols-outlined text-[14px] text-secondary">account_balance_wallet</span>
-          <span class="font-label-sm text-[11px] font-bold tracking-tight whitespace-nowrap" id="hudBudgetLimit">Rp
-            350k</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="material-symbols-outlined text-[14px] text-citrus-dark">account_balance_wallet</span>
+          <span class="font-mono text-[11px] font-extrabold tracking-tight whitespace-nowrap text-ink" id="hudBudgetLimit">Rp 350k</span>
         </button>
 
-        <!-- User Profile Trigger -->
+        <!-- User Profile Trigger (Circular avatar without text overflow) -->
         <button id="btnUserProfileTrigger"
-          class="flex items-center gap-1.5 p-0.5 sm:px-2 sm:py-0.5 rounded-full bg-surface-container text-primary border border-outline-variant/30 hover:bg-surface-container-high cursor-pointer transition-all shadow-xs shrink-0 active:scale-95"
+          class="w-8 h-8 rounded-full bg-ink text-white border border-stone-800 shadow-pos-key flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95 hover:bg-stone-900"
           title="Profil Akun & Keluar">
           <span
-            class="w-6 h-6 rounded-full bg-primary text-secondary-fixed text-[11px] font-bold flex items-center justify-center shrink-0 shadow-xs"
+            class="w-6 h-6 rounded-full bg-citrus text-ink text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm"
             id="headerUserAvatar">R</span>
-          <span class="hidden sm:inline font-label-sm text-[11px] font-bold tracking-tight max-w-[65px] truncate"
-            id="headerUsername">Rian</span>
+          <span class="hidden" id="headerUsername">Rian</span>
         </button>
       </div>
     </div>
@@ -272,76 +338,90 @@
 
   <!-- ================= MAIN SCROLLABLE VIEWPORT (ANDROID VIEWPORT) ================= -->
   <main
-    class="flex-1 w-full max-w-[480px] mx-auto bg-surface pt-20 pb-32 px-4 border-x border-outline-variant/20 shadow-xl min-h-screen">
+    class="flex-1 w-full max-w-[480px] mx-auto bg-[#FAF8F5] pt-20 pb-40 px-3.5 sm:px-4 border-x border-[#e8dfd5] shadow-xl min-h-screen">
 
     <!-- ==========================================================================
          TAB 1: TROLI AKTIF (STITCH SCREEN 4)
          ========================================================================== -->
     <section id="tabCart" class="tab-pane active flex flex-col w-full">
 
-      <!-- Top Live Gauge Card (Neo-Fintech Safety Cap Dashboard) -->
+      <!-- Top Live Gauge Card (Tactile Segmented Radar Display) -->
       <section class="w-full mb-space-md" id="budgetHudCard">
-        <div class="relative overflow-hidden rounded-[24px] bg-primary-container p-space-md shadow-xl text-on-primary">
+        <div class="relative overflow-hidden rounded-[26px] bg-ink border-2 border-stone-900 p-4 pt-4 pb-5 shadow-tactile text-white">
+          <!-- Subtle Glow Gradients -->
           <div
-            class="absolute -right-12 -top-12 w-44 h-44 rounded-full bg-secondary opacity-25 blur-2xl pointer-events-none">
+            class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-citrus/25 blur-3xl pointer-events-none">
           </div>
           <div
-            class="absolute -left-10 -bottom-10 w-36 h-36 rounded-full bg-secondary-fixed opacity-15 blur-2xl pointer-events-none">
+            class="absolute -left-6 -bottom-6 w-32 h-32 rounded-full bg-terracotta/20 blur-2xl pointer-events-none">
           </div>
 
-          <!-- Top Row: Status Pill & Savings Badge -->
-          <div class="relative z-10 flex items-center justify-between mb-space-sm">
-            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md"
+          <!-- Top Row: Status Pill & Savings Rubber Stamp -->
+          <div class="relative z-10 flex items-center justify-between mb-3 border-b border-stone-800 pb-3">
+            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-citrus/20 border border-citrus/40 text-citrus font-mono text-[10px] font-extrabold uppercase tracking-widest"
               id="hudStatusBadge">
-              <span class="w-2 h-2 rounded-full bg-secondary-fixed animate-ping"></span>
-              <span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed"
-                id="hudStatusText">Radar Budget Aktif</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-citrus animate-ping"></span>
+              <span id="hudStatusText">RADAR-ACTIVE</span>
             </div>
+            <!-- Savings Badge: Tactile Rubber Stamp with slight tilt -->
             <div
-              class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-tertiary-container/90 text-tertiary-fixed shadow-sm"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-terracotta text-white font-mono text-[10px] font-black uppercase tracking-wider transform rotate-1 shadow-sm border border-amber-300/30"
               id="hudSavingsBadge">
-              <span class="material-symbols-outlined text-[15px] text-tertiary-fixed"
+              <span class="material-symbols-outlined text-[13px]"
                 style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
-              <span class="font-label-sm text-label-sm font-bold tracking-tight" id="hudTotalSavingsText">Hemat Rp
-                0</span>
+              <span id="hudTotalSavingsText">HEMAT Rp 0</span>
             </div>
           </div>
 
           <!-- Main Numbers Group -->
-          <div class="relative z-10 flex flex-col mb-space-md">
-            <span class="font-label-sm text-label-sm text-on-primary-container uppercase tracking-wider">Total Belanja
-              Berjalan</span>
-            <div class="flex items-baseline justify-between gap-space-xs mt-0.5">
-              <div class="flex items-baseline gap-1">
-                <span class="font-headline-sm text-headline-sm text-secondary-fixed font-light">Rp</span>
-                <span class="font-numeric-lg text-numeric-lg text-on-primary tracking-tight font-bold"
+          <div class="relative z-10 flex flex-col mb-3">
+            <div class="flex items-baseline justify-between">
+              <span class="font-mono text-[10px] tracking-wider text-stone-400 uppercase font-semibold">Total Belanja Berjalan</span>
+              <span class="font-mono text-[10px] text-emerald-400 font-bold bg-emerald-950/70 px-2 py-0.5 rounded border border-emerald-700/60 flex items-center gap-1" id="hudStatusIcon">
+                <span class="material-symbols-outlined text-[11px]">verified_user</span> STATUS: AMAN
+              </span>
+            </div>
+            <div class="flex items-baseline justify-between gap-space-xs mt-1">
+              <div class="flex items-baseline gap-1.5">
+                <span class="font-headline-md text-citrus text-[24px] font-bold leading-none">Rp</span>
+                <span class="font-numeric-lg text-[38px] text-white tracking-tight font-extrabold leading-none drop-shadow-sm"
                   id="hudTotalSpending">0</span>
               </div>
               <div class="text-right">
-                <span class="font-label-sm text-label-sm text-outline-variant block">Pemakaian Dompet</span>
-                <span class="font-label-lg text-label-lg text-secondary-fixed font-bold" id="budgetPercentLabel">0%
-                  CAP</span>
+                <span class="font-mono text-[10px] text-stone-400 block uppercase">Pemakaian</span>
+                <span class="font-mono text-xs text-citrus font-bold" id="budgetPercentLabel">0% / 100%</span>
               </div>
             </div>
           </div>
 
           <!-- Tactile Gauge Bar -->
           <div class="relative z-10 space-y-1.5">
-            <div class="flex items-center justify-between font-label-sm text-label-sm">
-              <div class="flex items-center gap-1 text-primary-fixed" id="hudRemainingText">
-                <span class="material-symbols-outlined text-[14px]">shield</span>
-                <span>Sisa Aman: <strong class="text-secondary-fixed font-semibold">Rp 350.000</strong></span>
+            <div class="flex items-center justify-between font-mono text-[11px]">
+              <div class="flex items-center gap-1.5 text-stone-300" id="hudRemainingText">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-stone-800/80 border border-stone-700/80">
+                  <span class="text-stone-400 text-[10px]">Sisa Aman:</span>
+                  <strong class="text-citrus font-black text-[12px]">Rp 350.000</strong>
+                </span>
               </div>
-              <span class="text-outline-variant font-medium" id="hudStatusIcon">Aman ✅</span>
             </div>
-            <!-- Progress Track -->
-            <div class="relative w-full h-3 rounded-full bg-primary/70 p-0.5 overflow-hidden shadow-inner">
-              <div
-                class="h-full rounded-full bg-gradient-to-r from-secondary to-secondary-fixed transition-all duration-500 ease-out shadow-[0_0_12px_rgba(107,255,143,0.5)]"
-                id="budgetProgressBar" style="width: 0%;"></div>
+            <!-- Segmented Gauge Display (Stitch Screen 2: 10-Segment Discrete LED blocks) -->
+            <div class="segment-meter-grid" id="budgetSegmentMeter">
+              <div class="segment-block" data-seg="0"></div>
+              <div class="segment-block" data-seg="1"></div>
+              <div class="segment-block" data-seg="2"></div>
+              <div class="segment-block" data-seg="3"></div>
+              <div class="segment-block" data-seg="4"></div>
+              <div class="segment-block" data-seg="5"></div>
+              <div class="segment-block" data-seg="6"></div>
+              <div class="segment-block" data-seg="7"></div>
+              <div class="segment-block" data-seg="8"></div>
+              <div class="segment-block" data-seg="9"></div>
             </div>
+            <!-- Hidden smooth bar for compatibility with existing JS animations -->
+            <div class="hidden" id="budgetProgressBar" style="width: 0%;"></div>
+
             <!-- Gauge Sub-ticks -->
-            <div class="flex justify-between px-0.5 text-[9px] font-label-sm text-outline-variant/80">
+            <div class="flex justify-between px-0.5 text-[9px] font-mono text-stone-400">
               <span>Rp 0</span>
               <span>50%</span>
               <span class="text-amber-400 font-bold">80% Waspada</span>
@@ -350,6 +430,8 @@
           </div>
         </div>
       </section>
+
+
 
       <!-- ======================================================================
            BAGIAN 1: SHOPPING PLANNER CHECKLIST DI TOKO (DARI RUMAH SEBELUM BELANJA)
@@ -490,45 +572,54 @@
       </section>
 
       <!-- ======================================================================
-           BAGIAN 2: DAFTAR BARANG YANG SUDAH DI TROLI
+           STITCH SCREEN 2: DOKUMEN FISIK BARANG (TIKET & LOT BELANJA)
            ====================================================================== -->
-      <div class="flex items-center justify-between mb-space-xs px-1">
+      <div class="flex items-center justify-between mb-2 px-1">
         <div class="flex items-center gap-2">
-          <h3 class="font-headline-sm text-headline-sm text-primary font-bold">Isi Keranjang Fisik</h3>
+          <h3 class="font-headline-sm text-[16px] text-ink font-black tracking-tight uppercase">Dokumen Fisik Barang</h3>
           <span
-            class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm"
-            id="cartHeaderPillCount">0 Produk</span>
+            class="px-2.5 py-0.5 rounded-full bg-ink text-citrus font-mono text-[11px] font-black shadow-sm"
+            id="cartHeaderPillCount">0 LOT</span>
         </div>
         <button id="btnOpenAddModal"
-          class="px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-semibold flex items-center gap-1 shadow-sm active:scale-95 transition-transform cursor-pointer"
+          class="px-3 py-1.5 rounded-full bg-white text-ink border-2 border-stone-900 font-mono text-[11px] font-black flex items-center gap-1 shadow-pos-key active:translate-y-0.5 transition-all cursor-pointer hover:bg-stone-50"
           title="Tambah Barang Belanjaan Langsung">
-          <span class="material-symbols-outlined text-[15px]">add</span>
-          <span>Tambah Item</span>
+          <span class="material-symbols-outlined text-[15px] text-citrus-dark">add_circle</span>
+          <span>+ Form Rinci</span>
         </button>
       </div>
 
-      <!-- Kategori Filter yang Jelas & Ramah Pengguna -->
+      <!-- Realtime Fiscal Note Bar (Stitch Screen 2) -->
+      <div class="flex items-center justify-between px-3 py-1.5 rounded-xl bg-[#F0EBE1] border border-[#d6cbbe] text-[10px] font-mono text-stone-600 mb-2.5 shadow-xs">
+        <span class="flex items-center gap-1 font-extrabold text-ink">
+          <span class="material-symbols-outlined text-[13px] text-emerald-700">receipt</span>
+          SEMUA HARGA INCLUDE PPN 11%
+        </span>
+        <span class="text-stone-500 font-semibold tracking-wider">AUDIT OTOMATIS</span>
+      </div>
+
+      <!-- Kategori Filter Chunky Pills -->
       <div class="flex items-center gap-1.5 mb-space-sm overflow-x-auto no-scrollbar py-0.5">
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-primary text-on-primary font-label-sm text-label-sm active shadow-sm flex items-center gap-1 shrink-0"
+          class="neo-cat-chip px-3 py-1 rounded-full bg-ink text-citrus font-mono text-xs font-black active shadow-pos-key flex items-center gap-1 shrink-0 border border-stone-800"
           data-category="ALL">
           <span>Semua</span>
-          <span class="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px]" id="countAll">0</span>
+          <span class="px-1.5 py-0.2 rounded-full bg-citrus/20 text-[10px]" id="countAll">0</span>
         </button>
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          class="neo-cat-chip px-3 py-1 rounded-full bg-white text-stone-700 font-mono text-xs font-bold border border-stone-300 hover:bg-stone-50 shrink-0 shadow-xs"
           data-category="Bahan Pokok">Bahan Pokok</button>
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
-          data-category="Makanan & Minuman">Makanan & Minuman</button>
+          class="neo-cat-chip px-3 py-1 rounded-full bg-white text-stone-700 font-mono text-xs font-bold border border-stone-300 hover:bg-stone-50 shrink-0 shadow-xs"
+          data-category="Makanan & Minuman">Makanan &amp; Minuman</button>
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          class="neo-cat-chip px-3 py-1 rounded-full bg-white text-stone-700 font-mono text-xs font-bold border border-stone-300 hover:bg-stone-50 shrink-0 shadow-xs"
           data-category="Kebersihan">Kebersihan</button>
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
-          data-category="Dapur & Bumbu">Dapur & Bumbu</button>
+          class="neo-cat-chip px-3 py-1 rounded-full bg-white text-stone-700 font-mono text-xs font-bold border border-stone-300 hover:bg-stone-50 shrink-0 shadow-xs"
+          data-category="Dapur & Bumbu">Dapur &amp; Bumbu</button>
         <button
-          class="neo-cat-chip px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-container shrink-0"
+          class="neo-cat-chip px-3 py-1 rounded-full bg-white text-stone-700 font-mono text-xs font-bold border border-stone-300 hover:bg-stone-50 shrink-0 shadow-xs"
           data-category="Lainnya">Lainnya</button>
       </div>
 
@@ -590,28 +681,33 @@
       </div>
 
       <!-- Sticky Bottom Summary Dock Bar (Stitch Screen 4) -->
-      <div class="sticky bottom-20 z-40 mt-space-md w-full" id="cartSummaryBottom">
+      <div class="sticky bottom-[108px] z-40 mt-space-md w-full" id="cartSummaryBottom">
         <div
-          class="bg-surface-container-lowest/95 backdrop-blur-xl rounded-[24px] p-space-sm shadow-[0_12px_36px_rgba(0,29,15,0.18)] flex items-center justify-between gap-space-sm border border-outline-variant/20">
+          class="bg-white/95 backdrop-blur-xl rounded-[24px] p-3 shadow-tactile flex items-center justify-between gap-space-sm border-2 border-stone-900">
           <div class="flex flex-col pl-1">
             <div class="flex items-center gap-1.5">
-              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="summaryTotalItems">0
+              <span class="font-mono text-[10px] text-stone-500 font-bold uppercase" id="summaryTotalItems">0
                 Jenis (0 Pcs)</span>
-              <span class="w-1 h-1 rounded-full bg-outline"></span>
-              <span class="font-label-sm text-label-sm text-secondary font-bold" id="summaryTotalSaved">Hemat Rp
+              <span class="w-1 h-1 rounded-full bg-stone-300"></span>
+              <span class="font-mono text-[10px] text-terracotta font-extrabold bg-orange-100 px-1.5 py-0.5 rounded-full" id="summaryTotalSaved">Hemat Rp
                 0</span>
             </div>
-            <div class="flex items-baseline gap-1">
-              <span class="font-label-sm text-label-sm text-outline">Total</span>
-              <span class="font-headline-md text-headline-md font-bold text-primary tracking-tight"
+            <div class="flex items-baseline gap-1 mt-0.5">
+              <span class="font-mono text-[10px] text-stone-400 font-bold uppercase">Total</span>
+              <span class="font-headline-md text-[20px] font-black text-ink tracking-tight"
                 id="cartBottomGrandTotal">Rp 0</span>
             </div>
           </div>
           <button
-            class="px-5 py-3 rounded-full bg-primary hover:bg-primary-container text-on-primary flex items-center gap-2 shadow-[0_4px_16px_rgba(0,29,15,0.25)] active:scale-95 transition-all cursor-pointer"
+            class="py-2.5 px-4 sm:px-5 rounded-2xl bg-ink hover:bg-stone-900 text-white border-2 border-stone-900 shadow-pos-key active:translate-y-0.5 flex items-center gap-2 transition-all cursor-pointer"
             id="btnFinishShopping" type="button">
-            <span class="font-label-lg text-label-lg font-semibold">Cek Kasir</span>
-            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            <div class="flex flex-col text-left leading-none">
+              <span class="font-headline-md text-[13px] font-black uppercase tracking-wider text-citrus">Cek Kasir</span>
+              <span class="font-mono text-[9px] text-stone-400">&amp; Cetak Struk</span>
+            </div>
+            <span class="w-7 h-7 rounded-full bg-citrus text-ink flex items-center justify-center font-bold shrink-0">
+              <span class="material-symbols-outlined text-[16px]">receipt_long</span>
+            </span>
           </button>
         </div>
       </div>
@@ -1246,68 +1342,68 @@
 
   <!-- ================= DOCKED BOTTOM NAVIGATION (ANDROID FULL-WIDTH) ================= -->
   <nav
-    class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-white/98 backdrop-blur-xl border-t border-x border-outline-variant/20 shadow-[0_-4px_24px_rgba(0,29,15,0.06)] pb-safe">
-    <div class="px-2 py-1 flex items-center justify-around relative">
+    class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5]/96 backdrop-blur-xl border-t border-x border-[#e8dfd5] shadow-[0_-4px_24px_rgba(24,21,18,0.06)] pb-safe">
+    <div class="px-2.5 py-1.5 flex items-center justify-around relative">
 
       <!-- 1. Troli Aktif -->
       <button
-        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all duration-200 active text-secondary font-bold cursor-pointer"
+        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 active text-ink font-bold cursor-pointer"
         id="navBtnCart" data-tab="tabCart">
         <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-[23px]">shopping_cart</span>
+          <span class="material-symbols-outlined text-[22px]">shopping_cart</span>
           <span
-            class="absolute -top-1 -right-2 min-w-[16px] h-[16px] px-1 bg-secondary text-white rounded-full font-label-sm text-[9px] flex items-center justify-center leading-none font-bold shadow-sm"
+            class="absolute -top-1 -right-2 min-w-[16px] h-[16px] px-1 bg-terracotta text-white rounded-full font-mono text-[9px] flex items-center justify-center leading-none font-black shadow-sm"
             id="navCartBadge">0</span>
         </div>
-        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Troli</span>
+        <span class="font-label-sm text-[10px] mt-0.5 whitespace-nowrap uppercase tracking-wider font-extrabold">Troli</span>
       </button>
 
       <!-- 2. Shopping Planner & Rencana -->
       <button
-        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all duration-200 text-on-surface-variant/70 hover:text-on-surface cursor-pointer"
+        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 text-stone-600 hover:text-ink cursor-pointer"
         id="navBtnBudget" data-tab="tabBudget">
         <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-[23px]">checklist</span>
+          <span class="material-symbols-outlined text-[22px]">checklist</span>
           <span
-            class="hidden absolute -top-1 -right-1.5 min-w-[15px] h-[15px] px-1 bg-amber-500 text-white rounded-full font-label-sm text-[9px] flex items-center justify-center leading-none font-bold"
+            class="hidden absolute -top-1 -right-1.5 min-w-[15px] h-[15px] px-1 bg-amber-500 text-white rounded-full font-mono text-[9px] flex items-center justify-center leading-none font-bold"
             id="navPlannerBadge">0</span>
         </div>
-        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Rencana</span>
+        <span class="font-label-sm text-[10px] mt-0.5 whitespace-nowrap uppercase tracking-wider font-extrabold">Rencana</span>
       </button>
 
       <!-- 3. SCAN BARCODE & PROMO (CENTER HERO BUTTON - ENLARGED & DEAD CENTER) -->
       <div class="flex-1 flex flex-col items-center justify-center relative -top-3.5 z-20">
         <button
-          class="dock-tab dock-tab-hero w-[56px] h-[56px] rounded-full bg-gradient-to-tr from-[#003818] via-secondary to-[#4ae176] text-white flex flex-col items-center justify-center shadow-[0_6px_22px_rgba(0,110,47,0.45)] ring-4 ring-white hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer group"
-          id="navBtnScan" data-tab="tabScan" title="Buka Kamera Barcode Scanner & Hitung Promo">
+          class="dock-tab dock-tab-hero w-[56px] h-[56px] rounded-2xl bg-gradient-to-tr from-ink via-stone-900 to-amber-600 text-white flex flex-col items-center justify-center shadow-[0_6px_22px_rgba(245,158,11,0.45)] ring-4 ring-[#FAF8F5] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer group"
+          id="navBtnScan" data-tab="tabScan" title="Buka Kamera Barcode Scanner &amp; Hitung Promo">
           <div class="relative flex items-center justify-center">
             <span
-              class="absolute inset-0 rounded-full bg-secondary-fixed opacity-30 animate-ping pointer-events-none"></span>
+              class="absolute inset-0 rounded-2xl bg-citrus opacity-30 animate-ping pointer-events-none"></span>
             <span
-              class="material-symbols-outlined text-[28px] text-white drop-shadow-sm group-hover:rotate-12 transition-transform">qr_code_scanner</span>
+              class="material-symbols-outlined text-[28px] text-citrus drop-shadow-sm group-hover:rotate-12 transition-transform">qr_code_scanner</span>
           </div>
         </button>
         <span
-          class="font-label-sm text-[11px] mt-0.5 font-bold text-secondary whitespace-nowrap tracking-wide">Scan</span>
+          class="font-mono text-[10px] mt-0.5 font-black text-citrus-dark whitespace-nowrap tracking-wider uppercase">Scan</span>
       </div>
 
       <!-- 4. Riwayat & Struk Kasir -->
       <button
-        class="dock-tab flex-1 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all duration-200 text-on-surface-variant/70 hover:text-on-surface cursor-pointer"
+        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 text-stone-600 hover:text-ink cursor-pointer"
         id="navBtnHistory" data-tab="tabHistory">
-        <span class="material-symbols-outlined text-[23px]">receipt_long</span>
-        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Struk</span>
+        <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+        <span class="font-label-sm text-[10px] mt-0.5 whitespace-nowrap uppercase tracking-wider font-extrabold">Struk</span>
       </button>
 
       <!-- 5. Dompet & Anggaran Safety Cap (SRS F-05) -->
       <button
-        class="dock-tab flex-1 flex flex-col items-center justify-center py-1.5 px-0.5 rounded-xl transition-all duration-200 text-on-surface-variant/70 hover:text-on-surface cursor-pointer"
+        class="dock-tab relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-2xl transition-all duration-200 text-stone-600 hover:text-ink cursor-pointer"
         id="navBtnDompet" data-tab="tabDompet" title="Batas Dompet & Status Anggaran">
         <div class="relative flex items-center justify-center">
-          <span class="material-symbols-outlined text-[23px]">account_balance_wallet</span>
-          <span class="w-2 h-2 rounded-full bg-secondary-fixed absolute -top-0.5 -right-1" id="navBudgetDot"></span>
+          <span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
+          <span class="w-2 h-2 rounded-full bg-citrus absolute -top-0.5 -right-1" id="navBudgetDot"></span>
         </div>
-        <span class="font-label-sm text-[11px] mt-0.5 whitespace-nowrap">Anggaran</span>
+        <span class="font-label-sm text-[10px] mt-0.5 whitespace-nowrap uppercase tracking-wider font-extrabold">Anggaran</span>
       </button>
 
     </div>
@@ -2231,76 +2327,43 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: GOOGLE ACCOUNT CHOOSER ================= -->
+  <!-- ================= MODAL: GOOGLE SIGN-IN ================= -->
   <div
-    class="modal-backdrop hidden fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center"
+    class="modal-backdrop hidden fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
     id="modalGoogleAuthBackdrop">
     <div
-      class="w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] p-6 shadow-2xl border border-outline-variant/30">
-      <div class="w-12 h-1 bg-surface-container-highest rounded-full mx-auto mb-4"></div>
+      class="w-full max-w-[380px] bg-white rounded-[28px] p-6 shadow-2xl border-2 border-stone-900 animate-slide-up">
+      <div class="w-10 h-1 bg-stone-300 rounded-full mx-auto mb-4"></div>
 
-      <div class="flex items-center gap-3 mb-4">
-        <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24">
-          <path fill="#4285F4"
-            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-          <path fill="#34A853"
-            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-          <path fill="#FBBC05"
-            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-          <path fill="#EA4335"
-            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-        </svg>
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-white border border-stone-200 shadow-sm flex items-center justify-center mx-auto mb-2.5">
+          <svg class="w-6 h-6" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+        </div>
+        <h3 class="font-headline-sm text-[18px] text-ink font-black tracking-tight">Login dengan Google</h3>
+        <p class="font-body-sm text-xs text-stone-500 mt-1">Gunakan akun Google aktif kamu</p>
+      </div>
+
+      <!-- Real Google Email Input Form -->
+      <form id="formCustomGoogleEmail" class="space-y-3.5">
         <div>
-          <h3 class="font-headline-sm text-base text-gray-900 font-bold">Pilih Akun Google</h3>
-          <p class="text-xs text-gray-500">untuk melanjutkan ke KeranjangPintar PWA</p>
+          <label class="font-mono text-[11px] font-bold text-stone-600 uppercase tracking-wider block mb-1">Email Google Kamu</label>
+          <input type="email" id="inputCustomGoogleEmail" placeholder="nama@gmail.com" required autocomplete="email"
+            class="w-full px-3.5 py-3 rounded-xl bg-[#FAF8F5] text-ink font-body-md text-sm font-bold border-2 border-stone-300 focus:border-stone-900 focus:outline-none transition-all placeholder:font-normal placeholder:text-stone-400">
         </div>
-      </div>
-
-      <div class="space-y-2 mb-4">
-        <!-- Option 1: Rian Google -->
-        <button type="button"
-          class="btn-google-account-select w-full p-3 rounded-2xl border border-gray-200 hover:bg-gray-50 flex items-center gap-3 transition-all text-left cursor-pointer"
-          data-email="rian.pratama26@gmail.com" data-name="Rian Pratama">
-          <div
-            class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center shrink-0">
-            R
-          </div>
-          <div class="flex-1 min-w-0">
-            <span class="font-bold text-sm text-gray-800 block truncate">Rian Pratama</span>
-            <span class="text-xs text-gray-500 truncate block">rian.pratama26@gmail.com</span>
-          </div>
+        <button type="submit"
+          class="w-full py-3.5 rounded-xl bg-ink text-white font-headline-md text-sm font-black shadow-pos-key hover:bg-stone-900 active:translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <span>Lanjutkan dengan Akun Ini</span>
+          <span class="material-symbols-outlined text-[16px] text-citrus">arrow_forward</span>
         </button>
-
-        <!-- Option 2: Siswa ICT -->
-        <button type="button"
-          class="btn-google-account-select w-full p-3 rounded-2xl border border-gray-200 hover:bg-gray-50 flex items-center gap-3 transition-all text-left cursor-pointer"
-          data-email="siswa.ict2026@mutiarabangsa.sch.id" data-name="Siswa SMA Mutiara Bangsa">
-          <div
-            class="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center shrink-0">
-            M
-          </div>
-          <div class="flex-1 min-w-0">
-            <span class="font-bold text-sm text-gray-800 block truncate">Siswa SMA Mutiara Bangsa</span>
-            <span class="text-xs text-gray-500 truncate block">siswa.ict2026@mutiarabangsa.sch.id</span>
-          </div>
-        </button>
-      </div>
-
-      <!-- Custom Google Account input -->
-      <form id="formCustomGoogleEmail" class="pt-3 border-t border-gray-100">
-        <label class="text-[11px] font-bold text-gray-600 block mb-1">ATAU KETIK EMAIL GOOGLE KAMU:</label>
-        <div class="flex gap-2">
-          <input type="email" id="inputCustomGoogleEmail" placeholder="nama@gmail.com"
-            class="flex-1 px-3 py-2 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <button type="submit"
-            class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-all cursor-pointer">
-            Masuk
-          </button>
-        </div>
       </form>
 
       <div class="pt-3 text-center">
-        <button type="button" id="btnCancelGoogleAuth" class="text-xs text-gray-500 hover:underline cursor-pointer">
+        <button type="button" id="btnCancelGoogleAuth" class="text-xs font-mono font-bold text-stone-500 hover:text-stone-800 transition-colors cursor-pointer py-1">
           Batal
         </button>
       </div>
@@ -2314,7 +2377,74 @@
     <span id="toastMessage">Pesan</span>
   </div>
 
-  <script src="app.js?v=5.4.0"></script>
+  <script src="app.js?v=6.0.0"></script>
+  <script>
+    // Unregister service worker lama agar kode terbaru selalu dimuat seketika
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        for (let reg of regs) {
+          reg.unregister();
+        }
+      });
+      if ('caches' in window) {
+        caches.keys().then(keys => {
+          keys.forEach(k => caches.delete(k));
+        });
+      }
+    }
+
+    // Direct Inline Safeguard for Login & Registration
+    window.addEventListener('load', () => {
+      const btnLogin = document.getElementById('btnSubmitLogin');
+      const inputUser = document.getElementById('inputLoginUsername');
+      const inputPass = document.getElementById('inputLoginPassword');
+      const alertBox = document.getElementById('loginFeedbackAlert');
+      const alertTxt = document.getElementById('loginFeedbackText');
+
+      if (btnLogin) {
+        btnLogin.addEventListener('click', (e) => {
+          const u = inputUser ? inputUser.value.trim() : '';
+          const p = inputPass ? inputPass.value : '';
+
+          if (!u) {
+            if (inputUser) {
+              inputUser.focus();
+              inputUser.reportValidity();
+            }
+            return;
+          }
+          if (!p) {
+            if (inputPass) {
+              inputPass.focus();
+              inputPass.reportValidity();
+            }
+            return;
+          }
+
+          let creds = {};
+          try {
+            const raw = localStorage.getItem('smart_grocery_user_credentials');
+            if (raw) creds = JSON.parse(raw);
+          } catch(err){}
+
+          const slug = u.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 32) || 'user';
+
+          if (!creds[slug]) {
+            e.preventDefault();
+            e.stopPropagation();
+            const msg = 'Akun "' + u + '" belum terdaftar! Silakan klik tab "Daftar Akun" di atas untuk mendaftar.';
+            if (alertBox && alertTxt) {
+              alertTxt.textContent = msg;
+              alertBox.style.display = 'flex';
+              alertBox.className = 'mb-3.5 p-3.5 rounded-xl bg-red-100 border-2 border-red-500 text-red-900 font-body-md text-xs font-black flex items-start gap-2 shadow-sm animate-shake';
+            }
+            alert(msg);
+            return false;
+          }
+        }, true);
+      }
+    });
+  </script>
 </body>
 
 </html>
