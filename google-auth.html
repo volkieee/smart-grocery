@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in - Google Accounts</title>
+  <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: #202124;
+      color: #e8eaed;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px 36px 20px;
+      user-select: none;
+    }
+
+    /* Top Google Branding */
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .header-brand svg {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .header-brand span {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e8eaed;
+      letter-spacing: 0.1px;
+    }
+
+    /* Title & Subtitle */
+    .title-section {
+      margin-bottom: 24px;
+    }
+
+    .main-title {
+      font-size: 28px;
+      font-weight: 400;
+      color: #e8eaed;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .sub-title {
+      font-size: 15px;
+      color: #9aa0a6;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    .sub-title .app-name {
+      color: #8ab4f8;
+      font-weight: 500;
+    }
+
+    /* Accounts List */
+    .account-list {
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .account-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid #3c4043;
+      transition: background-color 0.15s ease;
+      position: relative;
+    }
+
+    .account-item:last-child {
+      border-bottom: none;
+    }
+
+    .account-item:hover {
+      background-color: #303134;
+    }
+
+    .account-item:active {
+      background-color: #3c4043;
+    }
+
+    /* Avatar styles matching Google Chrome profiles */
+    .avatar-wrapper {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 500;
+      color: #ffffff;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .avatar-green {
+      background-color: #0f9d58;
+    }
+
+    .avatar-gray {
+      background-color: #5f6368;
+    }
+
+    .avatar-dark {
+      background-color: #1a1a1a;
+      border: 1px solid #3c4043;
+    }
+
+    .avatar-amber {
+      background-color: #f29900;
+    }
+
+    .avatar-brown {
+      background-color: #795548;
+    }
+
+    .account-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .account-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e8eaed;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .account-email {
+      font-size: 13px;
+      color: #9aa0a6;
+      line-height: 1.3;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Use another account option */
+    .use-another-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 14px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.15s ease;
+      color: #e8eaed;
+    }
+
+    .use-another-item:hover {
+      background-color: #303134;
+    }
+
+    .use-another-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9aa0a6;
+      flex-shrink: 0;
+    }
+
+    .use-another-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .use-another-text {
+      font-size: 15px;
+      font-weight: 500;
+      color: #e8eaed;
+    }
+
+    /* Custom Input Form (Hidden by default) */
+    #customAccountView {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .custom-input-box {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #5f6368;
+      border-radius: 4px;
+      padding: 14px 16px;
+      color: #e8eaed;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .custom-input-box:focus {
+      border-color: #8ab4f8;
+      border-width: 2px;
+      padding: 13px 15px;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .btn-text {
+      background: transparent;
+      border: none;
+      color: #8ab4f8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+
+    .btn-text:hover {
+      background: rgba(138, 180, 248, 0.08);
+    }
+
+    .btn-primary {
+      background: #8ab4f8;
+      color: #202124;
+      border: none;
+      padding: 9px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #93bbf9;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Loading Overlay */
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(32, 33, 36, 0.92);
+      backdrop-filter: blur(2px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3.5px solid rgba(138, 180, 248, 0.2);
+      border-top-color: #8ab4f8;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #9aa0a6;
+      font-weight: 400;
+    }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      font-size: 12px;
+      color: #9aa0a6;
+    }
+
+    .footer-lang {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links a {
+      color: #9aa0a6;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      color: #e8eaed;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading State Overlay -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Menghubungkan ke Akun Google...</div>
+  </div>
+
+  <div>
+    <!-- Google Brand Header -->
+    <div class="header-brand">
+      <svg viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+      </svg>
+      <span>Sign in with Google</span>
+    </div>
+
+    <!-- Title Section -->
+    <div class="title-section">
+      <h1 class="main-title">Choose an account</h1>
+      <p class="sub-title">to continue to <span class="app-name">KeranjangPintar</span></p>
+    </div>
+
+    <!-- Chooser View (Sesuai persis dengan foto Google Chrome user) -->
+    <div id="accountChooserView">
+      <div class="account-list">
+
+        <!-- Account 1: Joshua Rafael gunawan -->
+        <div class="account-item" onclick="selectAccount('Joshua Rafael gunawan', 'jrafael092009@gmail.com', '🐍', 'avatar-green')">
+          <div class="avatar-wrapper avatar-green">
+            <span>🐍</span>
+          </div>
+          <div class="account-info">
+            <span class="account-name">Joshua Rafael gunawan</span>
+            <span class="account-email">jrafael092009@gmail.com</span>
+          </div>
+        </div>
+
+        <!-- Account 2: Joshua Gunawan -->
+        <div class="account-item" onclick="selectAccount('Joshua Gunawan', 'joshua@mutiarabangsa.sch.id', 'J', 'avatar-gray')">
+          <div class="avatar-wrapper avatar-gray">
+            <span>J</span>
+          </div>
+          <div class="account-info">
+            <span class="account-name">Joshua Gunawan</span>
+            <span class="account-email">joshua@mutiarabangsa.sch.id</span>
+          </div>
+        </div>
+
+        <!-- Account 3: Li Bos -->
+        <div class="account-item" onclick="selectAccount('Li Bos', 'volkiegans@gmail.com', '⚡', 'avatar-dark')">
+          <div class="avatar-wrapper avatar-dark">
+            <span>⚡</span>
+          </div>
+          <div class="account-info">
+            <span class="account-name">Li Bos</span>
+            <span class="account-email">volkiegans@gmail.com</span>
+          </div>
+        </div>
+
+        <!-- Account 4: Joshua Gunawan -->
+        <div class="account-item" onclick="selectAccount('Joshua Gunawan', 'joshuagunawan092009@gmail.com', '🦊', 'avatar-amber')">
+          <div class="avatar-wrapper avatar-amber">
+            <span>🦊</span>
+          </div>
+          <div class="account-info">
+            <span class="account-name">Joshua Gunawan</span>
+            <span class="account-email">joshuagunawan092009@gmail.com</span>
+          </div>
+        </div>
+
+        <!-- Account 5: Joshua 0909 -->
+        <div class="account-item" onclick="selectAccount('Joshua 0909', 'j9495404@gmail.com', 'J', 'avatar-brown')">
+          <div class="avatar-wrapper avatar-brown">
+            <span>J</span>
+          </div>
+          <div class="account-info">
+            <span class="account-name">Joshua 0909</span>
+            <span class="account-email">j9495404@gmail.com</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Use another account -->
+      <div class="use-another-item" onclick="showCustomInput()">
+        <div class="use-another-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+          </svg>
+        </div>
+        <span class="use-another-text">Use another account</span>
+      </div>
+    </div>
+
+    <!-- Custom Account Input View -->
+    <div id="customAccountView">
+      <p style="font-size: 14px; color: #9aa0a6; margin-bottom: 4px;">Enter your Google email address</p>
+      <input type="email" id="inputCustomEmail" class="custom-input-box" placeholder="Email or phone" autofocus>
+      <div class="btn-row">
+        <button type="button" class="btn-text" onclick="showChooser()">Back</button>
+        <button type="button" class="btn-primary" onclick="submitCustomEmail()">Next</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-lang">
+      <span>English (United States)</span>
+      <span style="font-size: 10px; margin-left: 2px;">▼</span>
+    </div>
+    <div class="footer-links">
+      <a href="https://support.google.com/accounts" target="_blank">Help</a>
+      <a href="https://policies.google.com/privacy" target="_blank">Privacy</a>
+      <a href="https://policies.google.com/terms" target="_blank">Terms</a>
+    </div>
+  </div>
+
+  <script>
+    function selectAccount(name, email, avatarSymbol, avatarClass) {
+      const overlay = document.getElementById('loadingOverlay');
+      const loadingText = document.getElementById('loadingText');
+      if (overlay) overlay.style.display = 'flex';
+      if (loadingText) loadingText.textContent = 'Menghubungkan sebagai ' + name + '...';
+
+      setTimeout(() => {
+        const payload = {
+          type: 'GOOGLE_SIGNIN_SUCCESS',
+          account: {
+            name: name,
+            email: email,
+            avatar: avatarSymbol,
+            avatarClass: avatarClass
+          }
+        };
+
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage(payload, '*');
+          setTimeout(() => {
+            window.close();
+          }, 350);
+        } else {
+          // Jika dibuka di tab mandiri, simpan ke localStorage dan redirect
+          try {
+            localStorage.setItem('pending_google_login', JSON.stringify(payload.account));
+            window.location.href = 'index.html';
+          } catch(e) {
+            window.close();
+          }
+        }
+      }, 500);
+    }
+
+    function showCustomInput() {
+      document.getElementById('accountChooserView').style.display = 'none';
+      document.getElementById('customAccountView').style.display = 'flex';
+      const input = document.getElementById('inputCustomEmail');
+      if (input) input.focus();
+    }
+
+    function showChooser() {
+      document.getElementById('customAccountView').style.display = 'none';
+      document.getElementById('accountChooserView').style.display = 'block';
+    }
+
+    function submitCustomEmail() {
+      const input = document.getElementById('inputCustomEmail');
+      const email = input ? input.value.trim() : '';
+      if (!email || !email.includes('@')) {
+        alert('Enter a valid email address');
+        if (input) input.focus();
+        return;
+      }
+
+      const username = email.split('@')[0];
+      const name = username.charAt(0).toUpperCase() + username.slice(1);
+      const symbol = (username[0] || 'G').toUpperCase();
+
+      selectAccount(name, email, symbol, 'avatar-gray');
+    }
+
+    // Tangani tombol Enter pada input email
+    document.getElementById('inputCustomEmail')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        submitCustomEmail();
+      }
+    });
+  </script>
+</body>
+</html>
