@@ -5565,6 +5565,36 @@
     const currentHash = window.location.hash || '';
     const currentSearch = window.location.search || '';
 
+    // Tangani jika callback menghasilkan error dari Supabase (misal server_error / scopes)
+    if (currentSearch.includes('error=')) {
+      const sp = new URLSearchParams(currentSearch.replace(/^\?/, ''));
+      const errCode = sp.get('error_code') || sp.get('error') || 'unknown';
+      const errDesc = sp.get('error_description') || errCode;
+
+      try {
+        localStorage.setItem('sg_oauth_error', JSON.stringify({ error: errCode, description: errDesc, time: Date.now() }));
+      } catch (e) {}
+
+      if (window.opener && !window.opener.closed) {
+        try {
+          window.opener.postMessage({
+            type: 'SUPABASE_OAUTH_ERROR',
+            error: errCode,
+            description: errDesc
+          }, '*');
+        } catch (e) {}
+      }
+
+      // Jika ini di dalam popup, tutup jendela seketika agar tidak membuka halaman kembar
+      if (isLikelyOAuthPopup) {
+        setTimeout(() => {
+          try { window.close(); } catch (e) {}
+        }, 150);
+      } else {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+
     if (currentHash.includes('access_token') || currentSearch.includes('code=')) {
       (async function resolveAnyOAuthCallback() {
         if (!appState.supabaseClient) {
@@ -5659,10 +5689,12 @@
       })();
     }
 
-    // Parent window: Dengarkan token/user dari popup via postMessage
+    // Parent window: Dengarkan token/user/error dari popup via postMessage
     window.addEventListener('message', async (event) => {
       if (event.data && event.data.type === 'SUPABASE_OAUTH_TOKEN_TRANSFER') {
         await processOAuthIncoming(event.data);
+      } else if (event.data && event.data.type === 'SUPABASE_OAUTH_ERROR') {
+        showToast('Login Google: ' + (event.data.description || event.data.error), 'danger');
       }
     });
 
@@ -5702,8 +5734,10 @@
               options: {
                 skipBrowserRedirect: true, // Mencegah halaman utama beralih halaman
                 redirectTo: currentRedirect,
+                scopes: 'openid email profile',
                 queryParams: {
-                  prompt: 'select_account'
+                  prompt: 'select_account',
+                  access_type: 'offline'
                 }
               }
             });
@@ -5725,8 +5759,11 @@
               const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - width) / 2));
               const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
 
-              // Hapus flag sinkronisasi lama sebelum mulai
-              try { localStorage.removeItem('sg_oauth_sync_user'); } catch (e) {}
+              // Hapus flag sinkronisasi & error lama sebelum mulai
+              try {
+                localStorage.removeItem('sg_oauth_sync_user');
+                localStorage.removeItem('sg_oauth_error');
+              } catch (e) {}
 
               // Buka di popup window terpisah agar halaman utama tidak beralih halaman
               const popup = window.open(
@@ -5739,6 +5776,17 @@
                 // Pantau sinkronisasi aktif setiap 300ms dari localStorage dan session
                 const checkInterval = setInterval(async () => {
                   try {
+                    // Cek jika ada error dari callback
+                    const errRaw = localStorage.getItem('sg_oauth_error');
+                    if (errRaw) {
+                      localStorage.removeItem('sg_oauth_error');
+                      clearInterval(checkInterval);
+                      try { popup.close(); } catch (e) {}
+                      const errObj = JSON.parse(errRaw);
+                      showToast('Google Login: ' + (errObj.description || errObj.error), 'danger');
+                      return;
+                    }
+
                     // A. Cek sync user dari localStorage (paling cepat & aman dari pemutusan opener)
                     const syncRaw = localStorage.getItem('sg_oauth_sync_user');
                     if (syncRaw) {
