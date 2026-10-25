@@ -881,7 +881,11 @@
         subscribeToRealtimeChanges();
         // Listen to official Supabase Auth state changes (Google OAuth callback)
         appState.supabaseClient.auth.onAuthStateChange((event, session) => {
-          if (session && session.user) {
+          if (event === 'SIGNED_OUT' || localStorage.getItem('sg_explicit_logout') === 'true') {
+            return;
+          }
+
+          if (event === 'SIGNED_IN' && session && session.user) {
             const u = session.user;
             const meta = u.user_metadata || {};
             const email = u.email || meta.email || '';
@@ -4981,7 +4985,7 @@
       });
     }
 
-    // 3. Handle Register Submit (Step 1: Input Username, Email, Password -> Supabase kirim kode ke Gmail asli)
+    // 3. Handle Register Submit (Instant Register & Login - Tanpa batasan kuota OTP email)
     if (formRegister) {
       formRegister.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -5027,206 +5031,51 @@
           return;
         }
 
-        showToast('Mengirim kode verifikasi ke Gmail...', 'info');
-
-        // Panggil Supabase SignUp untuk mengirim kode verifikasi asli ke Gmail
-        if (!appState.supabaseClient) {
-          initSupabaseClient();
-        }
-
-        let sentSuccess = true;
-        if (appState.supabaseClient) {
-          try {
-            const { data: sData, error: sErr } = await appState.supabaseClient.auth.signUp({
-              email: rawEmail,
-              password: rawPassword,
-              options: {
-                data: {
-                  username: rawUsername,
-                  display_name: rawUsername
-                }
-              }
-            });
-
-            if (sErr) {
-              console.warn('Supabase SignUp warning:', sErr.message);
-              // Jika rate limit atau provider setting, tetap izinkan verifikasi
-              if (!sErr.message.includes('rate limit')) {
-                showToast(sErr.message, 'warning');
-              }
-            }
-          } catch (err) {
-            console.error('Supabase SignUp error:', err);
-          }
-        }
-
-        // Generate 6-digit backup OTP code
-        const fallbackOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        pendingRegistration = {
+        // Simpan akun baru secara permanen
+        creds[slug] = {
           username: rawUsername,
           email: rawEmail,
           password: rawPassword,
-          slug: slug,
-          fallbackOtp: fallbackOtp,
-          createdAt: Date.now()
-        };
-
-        if (verifyTargetEmail) verifyTargetEmail.textContent = rawEmail;
-        if (inputVerificationOtp) {
-          inputVerificationOtp.value = '';
-          inputVerificationOtp.style.borderColor = '';
-        }
-        if (verifyOtpFeedback) {
-          verifyOtpFeedback.classList.add('hidden');
-          verifyOtpFeedback.textContent = '';
-        }
-
-        if (modalEmailVerify) {
-          modalEmailVerify.classList.remove('hidden');
-          setTimeout(() => {
-            if (inputVerificationOtp) inputVerificationOtp.focus();
-          }, 150);
-        }
-
-        startOtpCountdown(30);
-        AudioEngine.playSuccess();
-        showToast(`Kode verifikasi dikirim ke ${rawEmail}. Silakan cek inbox Gmail Anda!`, 'success');
-      });
-    }
-
-    // Verify OTP Submit (Step 2: Validasi kode yang dikirim ke Gmail)
-    if (formVerifyEmailOtp) {
-      formVerifyEmailOtp.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const enteredOtp = inputVerificationOtp ? inputVerificationOtp.value.trim() : '';
-
-        if (!pendingRegistration) {
-          showToast('Sesi verifikasi kadaluarsa. Silakan daftar ulang.', 'warning');
-          if (modalEmailVerify) modalEmailVerify.classList.add('hidden');
-          return;
-        }
-
-        if (!enteredOtp || enteredOtp.length < 6) {
-          AudioEngine.playLimitAlert();
-          if (verifyOtpFeedback) {
-            verifyOtpFeedback.textContent = 'Masukkan 6 digit kode yang dikirim ke Gmail Anda!';
-            verifyOtpFeedback.classList.remove('hidden');
-          }
-          if (inputVerificationOtp) inputVerificationOtp.focus();
-          return;
-        }
-
-        showToast('Memverifikasi kode...', 'info');
-
-        let isValid = false;
-
-        // 1. Verifikasi dengan Supabase Auth API
-        if (appState.supabaseClient) {
-          try {
-            const { data: vData, error: vErr } = await appState.supabaseClient.auth.verifyOtp({
-              email: pendingRegistration.email,
-              token: enteredOtp,
-              type: 'signup'
-            });
-
-            if (!vErr && vData && vData.user) {
-              isValid = true;
-            } else {
-              // Coba tipe email
-              const { data: vData2, error: vErr2 } = await appState.supabaseClient.auth.verifyOtp({
-                email: pendingRegistration.email,
-                token: enteredOtp,
-                type: 'email'
-              });
-              if (!vErr2 && vData2 && vData2.user) {
-                isValid = true;
-              }
-            }
-          } catch (e) {
-            console.warn('Supabase verifyOtp error:', e);
-          }
-        }
-
-        // 2. Cek apakah cocok dengan kode fallback atau supabase
-        if (!isValid && enteredOtp === pendingRegistration.fallbackOtp) {
-          isValid = true;
-        }
-
-        if (!isValid) {
-          AudioEngine.playLimitAlert();
-          if (verifyOtpFeedback) {
-            verifyOtpFeedback.textContent = 'Kode verifikasi salah! Cek kembali angka di Gmail Anda.';
-            verifyOtpFeedback.classList.remove('hidden');
-          }
-          if (inputVerificationOtp) {
-            inputVerificationOtp.style.borderColor = '#ef4444';
-            inputVerificationOtp.classList.add('animate-shake');
-            setTimeout(() => inputVerificationOtp.classList.remove('animate-shake'), 400);
-            inputVerificationOtp.focus();
-          }
-          showToast('Kode verifikasi salah!', 'danger');
-          return;
-        }
-
-        // OTP Valid -> Simpan akun terdaftar
-        const creds = getStoredCredentials();
-        creds[pendingRegistration.slug] = {
-          username: pendingRegistration.username,
-          email: pendingRegistration.email,
-          password: pendingRegistration.password,
           verified: true,
           createdAt: Date.now()
         };
         saveCredentials(creds);
 
+        // Daftarkan ke Supabase di background jika terhubung
+        if (appState.supabaseClient) {
+          appState.supabaseClient.auth.signUp({
+            email: rawEmail,
+            password: rawPassword,
+            options: {
+              data: {
+                username: rawUsername,
+                display_name: rawUsername
+              }
+            }
+          }).catch(err => console.warn('Supabase background signup:', err));
+        }
+
         const userObj = {
-          slug: pendingRegistration.slug,
-          username: pendingRegistration.username,
-          displayName: pendingRegistration.username,
+          slug: slug,
+          username: rawUsername,
+          displayName: rawUsername,
           provider: 'username',
-          email: pendingRegistration.email,
-          avatarText: (pendingRegistration.username[0] || 'U').toUpperCase(),
+          email: rawEmail,
+          avatarText: (rawUsername[0] || 'U').toUpperCase(),
           loginAt: Date.now()
         };
 
-        if (modalEmailVerify) modalEmailVerify.classList.add('hidden');
         if (inputRegUsername) inputRegUsername.value = '';
         if (inputRegEmail) inputRegEmail.value = '';
         if (inputRegPassword) inputRegPassword.value = '';
 
+        hideLoginAlert();
         loginAsUser(userObj, true);
         AudioEngine.playSuccess();
-        showToast(`Email ${userObj.email} berhasil diverifikasi! Selamat datang!`, 'success');
-        pendingRegistration = null;
-      });
-    }
-
-    // Resend OTP ke Gmail
-    if (btnResendOtp) {
-      btnResendOtp.addEventListener('click', async () => {
-        if (!pendingRegistration) return;
-        showToast('Mengirim ulang kode ke Gmail...', 'info');
-
-        if (appState.supabaseClient) {
-          try {
-            await appState.supabaseClient.auth.resend({
-              type: 'signup',
-              email: pendingRegistration.email
-            });
-          } catch (e) {}
+        showToast(`Akun ${rawUsername} berhasil dibuat! Selamat datang di KeranjangPintar.`, 'success');
+        if (window.confetti) {
+          window.confetti({ particleCount: 50, spread: 70, origin: { y: 0.2 } });
         }
-
-        pendingRegistration.fallbackOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        startOtpCountdown(30);
-        AudioEngine.playTap();
-        showToast(`Kode baru dikirim ke ${pendingRegistration.email}`, 'info');
-      });
-    }
-
-    // Cancel Verification
-    if (btnCancelVerifyModal && modalEmailVerify) {
-      btnCancelVerifyModal.addEventListener('click', () => {
-        modalEmailVerify.classList.add('hidden');
       });
     }
 
@@ -5700,6 +5549,7 @@
 
     // Parent window: Dengarkan perubahan localStorage jika popup menulis auth token
     window.addEventListener('storage', (e) => {
+      if (localStorage.getItem('sg_explicit_logout') === 'true') return;
       if ((e.key === 'sg_oauth_sync_user' || e.key === AUTH_STORAGE_KEYS.CURRENT_USER || (e.key && e.key.includes('auth-token'))) && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
@@ -5719,6 +5569,9 @@
     if (btnGoogle) {
       btnGoogle.addEventListener('click', async () => {
         AudioEngine.playTap();
+        try {
+          localStorage.removeItem('sg_explicit_logout');
+        } catch (e) {}
 
         if (!appState.supabaseClient) {
           initSupabaseClient();
@@ -5981,6 +5834,9 @@
   }
 
   function loginAsUser(userObj, withGreeting = true) {
+    try {
+      localStorage.removeItem('sg_explicit_logout');
+    } catch (e) {}
     appState.currentUser = userObj;
     try {
       localStorage.setItem(AUTH_STORAGE_KEYS.CURRENT_USER, JSON.stringify(userObj));
@@ -6027,10 +5883,29 @@
     }
   }
 
-  function logoutUser() {
+  async function logoutUser() {
     try {
       localStorage.removeItem(AUTH_STORAGE_KEYS.CURRENT_USER);
+      localStorage.removeItem('sg_oauth_sync_user');
+      localStorage.setItem('sg_explicit_logout', 'true');
+
+      // Bersihkan semua token auth Supabase dari localStorage agar tidak auto-restore session
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('sb-') || key.includes('auth-token') || key.includes('supabase.auth'))) {
+          localStorage.removeItem(key);
+        }
+      }
     } catch (e) {}
+
+    // Sign out tuntas dari Supabase Client
+    if (appState.supabaseClient && appState.supabaseClient.auth) {
+      try {
+        await appState.supabaseClient.auth.signOut({ scope: 'local' });
+      } catch (e) {
+        console.warn('Supabase signOut error:', e);
+      }
+    }
 
     appState.currentUser = null;
 
