@@ -44,8 +44,15 @@
     return `sg_usr_${slug}_${baseKey}`;
   }
 
-  // Default Master Reference Items for Rian
+  // Default Master Reference Items for Rian & DT2 Evaluation (SRS F-04)
   const DEFAULT_MASTER_ITEMS = [
+    { name: 'Beras 5kg', category: 'Bahan Pokok', unit: 'pack', lastPrice: 68000 },
+    { name: 'Beras Rojolele', category: 'Bahan Pokok', unit: 'karung/5kg', lastPrice: 68000 },
+    { name: 'Telur 1kg', category: 'Bahan Pokok', unit: 'kg', lastPrice: 32000 },
+    { name: 'Garam 500g', category: 'Dapur & Bumbu', unit: 'pack', lastPrice: 5000 },
+    { name: 'Minyak Goreng 2L', category: 'Bahan Pokok', unit: 'pouch', lastPrice: 43000 },
+    { name: 'Wajan', category: 'Peralatan', unit: 'pcs', lastPrice: 100000 },
+    { name: 'Sabun Mandi', category: 'Kebersihan', unit: 'pcs', lastPrice: 15000 },
     { name: 'Beras Ramos 5kg', category: 'Bahan Pokok', unit: 'pack', lastPrice: 72000 },
     { name: 'Minyak Goreng Sania 2L', category: 'Bahan Pokok', unit: 'pouch', lastPrice: 36000 },
     { name: 'Telur Ayam Negeri 1kg', category: 'Bahan Pokok', unit: 'kg', lastPrice: 28000 },
@@ -58,8 +65,8 @@
   ];
 
   // ==========================================================================
-  // ASTRO OFFICIAL INDONESIA CATALOG (32 PRODUK RESMI ASTRO QUICK COMMERCE)
-  // Harga real-time Astro Express, tidak perlu ketik manual!
+  // LOTTE MART GROCERY - PURI INDAH CATALOG (32 PRODUK RESMI LOTTE MART)
+  // Harga real-time Lotte Mart Puri Indah, tidak perlu ketik manual!
   // ==========================================================================
   const ASTRO_OFFICIAL_CATALOG = [
     {
@@ -70,7 +77,7 @@
       price: 69900,
       originalPrice: 74500,
       discountRaw: '-Rp 4.600',
-      badge: 'Astro Goods • Diskon',
+      badge: 'Lotte Mart • Diskon',
       emoji: '🌾',
       description: 'Beras putih pulen super quality'
     },
@@ -106,13 +113,13 @@
       price: 29500,
       originalPrice: 32000,
       discountRaw: '',
-      badge: 'Astro Fresh',
+      badge: 'Lotte Fresh',
       emoji: '🥚',
       description: 'Telur bersih bebas bakteri salmonella'
     },
     {
       id: 'astro-telur-omega-10',
-      name: 'Telur Ayam Omega 3 Astro (10 Butir)',
+      name: 'Telur Ayam Omega 3 Lotte Mart (10 Butir)',
       category: 'Bahan Pokok',
       unit: 'Pack 10 btr',
       price: 35000,
@@ -120,7 +127,7 @@
       discountRaw: '10%',
       badge: 'Super Premium',
       emoji: '🥚',
-      description: 'Kaya DHA & nutrisi tinggi untuk anak kos'
+      description: 'Kaya DHA & nutrisi tinggi untuk keluarga'
     },
     {
       id: 'astro-indomie-goreng-5',
@@ -178,7 +185,7 @@
       price: 21000,
       originalPrice: 22500,
       discountRaw: '',
-      badge: 'Astro Pick',
+      badge: 'Lotte Choice',
       emoji: '🥛',
       description: 'Susu sapi segar murni kaya kalsium'
     },
@@ -256,13 +263,13 @@
     },
     {
       id: 'astro-ayam-fillet-500g',
-      name: 'Ayam Fillet Dada Boneless Astro 500g',
+      name: 'Ayam Fillet Dada Boneless Lotte Fresh 500g',
       category: 'Segar & Daging',
       unit: 'Tray 500g',
       price: 39900,
       originalPrice: 44000,
       discountRaw: '',
-      badge: 'Astro Fresh 15m',
+      badge: 'Lotte Fresh',
       emoji: '🍗',
       description: 'Daging dada ayam tanpa tulang segar'
     },
@@ -544,7 +551,10 @@
     supabaseUrl: '',
     supabaseKey: '',
     supabaseClient: null,
-    isCloudConnected: false
+    isCloudConnected: false,
+    hasInitialCloudPulled: false,
+    lastCartPushTimestamp: 0,
+    lastPlannerPushTimestamp: 0
   };
 
   let astroCheckoutState = {
@@ -826,10 +836,23 @@
         saveMaster();
       }
 
+      // Pastikan master items selalu memuat item acuan DT2
+      DEFAULT_MASTER_ITEMS.forEach(def => {
+        if (!appState.masterItems.some(m => m.name.toLowerCase() === def.name.toLowerCase())) {
+          appState.masterItems.push(def);
+        }
+      });
+
       appState.soundEnabled = savedSound !== null ? savedSound === 'true' : true;
-      appState.activeStore = savedStore || localStorage.getItem('smart_grocery_store') || 'GrandLucky SCBD';
+      appState.activeStore = savedStore || localStorage.getItem('smart_grocery_store') || 'Lotte Mart Grocery - Puri Indah';
+      if (appState.activeStore === 'GrandLucky SCBD') {
+        appState.activeStore = 'Lotte Mart Grocery - Puri Indah';
+        localStorage.setItem('smart_grocery_store', 'Lotte Mart Grocery - Puri Indah');
+      }
       const storeEl = document.getElementById('activeStoreName');
       if (storeEl) storeEl.textContent = appState.activeStore;
+      const scanViewStore = document.getElementById('scanViewStoreName');
+      if (scanViewStore) scanViewStore.textContent = appState.activeStore;
 
       appState.supabaseUrl = SUPABASE_CONFIG.URL;
       appState.supabaseKey = SUPABASE_CONFIG.KEY;
@@ -839,20 +862,98 @@
       appState.planner = [];
       appState.budgetLimit = 350000;
       appState.masterItems = DEFAULT_MASTER_ITEMS;
-      appState.activeStore = 'GrandLucky SCBD';
+      appState.activeStore = 'Lotte Mart Grocery - Puri Indah';
       appState.supabaseUrl = SUPABASE_CONFIG.URL;
       appState.supabaseKey = SUPABASE_CONFIG.KEY;
     }
   }
 
-  function saveCart() {
+  let syncCartTimer = null;
+  function pushActiveCartToCloud() {
+    if (!appState.supabaseClient) return;
+    clearTimeout(syncCartTimer);
+    syncCartTimer = setTimeout(async () => {
+      try {
+        const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+        const cartSyncId = 'active_cart_' + userSyncId;
+        appState.lastCartPushTimestamp = Date.now();
+        await appState.supabaseClient.from('receipts').upsert({
+          id: cartSyncId,
+          date_label: 'ACTIVE_CART',
+          budget_limit: Number(appState.budgetLimit) || 350000,
+          grand_total: appState.cart.reduce((sum, it) => sum + (Number(it.finalPrice) || 0), 0),
+          total_saved: appState.cart.reduce((sum, it) => sum + ((Number(it.savedPerUnit) || 0) * (Number(it.qty) || 1)), 0),
+          item_count: appState.cart.length,
+          items: appState.cart,
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+      } catch (e) {
+        console.warn('Realtime cart push error:', e);
+      }
+    }, 350);
+  }
+
+  let syncPlannerTimer = null;
+  function pushActivePlannerToCloud() {
+    if (!appState.supabaseClient) return;
+    clearTimeout(syncPlannerTimer);
+    syncPlannerTimer = setTimeout(async () => {
+      try {
+        const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+        const plannerSyncId = 'active_planner_' + userSyncId;
+        appState.lastPlannerPushTimestamp = Date.now();
+        await appState.supabaseClient.from('receipts').upsert({
+          id: plannerSyncId,
+          date_label: 'ACTIVE_PLANNER',
+          budget_limit: Number(appState.budgetLimit) || 350000,
+          grand_total: 0,
+          total_saved: 0,
+          item_count: appState.planner.length,
+          items: appState.planner,
+          created_at: new Date().toISOString()
+        }, { onConflict: 'id' });
+      } catch (e) {
+        console.warn('Realtime planner push error:', e);
+      }
+    }, 350);
+  }
+
+  let syncSettingsTimer = null;
+  function pushUserSettingsToCloud() {
+    if (!appState.supabaseClient) return;
+    clearTimeout(syncSettingsTimer);
+    syncSettingsTimer = setTimeout(async () => {
+      try {
+        const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+        await appState.supabaseClient.from('user_settings').upsert({
+          id: userSyncId,
+          budget_limit: Number(appState.budgetLimit) || 350000,
+          sound_enabled: appState.soundEnabled,
+          updated_at: new Date().toISOString()
+        });
+      } catch (e) {
+        console.warn('Realtime settings push error:', e);
+      }
+    }, 400);
+  }
+
+  function saveCart(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.CART), JSON.stringify(appState.cart));
+    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
+      pushActiveCartToCloud();
+    }
   }
-  function savePlanner() {
+  function savePlanner(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.PLANNER), JSON.stringify(appState.planner));
+    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
+      pushActivePlannerToCloud();
+    }
   }
-  function saveBudget() {
+  function saveBudget(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.BUDGET), appState.budgetLimit.toString());
+    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
+      pushUserSettingsToCloud();
+    }
   }
   function saveHistory() {
     localStorage.setItem(getUserKey(STORAGE_KEYS.HISTORY), JSON.stringify(appState.history));
@@ -908,7 +1009,9 @@
           }
         });
 
-        pullDataFromSupabase(true);
+        pullDataFromSupabase(true).then(() => {
+          appState.hasInitialCloudPulled = true;
+        });
       } catch (e) {
         console.error('Supabase init error:', e);
         appState.isCloudConnected = false;
@@ -1000,20 +1103,52 @@
         await appState.supabaseClient.from('master_products').upsert(masterPayload, { onConflict: 'name' });
       }
 
-      // 3. Sync Receipts
+      // 3. Sync Receipts (excluding active carts/planners)
       if (appState.history.length > 0) {
-        const receiptsPayload = appState.history.map(rcp => ({
-          id: rcp.id,
-          date_label: rcp.date,
-          budget_limit: rcp.budgetLimit,
-          grand_total: rcp.grandTotal,
-          total_saved: rcp.totalSaved,
-          item_count: rcp.itemCount,
-          items: rcp.items,
-          created_at: new Date().toISOString()
-        }));
-        await appState.supabaseClient.from('receipts').upsert(receiptsPayload, { onConflict: 'id' });
+        const receiptsPayload = appState.history
+          .filter(rcp => !rcp.id.startsWith('active_cart_') && !rcp.id.startsWith('active_planner_'))
+          .map(rcp => ({
+            id: rcp.id,
+            date_label: rcp.date,
+            budget_limit: rcp.budgetLimit,
+            grand_total: rcp.grandTotal,
+            total_saved: rcp.totalSaved,
+            item_count: rcp.itemCount,
+            items: rcp.items,
+            created_at: new Date().toISOString()
+          }));
+        if (receiptsPayload.length > 0) {
+          await appState.supabaseClient.from('receipts').upsert(receiptsPayload, { onConflict: 'id' });
+        }
       }
+
+      // 4. Sync Active Cart in Cloud (Realtime Across Phones)
+      const cartSyncId = 'active_cart_' + userSyncId;
+      appState.lastCartPushTimestamp = Date.now();
+      await appState.supabaseClient.from('receipts').upsert({
+        id: cartSyncId,
+        date_label: 'ACTIVE_CART',
+        budget_limit: Number(appState.budgetLimit) || 350000,
+        grand_total: appState.cart.reduce((sum, it) => sum + (Number(it.finalPrice) || 0), 0),
+        total_saved: appState.cart.reduce((sum, it) => sum + ((Number(it.savedPerUnit) || 0) * (Number(it.qty) || 1)), 0),
+        item_count: appState.cart.length,
+        items: appState.cart,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+
+      // 5. Sync Active Planner in Cloud
+      const plannerSyncId = 'active_planner_' + userSyncId;
+      appState.lastPlannerPushTimestamp = Date.now();
+      await appState.supabaseClient.from('receipts').upsert({
+        id: plannerSyncId,
+        date_label: 'ACTIVE_PLANNER',
+        budget_limit: Number(appState.budgetLimit) || 350000,
+        grand_total: 0,
+        total_saved: 0,
+        item_count: appState.planner.length,
+        items: appState.planner,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'id' });
 
       if (!silent) {
         AudioEngine.playSuccess();
@@ -1049,14 +1184,16 @@
         saveMaster();
       }
 
-      // 2. Fetch Receipts History
+      // 2. Fetch Receipts History & Active Cart / Planner
       const { data: receiptsData, error: rcpErr } = await appState.supabaseClient
         .from('receipts')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (!rcpErr && receiptsData && receiptsData.length > 0) {
-        appState.history = receiptsData.map(r => ({
+        // Struk riwayat transaksi selesai (filter out active cart / planner)
+        const actualReceipts = receiptsData.filter(r => !r.id.startsWith('active_cart_') && !r.id.startsWith('active_planner_'));
+        appState.history = actualReceipts.map(r => ({
           id: r.id,
           date: r.date_label,
           budgetLimit: Number(r.budget_limit),
@@ -1066,6 +1203,36 @@
           items: r.items
         }));
         saveHistory();
+
+        // Sinkronisasi Troli Aktif Pengguna dari Cloud
+        const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+        const cartSyncId = 'active_cart_' + userSyncId;
+        const cartRow = receiptsData.find(r => r.id === cartSyncId);
+
+        const timeSinceMyCartPush = Date.now() - (appState.lastCartPushTimestamp || 0);
+        if (timeSinceMyCartPush > 2000) {
+          if (cartRow && Array.isArray(cartRow.items)) {
+            appState.cart = cartRow.items;
+            saveCart(true); // skip pushing back to cloud
+          } else if (appState.cart.length > 0 && !cartRow) {
+            // Jika akun baru punya keranjang lokal tapi di cloud belum ada, upload ke cloud
+            pushActiveCartToCloud();
+          }
+        }
+
+        // Sinkronisasi Daftar Rencana (Planner) dari Cloud
+        const plannerSyncId = 'active_planner_' + userSyncId;
+        const plannerRow = receiptsData.find(r => r.id === plannerSyncId);
+
+        const timeSinceMyPlannerPush = Date.now() - (appState.lastPlannerPushTimestamp || 0);
+        if (timeSinceMyPlannerPush > 2000) {
+          if (plannerRow && Array.isArray(plannerRow.items)) {
+            appState.planner = plannerRow.items;
+            savePlanner(true); // skip pushing back to cloud
+          } else if (appState.planner.length > 0 && !plannerRow) {
+            pushActivePlannerToCloud();
+          }
+        }
       }
 
       // 3. Fetch Settings
@@ -1079,10 +1246,11 @@
       if (settingsData) {
         appState.budgetLimit = Number(settingsData.budget_limit) || 350000;
         appState.soundEnabled = settingsData.sound_enabled ?? true;
-        saveBudget();
+        saveBudget(true);
         saveSound();
       }
 
+      appState.hasInitialCloudPulled = true;
       renderAll();
       if (!silent) {
         AudioEngine.playSuccess();
@@ -1090,6 +1258,7 @@
       }
     } catch (err) {
       console.error('Pull error:', err);
+      appState.hasInitialCloudPulled = true;
       if (!silent) showToast('Gagal menyinkronkan data: ' + (err.message || 'Error'), 'danger');
     }
   }
@@ -1306,36 +1475,56 @@
 
     const navBudgetDot = document.getElementById('navBudgetDot');
 
-    if (percentage < 80) {
+    if (percentage < 90) {
       if (statusBadge) {
         statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono text-[10px] font-black tracking-widest';
       }
-      if (statusText) statusText.textContent = '● RADAR-ACTIVE';
+      if (statusText) statusText.textContent = '● STATUS: AMAN';
       if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">verified_user</span> STATUS: AMAN';
       if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-stone-800/80 border border-stone-700/80"><span class="text-stone-400 text-[10px]">Sisa Aman:</span><strong class="text-citrus font-black text-[12px]">Rp ${formatNumber(remaining)}</strong></span>`;
       if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-citrus absolute -top-0.5 -right-1';
-    } else if (percentage >= 80 && percentage < 100) {
+      if (progressBar) progressBar.className = 'h-full bg-emerald-500 rounded-full transition-all duration-300';
+    } else if (percentage >= 90 && percentage <= 100) {
       if (statusBadge) {
         statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono text-[10px] font-black tracking-widest';
       }
-      if (statusText) statusText.textContent = '▲ RADAR-WASPADA';
-      if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">warning</span> WASPADA 80%';
+      if (statusText) statusText.textContent = '▲ PERINGATAN WASPADA (≥90%)';
+      if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">warning</span> WASPADA (≥90%)';
       if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-stone-800/80 border border-amber-500/40"><span class="text-stone-400 text-[10px]">Sisa Kritis:</span><strong class="text-amber-300 font-black text-[12px]">Rp ${formatNumber(remaining)}</strong></span>`;
       if (overBudgetBanner) overBudgetBanner.classList.add('hidden');
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-1';
+      if (progressBar) progressBar.className = 'h-full bg-amber-400 rounded-full transition-all duration-300';
     } else {
       if (statusBadge) {
         statusBadge.className = 'flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-500/25 text-rose-300 border border-rose-500/50 font-mono text-[10px] font-black tracking-widest animate-pulse';
       }
-      if (statusText) statusText.textContent = '🚨 OVER BUDGET';
+      if (statusText) statusText.textContent = '🚨 OVER BUDGET (>100%)';
       if (statusIcon) statusIcon.innerHTML = '<span class="material-symbols-outlined text-[11px]">emergency</span> DEFISIT KUOTA';
       const overAmount = Math.abs(remaining);
       if (remainingText) remainingText.innerHTML = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-950/80 border border-rose-600/60"><span class="text-rose-300 text-[10px]">Defisit:</span><strong class="text-rose-400 font-black text-[12px]">Rp ${formatNumber(overAmount)}</strong></span>`;
-      if (overBudgetBanner) overBudgetBanner.classList.remove('hidden');
-      const trimDeficit = document.getElementById('trimDeficitAmount');
-      if (trimDeficit) trimDeficit.textContent = `Rp ${formatNumber(overAmount)}`;
+      if (overBudgetBanner) {
+        overBudgetBanner.classList.remove('hidden');
+        overBudgetBanner.className = 'neo-alert-overbudget bg-red-600 text-white border-2 border-red-800 rounded-2xl p-3.5 mb-space-md shadow-lg animate-shake';
+        overBudgetBanner.innerHTML = `
+          <div class="flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-white text-[20px] shrink-0 mt-0.5 animate-bounce">warning</span>
+            <div class="flex-1">
+              <div class="font-headline-sm text-sm font-black text-white leading-tight">
+                Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sekunder.
+              </div>
+              <div class="font-mono text-xs text-red-100 font-bold mt-1">
+                Defisit Kuota: -Rp ${formatNumber(overAmount)} (Total: Rp ${formatNumber(totalSpent)} / Limit: Rp ${formatNumber(limit)})
+              </div>
+            </div>
+            <button id="btnSuggestTrim" onclick="window.suggestTrimItems ? window.suggestTrimItems() : null" class="px-2.5 py-1 rounded-lg bg-white text-red-700 text-xs font-black shadow-sm shrink-0 cursor-pointer hover:bg-red-50 active:scale-95">
+              Pangkas
+            </button>
+          </div>
+        `;
+      }
       if (navBudgetDot) navBudgetDot.className = 'w-2 h-2 rounded-full bg-rose-500 absolute -top-0.5 -right-1 animate-ping';
+      if (progressBar) progressBar.className = 'h-full bg-rose-600 rounded-full transition-all duration-300';
       AudioEngine.playAlert();
     }
 
@@ -1480,16 +1669,22 @@
                 <span>${discount.discountLabel}</span>
               </span>
             ` : ''}
+            ${hasDiscount && discount.formulaText && discount.formulaText.includes('Lapis') ? `
+              <div class="w-full text-[10.5px] font-mono text-purple-900 bg-purple-50/90 px-2.5 py-1.5 rounded-xl border border-purple-200 mt-1 flex items-start gap-1">
+                <span class="font-bold shrink-0">✨ Diskon Kompound:</span>
+                <span>${escapeHtml(discount.formulaText)}</span>
+              </div>
+            ` : ''}
           </div>
 
           <!-- Bottom Row: Tactile POS Stepper & Chunky Subtotal -->
           <div class="flex items-center justify-between pt-2 border-t border-stone-200/80 mt-1">
             <div class="flex items-center gap-1.5 bg-[#FAF8F5] p-1 rounded-xl border border-stone-300 shadow-pos-key">
-              <button type="button" class="w-8 h-8 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer ${item.qty === 1 ? 'text-rose-600' : ''}" onclick="window.changeItemQty('${item.id}', -1)" title="${item.qty === 1 ? 'Hapus Barang' : 'Kurangi'}">
+              <button type="button" class="w-11 h-11 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer ${item.qty === 1 ? 'text-rose-600' : ''}" onclick="window.changeItemQty('${item.id}', -1)" title="${item.qty === 1 ? 'Hapus Barang' : 'Kurangi'}">
                 <i data-lucide="${item.qty === 1 ? 'trash-2' : 'minus'}"></i>
               </button>
-              <span class="w-8 text-center font-mono font-black text-sm text-ink">${item.qty}</span>
-              <button type="button" class="w-8 h-8 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer" onclick="window.changeItemQty('${item.id}', 1)" title="Tambah">
+              <input type="number" inputmode="numeric" min="1" class="w-12 text-center font-mono font-black text-sm text-ink bg-transparent border-0 focus:ring-1 focus:ring-stone-400 rounded p-1" value="${item.qty}" onchange="window.setItemQty('${item.id}', this.value)" oninput="window.setItemQty('${item.id}', this.value)" title="Ketik kuantitas langsung" />
+              <button type="button" class="w-11 h-11 rounded-lg bg-white border border-stone-400 text-ink font-black flex items-center justify-center hover:bg-stone-100 active:scale-95 cursor-pointer" onclick="window.changeItemQty('${item.id}', 1)" title="Tambah">
                 <i data-lucide="plus"></i>
               </button>
             </div>
@@ -1629,13 +1824,24 @@
     // 1. Discount Preview
     const disc = calculateDiscount(price, discountRaw);
     const discPreview = document.getElementById('modalDiscountPreview');
-    const discText = document.getElementById('modalDiscountPreviewText');
+    const elFinalPrice = document.getElementById('modalDiscountFinalPrice');
+    const elSavedText = document.getElementById('modalDiscountSavedText');
+    const elBreakdown = document.getElementById('modalDiscountBreakdown');
 
     if (disc.savedPerUnit > 0) {
-      discPreview.classList.remove('hidden');
-      discText.textContent = `Harga Promo: Rp ${formatNumber(disc.finalUnitPrice)} (Hemat Rp ${formatNumber(disc.savedPerUnit)}/item)`;
+      if (discPreview) discPreview.classList.remove('hidden');
+      if (elFinalPrice) elFinalPrice.textContent = `Rp ${formatNumber(disc.finalUnitPrice)}`;
+      if (elSavedText) elSavedText.textContent = `Hemat Rp ${formatNumber(disc.savedPerUnit)}/item (${disc.discountLabel || 'Promo'})`;
+      if (elBreakdown) {
+        if (disc.formulaText && disc.formulaText.includes('Lapis')) {
+          elBreakdown.classList.remove('hidden');
+          elBreakdown.textContent = `Rincian: ${disc.formulaText}`;
+        } else {
+          elBreakdown.classList.add('hidden');
+        }
+      }
     } else {
-      discPreview.classList.add('hidden');
+      if (discPreview) discPreview.classList.add('hidden');
     }
 
     // 2. Comparison Badge
@@ -1720,9 +1926,27 @@
     const lastMonthPrice = parseFloat(inputItemLastMonthPrice.value) || 0;
     const discountRaw = inputItemDiscount.value.trim();
 
-    if (!name || price <= 0) {
-      showToast('Mohon lengkapi nama produk dan harga', 'danger');
+    if (!name) {
+      showToast('Gagal: Nama barang tidak boleh kosong!', 'danger');
+      AudioEngine.playAlert();
+      inputItemName.focus();
       return;
+    }
+
+    if (isNaN(price) || price <= 0) {
+      showToast('Gagal: Harga tidak boleh kosong atau bernilai negatif / 0!', 'danger');
+      AudioEngine.playAlert();
+      inputItemPrice.focus();
+      return;
+    }
+
+    // Auto-detect last month price from master database if not manually specified
+    if (!lastMonthPrice) {
+      const match = appState.masterItems.find(m => m.name.toLowerCase() === name.toLowerCase())
+        || appState.masterItems.find(m => m.name.toLowerCase().includes(name.toLowerCase()));
+      if (match) {
+        lastMonthPrice = match.lastPrice;
+      }
     }
 
     if (appState.editingItemId) {
@@ -1953,6 +2177,32 @@
   // EVENT LISTENERS & SUPABASE MODAL HANDLERS
   // ==========================================================================
   function setupEventListeners() {
+    // Discount Quick Builder Buttons (+10%, +20%, +25%, etc.)
+    document.querySelectorAll('.btn-add-discount-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-val') || '';
+        const cur = inputItemDiscount.value.trim();
+        if (!cur) {
+          inputItemDiscount.value = val.startsWith('+') ? val.substring(1).trim() : val;
+        } else if (val.startsWith('+')) {
+          inputItemDiscount.value = `${cur} + ${val.substring(1).trim()}`;
+        } else {
+          inputItemDiscount.value = val;
+        }
+        AudioEngine.playTap();
+        updateModalLiveCalculations();
+      });
+    });
+
+    const btnClearDisc = document.getElementById('btnClearDiscountPill');
+    if (btnClearDisc) {
+      btnClearDisc.addEventListener('click', () => {
+        inputItemDiscount.value = '';
+        AudioEngine.playTap();
+        updateModalLiveCalculations();
+      });
+    }
+
     document.getElementById('btnOpenAddModal').addEventListener('click', () => openItemModal());
     document.getElementById('btnEmptyAdd').addEventListener('click', () => openItemModal());
     document.getElementById('btnCloseItemModal').addEventListener('click', closeItemModal);
@@ -2062,6 +2312,55 @@
 
     // Finish Shopping / Checkout
     document.getElementById('btnFinishShopping').addEventListener('click', handleCheckout);
+
+    // Clear Cart with Safety Confirmation Modal (Skenario 8)
+    const modalClearCart = document.getElementById('modalConfirmClearCart');
+    const btnOpenClearCart = document.getElementById('btnOpenClearCartModal');
+    const btnCancelClearCart = document.getElementById('btnCancelClearCart');
+    const btnConfirmClearCart = document.getElementById('btnConfirmClearCart');
+
+    if (btnOpenClearCart && modalClearCart) {
+      btnOpenClearCart.addEventListener('click', () => {
+        if (appState.cart.length === 0) {
+          showToast('Keranjang sudah dalam keadaan kosong', 'info');
+          return;
+        }
+        modalClearCart.classList.remove('hidden');
+        AudioEngine.playTap();
+      });
+    }
+
+    if (btnCancelClearCart && modalClearCart) {
+      btnCancelClearCart.addEventListener('click', () => {
+        modalClearCart.classList.add('hidden');
+      });
+    }
+
+    if (btnConfirmClearCart && modalClearCart) {
+      btnConfirmClearCart.addEventListener('click', () => {
+        appState.cart = [];
+        saveCart();
+        renderCart();
+        modalClearCart.classList.add('hidden');
+        AudioEngine.playSuccess();
+        showToast('Seluruh isi troli berhasil dikosongkan', 'success');
+      });
+    }
+
+    // Selector Tanggal Belanja (Skenario 1 & 6)
+    const datePickerEl = document.getElementById('sessionDatePicker');
+    if (datePickerEl) {
+      const savedDate = localStorage.getItem('smart_grocery_date') || '2026-10-26';
+      datePickerEl.value = savedDate;
+      datePickerEl.addEventListener('change', (e) => {
+        const newDate = e.target.value;
+        if (newDate) {
+          localStorage.setItem('smart_grocery_date', newDate);
+          AudioEngine.playTap();
+          showToast(`Tanggal belanja disetel: ${newDate}`, 'info');
+        }
+      });
+    }
 
     // Sample Data
     document.getElementById('btnLoadSampleData').addEventListener('click', () => {
@@ -3280,7 +3579,7 @@
       grid.innerHTML = `
         <div class="col-span-2 text-center py-8 text-on-surface-variant">
           <span class="material-symbols-outlined text-[32px] text-outline-variant block mb-1">search_off</span>
-          <p class="text-xs font-semibold">Produk Astro tidak ditemukan</p>
+          <p class="text-xs font-semibold">Produk Lotte Mart tidak ditemukan</p>
           <p class="text-[11px] text-outline">Coba kata kunci lain seperti "Beras", "Minyak", atau "Susu"</p>
         </div>
       `;
@@ -3299,7 +3598,7 @@
             <!-- Top Badges -->
             <div class="flex items-center justify-between gap-1 mb-2">
               <span class="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-lg shadow-xs shrink-0 select-none">${prod.emoji || '🛒'}</span>
-              <span class="px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-bold truncate max-w-[85px]">${escapeHtml(prod.badge || 'Astro Goods')}</span>
+              <span class="px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[9px] font-bold truncate max-w-[85px]">${escapeHtml(prod.badge || 'Lotte Mart')}</span>
             </div>
 
             <!-- Title & Size -->
@@ -3426,7 +3725,7 @@
       });
     }
 
-    showToast('✨ 6 Produk Paket Kos Astro masuk ke troli!', 'success');
+    showToast('✨ 6 Produk Paket Sembako Lotte Mart Puri Indah masuk ke troli!', 'success');
   }
 
   // ==========================================================================
@@ -3727,7 +4026,7 @@
 
   function openAstroCheckoutModal() {
     if (appState.cart.length === 0) {
-      showToast('Keranjang belanja masih kosong! Pilih barang di Katalog Astro.', 'warning');
+      showToast('Keranjang belanja masih kosong! Pilih barang di Katalog Lotte Mart Puri Indah.', 'warning');
       const catalogSection = document.getElementById('sectionAstroCatalog');
       if (catalogSection) {
         catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -3847,7 +4146,7 @@
 
     // Phase 1 (0ms - 1200ms): Connect to Gateway
     if (stepBadge) stepBadge.textContent = 'FASE 1 / 3';
-    if (stepTitle) stepTitle.textContent = '📡 Menghubungkan ke Astro Payment Gateway...';
+    if (stepTitle) stepTitle.textContent = '📡 Menghubungkan ke Lotte Mart Payment Gateway...';
     if (stepDesc) stepDesc.textContent = 'Mengunci pesanan dan memvalidasi saluran pembayaran terenkripsi.';
     if (progressBar) progressBar.style.width = '35%';
     AudioEngine.playBeep();
@@ -3864,7 +4163,7 @@
       currentProcessingTimer = setTimeout(() => {
         if (stepBadge) stepBadge.textContent = 'FASE 3 / 3';
         if (stepTitle) stepTitle.textContent = '🖨️ Mencetak Struk Kasir Thermal Digital...';
-        if (stepDesc) stepDesc.textContent = 'Mengesahkan struk bukti transaksi resmi Astro Express SCBD.';
+        if (stepDesc) stepDesc.textContent = 'Mengesahkan struk bukti transaksi resmi Lotte Mart Grocery - Puri Indah.';
         if (progressBar) progressBar.style.width = '100%';
         AudioEngine.playPrinter();
 
@@ -3891,7 +4190,7 @@
     const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
     const grandTotal = Math.max(0, subtotal - discount + serviceFee);
 
-    const trxId = 'ASTRO-20261021-' + Math.floor(10000 + Math.random() * 90000);
+    const trxId = 'LOTTE-20261026-' + Math.floor(10000 + Math.random() * 90000);
     const nowStr = new Date().toLocaleDateString('id-ID', {
       weekday: 'long',
       year: 'numeric',
@@ -3904,12 +4203,12 @@
     const customerName = appState.currentUser?.displayName || appState.currentUser?.username || 'Rian Pratama';
 
     const methodLabels = {
-      'qris': 'QRIS Astro Instant (LUNAS)',
-      'astropay': 'AstroPay E-Wallet (LUNAS)',
+      'qris': 'QRIS Lotte Mart Instant (LUNAS)',
+      'astropay': 'LottePay E-Wallet (LUNAS)',
       'va': `Virtual Account ${astroCheckoutState.selectedVaBank} (LUNAS)`,
       'cash': 'Tunai di Kasir (LUNAS)'
     };
-    const paymentMethodLabel = methodLabels[astroCheckoutState.selectedMethod] || 'QRIS Astro (LUNAS)';
+    const paymentMethodLabel = methodLabels[astroCheckoutState.selectedMethod] || 'QRIS Lotte Mart (LUNAS)';
 
     // Populate Thermal Receipt Elements
     const elTrx = document.getElementById('receiptTrxId');
@@ -4027,7 +4326,7 @@
     const elMethod = document.getElementById('receiptPaymentMethodLabel')?.textContent || '';
     const elGrand = document.getElementById('receiptGrandTotal')?.textContent || '';
 
-    const text = `🧾 STRUK PEMBAYARAN ASTRO GROCERY\nNo. TRX: ${elTrx}\nPelanggan: ${elCust}\nMetode: ${elMethod}\nTOTAL: ${elGrand}\nStatus: LUNAS\nTerima kasih telah berbelanja di Astro!`;
+    const text = `🧾 STRUK PEMBAYARAN LOTTE MART GROCERY - PURI INDAH\nNo. TRX: ${elTrx}\nPelanggan: ${elCust}\nMetode: ${elMethod}\nTOTAL: ${elGrand}\nStatus: LUNAS\nTerima kasih telah berbelanja di Lotte Mart Puri Indah!`;
 
     navigator.clipboard?.writeText(text);
     AudioEngine.playTap();
@@ -5860,6 +6159,7 @@
 
     // Load data isolated strictly for this user
     loadDataFromStorage();
+    appState.hasInitialCloudPulled = false;
 
     // Hide login screen
     const loginScreen = document.getElementById('loginScreen');
@@ -5873,6 +6173,15 @@
 
     // Render all components
     renderAll();
+
+    // Immediately pull latest real-time cloud data (cart, planner, budget)
+    if (appState.supabaseClient) {
+      pullDataFromSupabase(true).then(() => {
+        appState.hasInitialCloudPulled = true;
+      });
+    } else {
+      initSupabaseClient();
+    }
 
     if (withGreeting) {
       AudioEngine.playSuccess();
