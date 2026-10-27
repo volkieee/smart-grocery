@@ -839,6 +839,22 @@ body {
   transform: scale(0.92);
 }
 
+.dock-tab:not(.active):not(.dock-tab-hero) {
+  color: #383431 !important;
+  opacity: 1 !important;
+}
+
+.dock-tab:not(.active):not(.dock-tab-hero) .material-symbols-outlined {
+  color: #383431 !important;
+  opacity: 1 !important;
+}
+
+.dock-tab:not(.active):not(.dock-tab-hero) span {
+  color: #383431 !important;
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
 .dock-tab.active:not(.dock-tab-hero) {
   background: #181512 !important;
   color: #ffffff !important;

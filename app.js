@@ -2092,23 +2092,13 @@
 
         let paneId = targetTabId;
 
-        // Reset semua tombol nav ke gaya inaktif
+        // Reset semua tombol nav ke gaya inaktif (100% solid, tidak transparan)
         navButtons.forEach(b => {
-          if (b.classList.contains('dock-tab-hero')) {
-            b.classList.remove('active');
-          } else {
-            b.classList.remove('active', 'text-secondary', 'font-bold', 'bg-secondary/10');
-            b.classList.add('text-on-surface-variant/70');
-          }
+          b.classList.remove('active');
         });
 
         // Aktifkan tombol yang dipilih
-        if (btn.classList.contains('dock-tab-hero')) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.add('active', 'text-secondary', 'font-bold', 'bg-secondary/10');
-          btn.classList.remove('text-on-surface-variant/70');
-        }
+        btn.classList.add('active');
 
         // Toggle pane tampilan
         panes.forEach(p => {

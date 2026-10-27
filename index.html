@@ -286,77 +286,83 @@
     </div>
   </div>
 
-  <!-- ================= TOP APP HEADER ================= -->
+  <!-- ================= TOP APP HEADER (RESPONSIVE 2-TIER MOBILE) ================= -->
   <header
-    class="fixed top-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5]/92 backdrop-blur-xl pt-safe border-b border-x border-[#e8dfd5] shadow-[0_2px_12px_rgba(24,21,18,0.03)]">
-    <div class="h-16 px-4 flex items-center justify-between gap-2">
-      <!-- Left: Logo & Store Selector -->
-      <div class="flex items-center gap-2 min-w-0">
-        <div class="w-9 h-9 rounded-xl bg-ink flex items-center justify-center text-citrus shadow-sm shrink-0 border border-stone-800">
-          <span class="material-symbols-outlined text-[20px] text-citrus" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+    class="fixed top-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5] pt-safe border-b-2 border-[#dcd2c6] shadow-[0_4px_16px_rgba(24,21,18,0.06)]"
+    style="background-color: #FAF8F5 !important; opacity: 1 !important;">
+    <div class="px-3.5 py-2">
+      <!-- Row 1: Brand Logo & User Action Buttons -->
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <!-- Brand -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-ink flex items-center justify-center text-citrus shadow-xs shrink-0 border border-stone-800">
+            <span class="material-symbols-outlined text-[18px] text-citrus" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+          </div>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <h1 class="font-headline-sm text-sm sm:text-base text-ink tracking-tight font-black whitespace-nowrap">KeranjangPintar</h1>
+            <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-citrus-dark font-mono text-[9px] font-black border border-amber-500/30">PRO</span>
+          </div>
         </div>
-        <div class="flex flex-col min-w-0">
-          <div class="flex items-center gap-1.5 leading-none">
-            <span class="font-headline-sm text-[15px] text-ink tracking-tight font-extrabold truncate">KeranjangPintar</span>
-            <span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-citrus-dark font-mono text-[9px] font-bold">PRO</span>
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5 mt-1">
-            <button
-              class="flex items-center gap-0.5 text-on-surface-variant hover:text-ink transition-colors text-left cursor-pointer"
-              id="btnStoreSelector" title="Pilih Lokasi Toko Belanja">
-              <span class="material-symbols-outlined text-[13px] text-citrus-dark shrink-0">storefront</span>
-              <span class="font-label-sm text-[11px] font-bold text-ink truncate max-w-[110px] sm:max-w-[150px]"
-                id="activeStoreName">Lotte Mart Grocery - Puri Indah</span>
-              <span class="material-symbols-outlined text-[13px] shrink-0">expand_more</span>
-            </button>
-            <span class="w-1 h-1 rounded-full bg-stone-300 shrink-0"></span>
-            <div class="flex items-center gap-0.5 text-[11px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-md border border-stone-300" title="Selector Tanggal Belanja Aktif (SRS F-01)">
-              <span class="material-symbols-outlined text-[12px] text-stone-500">calendar_month</span>
-              <input type="date" id="sessionDatePicker" class="bg-transparent border-0 p-0 text-[10px] font-mono font-bold text-ink cursor-pointer focus:outline-none" value="2026-10-26" />
-            </div>
-            <span class="w-1 h-1 rounded-full bg-stone-300 shrink-0"></span>
-            <span class="flex items-center gap-1 px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-mono text-[9px] font-black shrink-0" id="cloudStatusTag" title="Koneksi Cloud Supabase Realtime Aktif">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="cloudStatusDot"></span>
-              <span>ONLINE</span>
-            </span>
-          </div>
+
+        <!-- Right Quick Actions (Sound, Budget, Avatar) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Sound Toggle -->
+          <button id="btnSoundToggle"
+            class="w-7 h-7 rounded-full bg-white text-ink flex items-center justify-center border border-stone-300 shadow-xs hover:bg-stone-100 transition-all cursor-pointer shrink-0 active:scale-95"
+            title="Toggle Suara">
+            <span class="material-symbols-outlined text-[15px] text-stone-700" id="soundIcon">volume_up</span>
+          </button>
+
+          <!-- Budget Quick Trigger -->
+          <button
+            class="flex items-center gap-1 px-2 py-1 rounded-full bg-white text-ink border border-stone-300 shadow-xs hover:bg-stone-50 transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95"
+            id="btnEditBudgetTrigger" title="Ketuk untuk ubah limit dompet">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="material-symbols-outlined text-[13px] text-citrus-dark">account_balance_wallet</span>
+            <span class="font-mono text-[11px] font-black tracking-tight text-ink" id="hudBudgetLimit">Rp 350k</span>
+          </button>
+
+          <!-- User Profile Trigger -->
+          <button id="btnUserProfileTrigger"
+            class="w-7 h-7 rounded-full bg-ink text-white border border-stone-800 shadow-xs flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95 hover:bg-stone-900"
+            title="Profil Akun & Keluar">
+            <span
+              class="w-5 h-5 rounded-full bg-citrus text-ink text-[10px] font-black flex items-center justify-center shrink-0 shadow-xs pointer-events-none"
+              id="headerUserAvatar">R</span>
+            <span class="hidden" id="headerUsername">Rian</span>
+          </button>
         </div>
       </div>
 
-      <!-- Right: Action Pills -->
-      <div class="flex items-center gap-1.5 shrink-0">
-        <!-- Sound Toggle -->
-        <button id="btnSoundToggle"
-          class="w-8 h-8 rounded-full bg-white text-ink flex items-center justify-center border border-[#dcd2c6] shadow-pos-key hover:bg-stone-100 transition-all cursor-pointer shrink-0 active:scale-95"
-          title="Toggle Suara">
-          <span class="material-symbols-outlined text-[16px] text-stone-700" id="soundIcon">volume_up</span>
-        </button>
-
-        <!-- Budget Quick Trigger -->
+      <!-- Row 2: Location, Date & Online Status (Dedicated clean horizontal row) -->
+      <div class="flex items-center justify-between gap-1.5 pt-1.5 border-t border-stone-200/80">
+        <!-- Store Selector Button -->
         <button
-          class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white text-ink border border-[#dcd2c6] shadow-pos-key hover:bg-stone-50 transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95"
-          id="btnEditBudgetTrigger" title="Ketuk untuk ubah limit dompet">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="material-symbols-outlined text-[14px] text-citrus-dark">account_balance_wallet</span>
-          <span class="font-mono text-[11px] font-extrabold tracking-tight whitespace-nowrap text-ink" id="hudBudgetLimit">Rp 350k</span>
+          class="flex items-center gap-1 min-w-0 flex-1 px-2 py-1 rounded-lg bg-stone-100/90 hover:bg-stone-200/80 border border-stone-300 text-left transition-colors cursor-pointer"
+          id="btnStoreSelector" title="Pilih Lokasi Toko Belanja">
+          <span class="material-symbols-outlined text-[14px] text-citrus-dark shrink-0">storefront</span>
+          <span class="font-label-sm text-[11px] font-bold text-ink truncate" id="activeStoreName">Lotte Mart Grocery - Puri Indah</span>
+          <span class="material-symbols-outlined text-[13px] text-stone-500 shrink-0">expand_more</span>
         </button>
 
-        <!-- User Profile Trigger (Circular avatar without text overflow) -->
-        <button id="btnUserProfileTrigger"
-          class="w-8 h-8 rounded-full bg-ink text-white border border-stone-800 shadow-pos-key flex items-center justify-center cursor-pointer transition-all shrink-0 active:scale-95 hover:bg-stone-900"
-          title="Profil Akun & Keluar">
-          <span
-            class="w-6 h-6 rounded-full bg-citrus text-ink text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none"
-            id="headerUserAvatar">R</span>
-          <span class="hidden" id="headerUsername">Rian</span>
-        </button>
+        <!-- Date Picker Chip -->
+        <div class="flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-100/90 border border-stone-300 shrink-0" title="Selector Tanggal Belanja Aktif (SRS F-01)">
+          <span class="material-symbols-outlined text-[13px] text-stone-600">calendar_month</span>
+          <input type="date" id="sessionDatePicker" class="bg-transparent border-0 p-0 text-[10px] sm:text-[10.5px] font-mono font-bold text-ink cursor-pointer focus:outline-none" value="2026-10-26" />
+        </div>
+
+        <!-- Cloud Online Status Chip -->
+        <span class="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono text-[9.5px] font-black shrink-0" id="cloudStatusTag" title="Koneksi Cloud Supabase Realtime Aktif">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" id="cloudStatusDot"></span>
+          <span>ONLINE</span>
+        </span>
       </div>
     </div>
   </header>
 
   <!-- ================= MAIN SCROLLABLE VIEWPORT (ANDROID VIEWPORT) ================= -->
   <main
-    class="flex-1 w-full max-w-[480px] mx-auto bg-[#FAF8F5] pt-20 pb-40 px-3.5 sm:px-4 border-x border-[#e8dfd5] shadow-xl min-h-screen">
+    class="flex-1 w-full max-w-[480px] mx-auto bg-[#FAF8F5] pt-[104px] pb-40 px-3.5 sm:px-4 border-x border-[#e8dfd5] shadow-xl min-h-screen">
 
     <!-- ==========================================================================
          TAB 1: TROLI AKTIF (STITCH SCREEN 4)
@@ -1453,9 +1459,10 @@
 
   </main>
 
-  <!-- ================= DOCKED BOTTOM NAVIGATION (ANDROID FULL-WIDTH) ================= -->
+  <!-- ================= DOCKED BOTTOM NAVIGATION (SOLID OPAQUE NON-TRANSPARENT) ================= -->
   <nav
-    class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5]/96 backdrop-blur-xl border-t border-x border-[#e8dfd5] shadow-[0_-4px_24px_rgba(24,21,18,0.06)] pb-safe">
+    class="fixed bottom-0 left-0 right-0 max-w-[480px] mx-auto w-full z-50 bg-[#FAF8F5] border-t-2 border-x border-stone-300 shadow-[0_-8px_32px_rgba(24,21,18,0.18)] pb-safe"
+    style="background-color: #FAF8F5 !important; opacity: 1 !important;">
     <div class="px-2.5 py-1.5 flex items-center justify-around relative">
 
       <!-- 1. Troli Aktif -->
