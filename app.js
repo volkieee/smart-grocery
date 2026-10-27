@@ -70,6 +70,42 @@
   // ==========================================================================
   const ASTRO_OFFICIAL_CATALOG = [
     {
+      id: 'lotte-beras-5kg',
+      name: 'Beras 5kg',
+      category: 'Bahan Pokok',
+      unit: 'pack',
+      price: 74000,
+      originalPrice: 68000,
+      discountRaw: '',
+      badge: 'Lotte Mart • Naik',
+      emoji: '🌾',
+      description: 'Beras 5kg Lotte Mart Puri Indah (Bulan lalu Rp 68.000 -> Naik ke Rp 74.000)'
+    },
+    {
+      id: 'lotte-telur-1kg',
+      name: 'Telur 1kg',
+      category: 'Bahan Pokok',
+      unit: 'kg',
+      price: 28000,
+      originalPrice: 32000,
+      discountRaw: '',
+      badge: 'Lotte Mart • Turun',
+      emoji: '🥚',
+      description: 'Telur 1kg Lotte Mart Puri Indah (Bulan lalu Rp 32.000 -> Turun ke Rp 28.000)'
+    },
+    {
+      id: 'lotte-garam-500g',
+      name: 'Garam 500g',
+      category: 'Dapur & Bumbu',
+      unit: 'pack',
+      price: 5000,
+      originalPrice: 5000,
+      discountRaw: '',
+      badge: 'Lotte Mart • Stabil',
+      emoji: '🧂',
+      description: 'Garam 500g Lotte Mart Puri Indah (Harga stabil Rp 5.000)'
+    },
+    {
       id: 'astro-beras-5kg',
       name: 'Beras Setra Ramos BMW 5kg',
       category: 'Bahan Pokok',
@@ -457,24 +493,25 @@
 
   // Default Shopping Planner (Kebutuhan yang Direncanakan Sebelum ke Supermarket)
   const DEFAULT_SAMPLE_PLANNER = [
-    { id: 'plan-1', name: 'Beras Ramos 5kg', category: 'Bahan Pokok', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 3600000 },
-    { id: 'plan-2', name: 'Minyak Goreng Sania 2L', category: 'Bahan Pokok', unit: 'pouch', qty: 2, isPurchased: true, createdAt: Date.now() - 3000000 },
-    { id: 'plan-3', name: 'Telur Ayam Negeri 1kg', category: 'Bahan Pokok', unit: 'kg', qty: 1, isPurchased: true, createdAt: Date.now() - 2400000 },
-    { id: 'plan-4', name: 'Sabun Pembersih Lantai 750ml', category: 'Kebersihan', unit: 'botol', qty: 1, isPurchased: true, createdAt: Date.now() - 1800000 },
-    { id: 'plan-5', name: 'Mie Instan Goreng Spesial', category: 'Makanan & Minuman', unit: 'pcs', qty: 10, isPurchased: true, createdAt: Date.now() - 1200000 },
+    { id: 'plan-1', name: 'Beras 5kg', category: 'Bahan Pokok', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 3600000 },
+    { id: 'plan-2', name: 'Telur 1kg', category: 'Bahan Pokok', unit: 'kg', qty: 1, isPurchased: true, createdAt: Date.now() - 3000000 },
+    { id: 'plan-3', name: 'Garam 500g', category: 'Dapur & Bumbu', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 2400000 },
+    { id: 'plan-4', name: 'Minyak Goreng SunCo 2L', category: 'Bahan Pokok', unit: 'pouch', qty: 1, isPurchased: false, createdAt: Date.now() - 1800000 },
+    { id: 'plan-5', name: 'Mie Instan Goreng Spesial', category: 'Makanan & Minuman', unit: 'pcs', qty: 5, isPurchased: false, createdAt: Date.now() - 1200000 },
     { id: 'plan-6', name: 'Kecap Manis Refill 520ml', category: 'Dapur & Bumbu', unit: 'pouch', qty: 1, isPurchased: false, createdAt: Date.now() - 600000 },
     { id: 'plan-7', name: 'Pasta Gigi Herbal 190g', category: 'Kebersihan', unit: 'pcs', qty: 1, isPurchased: false, createdAt: Date.now() - 300000 }
   ];
 
+  // Default Cart - Skenario Uji 4: Indikator Komparasi Fluktuasi Harga Realtime Lotte Mart Puri Indah (SRS F-04)
   const DEFAULT_SAMPLE_CART = [
     {
       id: 'item-1',
-      name: 'Beras Ramos 5kg',
+      name: 'Beras 5kg',
       category: 'Bahan Pokok',
       unit: 'pack',
       qty: 1,
-      price: 75000,
-      lastMonthPrice: 72000,
+      price: 74000,
+      lastMonthPrice: 68000,
       discountRaw: '',
       isPlanned: true,
       inPhysicalCart: true,
@@ -482,25 +519,25 @@
     },
     {
       id: 'item-2',
-      name: 'Minyak Goreng Sania 2L',
+      name: 'Telur 1kg',
       category: 'Bahan Pokok',
-      unit: 'pouch',
-      qty: 2,
-      price: 38000,
-      lastMonthPrice: 36000,
-      discountRaw: '10%',
+      unit: 'kg',
+      qty: 1,
+      price: 28000,
+      lastMonthPrice: 32000,
+      discountRaw: '',
       isPlanned: true,
       inPhysicalCart: true,
       createdAt: Date.now() - 3000000
     },
     {
       id: 'item-3',
-      name: 'Telur Ayam Negeri 1kg',
-      category: 'Bahan Pokok',
-      unit: 'kg',
+      name: 'Garam 500g',
+      category: 'Dapur & Bumbu',
+      unit: 'pack',
       qty: 1,
-      price: 26000,
-      lastMonthPrice: 28000,
+      price: 5000,
+      lastMonthPrice: 5000,
       discountRaw: '',
       isPlanned: true,
       inPhysicalCart: true,
@@ -508,13 +545,13 @@
     },
     {
       id: 'item-4',
-      name: 'Sabun Pembersih Lantai 750ml',
-      category: 'Kebersihan',
-      unit: 'botol',
+      name: 'Minyak Goreng SunCo 2L',
+      category: 'Bahan Pokok',
+      unit: 'pouch',
       qty: 1,
-      price: 20000,
-      lastMonthPrice: 16000,
-      discountRaw: '50+20',
+      price: 38900,
+      lastMonthPrice: 42000,
+      discountRaw: '7%',
       isPlanned: true,
       inPhysicalCart: false,
       createdAt: Date.now() - 1800000
@@ -524,7 +561,7 @@
       name: 'Mie Instan Goreng Spesial',
       category: 'Makanan & Minuman',
       unit: 'pcs',
-      qty: 10,
+      qty: 5,
       price: 3100,
       lastMonthPrice: 3100,
       discountRaw: '',
@@ -836,10 +873,13 @@
         saveMaster();
       }
 
-      // Pastikan master items selalu memuat item acuan DT2
+      // Pastikan master items selalu memuat item acuan DT2 & Skenario Uji 4
       DEFAULT_MASTER_ITEMS.forEach(def => {
-        if (!appState.masterItems.some(m => m.name.toLowerCase() === def.name.toLowerCase())) {
+        const existing = appState.masterItems.find(m => m.name.toLowerCase() === def.name.toLowerCase());
+        if (!existing) {
           appState.masterItems.push(def);
+        } else {
+          existing.lastPrice = def.lastPrice;
         }
       });
 
@@ -1384,21 +1424,21 @@
     if (diff > 0) {
       return {
         status: 'up',
-        text: `↑ +Rp ${formatNumber(diff)} (+${pct}%)`,
+        text: `+Rp ${formatNumber(diff)} (+${pct}%)`,
         icon: 'arrow-up',
         badgeClass: 'up'
       };
     } else if (diff < 0) {
       return {
         status: 'down',
-        text: `↓ -Rp ${formatNumber(Math.abs(diff))} (${pct}%)`,
+        text: `-Rp ${formatNumber(Math.abs(diff))} (${pct}%)`,
         icon: 'arrow-down',
         badgeClass: 'down'
       };
     } else {
       return {
         status: 'stable',
-        text: `= Tetap (Rp ${formatNumber(cur)})`,
+        text: `Tetap (Rp ${formatNumber(cur)})`,
         icon: 'equal',
         badgeClass: 'stable'
       };
@@ -1538,13 +1578,57 @@
     const countAll = document.getElementById('countAll');
     if (countAll) countAll.textContent = appState.cart.length;
 
-    // Macro Allocator & Budget Screen Sync
+    // Macro Allocator & Budget Screen Sync (tabDompet)
+    const dompetLimitEl = document.getElementById('hudDompetLimitDisplay');
+    if (dompetLimitEl) dompetLimitEl.textContent = `Rp ${formatNumber(limit)}`;
+
     const planSpend = document.getElementById('budgetCurrentSpend');
     if (planSpend) planSpend.textContent = `Rp ${formatNumber(totalSpent)}`;
+
     const planRemain = document.getElementById('budgetRemainingAmount');
-    if (planRemain) planRemain.textContent = `Rp ${formatNumber(Math.max(0, remaining))}`;
+    if (planRemain) {
+      if (remaining >= 0) {
+        planRemain.textContent = `Rp ${formatNumber(remaining)}`;
+        planRemain.className = 'font-mono text-xs sm:text-sm font-black text-citrus';
+      } else {
+        planRemain.textContent = `-Rp ${formatNumber(Math.abs(remaining))}`;
+        planRemain.className = 'font-mono text-xs sm:text-sm font-black text-rose-400 animate-pulse';
+      }
+    }
+
     const planMeter = document.getElementById('budgetHealthMeter');
-    if (planMeter) planMeter.style.width = `${clampedPercentage}%`;
+    if (planMeter) {
+      planMeter.style.width = `${clampedPercentage}%`;
+      if (percentage < 90) {
+        planMeter.className = 'h-full bg-emerald-500 rounded-full transition-all duration-300';
+      } else if (percentage <= 100) {
+        planMeter.className = 'h-full bg-amber-500 rounded-full transition-all duration-300';
+      } else {
+        planMeter.className = 'h-full bg-rose-600 rounded-full transition-all duration-300';
+      }
+    }
+
+    const planPercent = document.getElementById('budgetHealthPercent');
+    if (planPercent) planPercent.textContent = `${percentage.toFixed(0)}% Terpakai`;
+
+    const budgetTabStatusPill = document.getElementById('budgetTabStatusPill');
+    if (budgetTabStatusPill) {
+      if (percentage < 90) {
+        budgetTabStatusPill.textContent = '● AMAN (<90%)';
+        budgetTabStatusPill.className = 'font-label-sm text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-extrabold';
+      } else if (percentage <= 100) {
+        budgetTabStatusPill.textContent = '▲ WASPADA (90-100%)';
+        budgetTabStatusPill.className = 'font-label-sm text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-extrabold';
+      } else {
+        budgetTabStatusPill.textContent = '🚨 DEFISIT (>100%)';
+        budgetTabStatusPill.className = 'font-label-sm text-xs px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 font-extrabold animate-pulse';
+      }
+    }
+
+    const inputBudget = document.getElementById('inputBudgetSetting');
+    if (inputBudget && document.activeElement !== inputBudget) {
+      inputBudget.value = limit;
+    }
 
     if (window.lucide) {
       lucide.createIcons();
@@ -2007,11 +2091,6 @@
         if (!targetTabId) return;
 
         let paneId = targetTabId;
-        let scrollToBudgetSetting = false;
-        if (targetTabId === 'tabDompet') {
-          paneId = 'tabBudget';
-          scrollToBudgetSetting = true;
-        }
 
         // Reset semua tombol nav ke gaya inaktif
         navButtons.forEach(b => {
@@ -2045,13 +2124,6 @@
 
         AudioEngine.playTap();
 
-        if (scrollToBudgetSetting) {
-          setTimeout(() => {
-            const inputEl = document.getElementById('inputBudgetSetting');
-            if (inputEl) inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 120);
-        }
-
         // Screen 2 Stitch: Scan Barcode & Promo Calculator
         if (paneId === 'tabScan') {
           renderBarcodePresets();
@@ -2067,7 +2139,9 @@
         }
 
         if (paneId === 'tabBudget') {
-          renderBudgetBreakdown();
+          renderShoppingPlannerSection();
+        } else if (paneId === 'tabDompet') {
+          renderDompetTab();
         } else if (paneId === 'tabHistory') {
           renderHistoryList();
           renderMasterList();
@@ -2281,17 +2355,21 @@
       }
     });
 
-    // Budget Tab Save
-    document.getElementById('btnSaveBudgetSetting').addEventListener('click', () => {
-      const val = parseFloat(document.getElementById('inputBudgetSetting').value) || 0;
-      if (val > 0) {
-        appState.budgetLimit = val;
-        saveBudget();
-        updateBudgetHud();
-        AudioEngine.playSuccess();
-        showToast('Batas anggaran disimpan', 'success');
-      }
-    });
+    // Budget Tab Save (tabDompet)
+    const btnSaveBudget = document.getElementById('btnSaveBudgetSetting');
+    if (btnSaveBudget) {
+      btnSaveBudget.addEventListener('click', () => {
+        const val = parseFloat(document.getElementById('inputBudgetSetting').value) || 0;
+        if (val > 0) {
+          appState.budgetLimit = val;
+          saveBudget();
+          updateBudgetHud();
+          renderBudgetBreakdown();
+          AudioEngine.playSuccess();
+          showToast('Batas anggaran dompet berhasil disimpan', 'success');
+        }
+      });
+    }
 
     // Cloud Sync Buttons
     const btnSyncHeader = document.getElementById('btnSyncCloudHeader');
@@ -3434,8 +3512,14 @@
     AudioEngine.playTap();
   };
   window.setBudgetSetting = function (amount) {
-    document.getElementById('inputBudgetSetting').value = amount;
+    const el = document.getElementById('inputBudgetSetting');
+    if (el) el.value = amount;
+    appState.budgetLimit = amount;
+    saveBudget();
+    updateBudgetHud();
+    renderBudgetBreakdown();
     AudioEngine.playTap();
+    showToast(`Batas anggaran disetel: Rp ${formatNumber(amount)}`, 'info');
   };
 
   // ==========================================================================
@@ -3680,12 +3764,12 @@
   // 1-Click Paket Hemat Anak Kos Astro (Beras, Minyak, Telur, Indomie, Susu, Rinso)
   function loadAstroKosStarterPack() {
     const kosPicks = [
-      'astro-beras-5kg',
+      'lotte-beras-5kg',
+      'lotte-telur-1kg',
+      'lotte-garam-500g',
       'astro-minyak-sunco-2l',
-      'astro-telur-negeri-10',
       'astro-indomie-goreng-5',
-      'astro-ultra-fullcream-1l',
-      'astro-rinso-molto-750'
+      'astro-ultra-fullcream-1l'
     ];
 
     kosPicks.forEach(id => {
@@ -4454,10 +4538,18 @@
   }
 
   // ==========================================================================
-  // BUDGET TAB BREAKDOWN
+  // BUDGET TAB BREAKDOWN & DOMPET TAB
   // ==========================================================================
+  function renderDompetTab() {
+    updateBudgetHud();
+    renderBudgetBreakdown();
+  }
+
   function renderBudgetBreakdown() {
-    document.getElementById('inputBudgetSetting').value = appState.budgetLimit;
+    const inputEl = document.getElementById('inputBudgetSetting');
+    if (inputEl && document.activeElement !== inputEl) {
+      inputEl.value = appState.budgetLimit;
+    }
     const container = document.getElementById('categoryBreakdownList');
     if (!container) return;
 
@@ -6073,7 +6165,18 @@
 
     // 7. Profile Header Trigger
     if (btnProfileTrigger) {
-      btnProfileTrigger.addEventListener('click', () => {
+      btnProfileTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        AudioEngine.playTap();
+        openUserProfileModal();
+      });
+    }
+
+    const headerAvatarEl = document.getElementById('headerUserAvatar');
+    if (headerAvatarEl) {
+      headerAvatarEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         AudioEngine.playTap();
         openUserProfileModal();
       });
@@ -6083,6 +6186,7 @@
     if (btnCloseProfile && modalProfile) {
       btnCloseProfile.addEventListener('click', () => {
         modalProfile.classList.add('hidden');
+        modalProfile.style.display = 'none';
       });
     }
 
@@ -6090,6 +6194,7 @@
       modalProfile.addEventListener('click', (e) => {
         if (e.target === modalProfile) {
           modalProfile.classList.add('hidden');
+          modalProfile.style.display = 'none';
         }
       });
     }
@@ -6098,9 +6203,13 @@
     if (btnSwitchAccount) {
       btnSwitchAccount.addEventListener('click', () => {
         AudioEngine.playTap();
-        if (modalProfile) modalProfile.classList.add('hidden');
+        if (modalProfile) {
+          modalProfile.classList.add('hidden');
+          modalProfile.style.display = 'none';
+        }
         if (loginScreen) {
           loginScreen.classList.remove('hidden');
+          loginScreen.style.display = '';
           renderSavedAccountsList();
           if (inputUsername) {
             inputUsername.focus();
@@ -6236,15 +6345,33 @@
     const avatarEl = document.getElementById('headerUserAvatar');
     const nameEl = document.getElementById('headerUsername');
     if (!appState.currentUser) {
-      if (avatarEl) avatarEl.textContent = '?';
+      if (avatarEl) {
+        avatarEl.textContent = '?';
+        avatarEl.className = 'w-6 h-6 rounded-full bg-stone-300 text-stone-700 text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      }
       if (nameEl) nameEl.textContent = 'Masuk';
       return;
     }
     if (avatarEl) {
       if (appState.currentUser.avatarUrl) {
-        avatarEl.innerHTML = `<img src="${appState.currentUser.avatarUrl}" alt="Avatar" class="w-full h-full object-cover rounded-xl" referrerpolicy="no-referrer" />`;
+        avatarEl.innerHTML = `<img src="${appState.currentUser.avatarUrl}" alt="Avatar" class="w-full h-full object-cover rounded-full" referrerpolicy="no-referrer" />`;
       } else {
         avatarEl.textContent = appState.currentUser.avatarText || 'U';
+      }
+      if (appState.currentUser.avatarClass === 'avatar-green') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-emerald-600 text-white text-[12px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      } else if (appState.currentUser.avatarClass === 'avatar-gray') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-stone-600 text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      } else if (appState.currentUser.avatarClass === 'avatar-dark') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-stone-900 text-white text-[12px] font-black flex items-center justify-center shrink-0 shadow-sm border border-stone-700 pointer-events-none';
+      } else if (appState.currentUser.avatarClass === 'avatar-amber') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-amber-500 text-white text-[12px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      } else if (appState.currentUser.avatarClass === 'avatar-brown') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-amber-900 text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      } else if (appState.currentUser.provider === 'google') {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-blue-600 text-white text-[12px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
+      } else {
+        avatarEl.className = 'w-6 h-6 rounded-full bg-citrus text-ink text-[11px] font-black flex items-center justify-center shrink-0 shadow-sm pointer-events-none';
       }
     }
     if (nameEl) nameEl.textContent = appState.currentUser.displayName || appState.currentUser.username || 'User';
@@ -6258,6 +6385,7 @@
       const loginScreen = document.getElementById('loginScreen');
       if (loginScreen) {
         loginScreen.classList.remove('hidden');
+        loginScreen.style.display = '';
         renderSavedAccountsList();
       }
       return;
@@ -6276,6 +6404,17 @@
         avatar.innerHTML = `<img src="${appState.currentUser.avatarUrl}" alt="Avatar" class="w-full h-full object-cover rounded-2xl" referrerpolicy="no-referrer" />`;
       } else {
         avatar.textContent = appState.currentUser.avatarText || 'U';
+      }
+      if (appState.currentUser.avatarClass === 'avatar-green') {
+        avatar.className = 'w-14 h-14 rounded-2xl bg-emerald-600 text-white text-2xl font-bold flex items-center justify-center shadow-md shrink-0';
+      } else if (appState.currentUser.avatarClass === 'avatar-amber') {
+        avatar.className = 'w-14 h-14 rounded-2xl bg-amber-500 text-white text-2xl font-bold flex items-center justify-center shadow-md shrink-0';
+      } else if (appState.currentUser.avatarClass === 'avatar-dark') {
+        avatar.className = 'w-14 h-14 rounded-2xl bg-stone-900 text-white text-2xl font-bold flex items-center justify-center shadow-md shrink-0 border border-stone-700';
+      } else if (isGoogle) {
+        avatar.className = 'w-14 h-14 rounded-2xl bg-blue-600 text-white text-2xl font-bold flex items-center justify-center shadow-md shrink-0';
+      } else {
+        avatar.className = 'w-14 h-14 rounded-2xl bg-gradient-to-tr from-primary to-secondary text-secondary-fixed text-xl font-bold flex items-center justify-center shadow-md shrink-0';
       }
     }
     if (displayName) displayName.textContent = appState.currentUser.displayName || appState.currentUser.username;
@@ -6301,6 +6440,7 @@
     }
 
     modalProfile.classList.remove('hidden');
+    modalProfile.style.display = 'flex';
   }
 
   function renderSavedAccountsList() {
