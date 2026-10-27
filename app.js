@@ -591,7 +591,9 @@
     isCloudConnected: false,
     hasInitialCloudPulled: false,
     lastCartPushTimestamp: 0,
-    lastPlannerPushTimestamp: 0
+    lastPlannerPushTimestamp: 0,
+    deviceId: 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now(),
+    realtimeChannel: null
   };
 
   let astroCheckoutState = {
@@ -908,11 +910,121 @@
     }
   }
 
+  // ==========================================================================
+  // MULTI-DEVICE REALTIME BUS & SYNC ENGINE (INSTANT PHONE <-> LAPTOP REALTIME)
+  // ==========================================================================
+  let localSyncChannel = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      localSyncChannel = new BroadcastChannel('smart_grocery_multidevice_bus');
+      localSyncChannel.onmessage = (event) => {
+        handleIncomingRealtimePayload(event.data);
+      };
+    }
+  } catch (e) {}
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (e) => {
+      if (e.key && e.key.includes('smart_grocery_cart')) {
+        loadDataFromStorage();
+        renderCart();
+        flashRealtimeSyncIndicator();
+      } else if (e.key && e.key.includes('smart_grocery_planner')) {
+        loadDataFromStorage();
+        renderShoppingPlannerSection();
+        flashRealtimeSyncIndicator();
+      } else if (e.key && e.key.includes('smart_grocery_budget')) {
+        loadDataFromStorage();
+        updateBudgetHud();
+        renderBudgetBreakdown();
+        flashRealtimeSyncIndicator();
+      }
+    });
+  }
+
+  function broadcastRealtimeUpdate(type, data) {
+    const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+    const message = {
+      sourceDeviceId: appState.deviceId,
+      userSyncId: userSyncId,
+      type: type,
+      data: data,
+      timestamp: Date.now()
+    };
+
+    // 1. Broadcast locally to other tabs/windows
+    try {
+      if (localSyncChannel) localSyncChannel.postMessage(message);
+    } catch (e) {}
+
+    // 2. Broadcast to other devices over Supabase Realtime WebSocket (< 100ms latency)
+    if (appState.realtimeChannel) {
+      try {
+        appState.realtimeChannel.send({
+          type: 'broadcast',
+          event: 'MULTIDEVICE_SYNC',
+          payload: message
+        });
+      } catch (e) {
+        console.warn('Realtime broadcast error:', e);
+      }
+    }
+  }
+
+  function handleIncomingRealtimePayload(payload) {
+    if (!payload || payload.sourceDeviceId === appState.deviceId) return;
+    const myUserSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+    if (payload.userSyncId && payload.userSyncId !== myUserSyncId) return;
+
+    let needsRender = false;
+
+    if (payload.type === 'cart' || payload.type === 'all') {
+      if (Array.isArray(payload.data?.cart)) {
+        appState.cart = payload.data.cart;
+        saveCart(true); // simpan lokal tanpa push balik
+        needsRender = true;
+      }
+    }
+
+    if (payload.type === 'planner' || payload.type === 'all') {
+      if (Array.isArray(payload.data?.planner)) {
+        appState.planner = payload.data.planner;
+        savePlanner(true);
+        needsRender = true;
+      }
+    }
+
+    if (payload.type === 'budget' || payload.type === 'all') {
+      if (payload.data?.budgetLimit) {
+        appState.budgetLimit = Number(payload.data.budgetLimit);
+        saveBudget(true);
+        needsRender = true;
+      }
+    }
+
+    if (needsRender) {
+      renderAll();
+      flashRealtimeSyncIndicator();
+    }
+  }
+
+  function flashRealtimeSyncIndicator() {
+    const tag = document.getElementById('cloudStatusTag');
+    if (tag) {
+      tag.classList.add('bg-emerald-300', 'text-emerald-950', 'ring-2', 'ring-emerald-400');
+      tag.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-700 animate-ping"></span><span>SYNCED</span>`;
+      setTimeout(() => {
+        tag.classList.remove('bg-emerald-300', 'text-emerald-950', 'ring-2', 'ring-emerald-400');
+        tag.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="cloudStatusDot"></span><span>ONLINE</span>`;
+      }, 1400);
+    }
+  }
+
   let syncCartTimer = null;
   function pushActiveCartToCloud() {
-    if (!appState.supabaseClient) return;
     clearTimeout(syncCartTimer);
     syncCartTimer = setTimeout(async () => {
+      if (!appState.supabaseClient) return;
       try {
         const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
         const cartSyncId = 'active_cart_' + userSyncId;
@@ -930,14 +1042,14 @@
       } catch (e) {
         console.warn('Realtime cart push error:', e);
       }
-    }, 350);
+    }, 250);
   }
 
   let syncPlannerTimer = null;
   function pushActivePlannerToCloud() {
-    if (!appState.supabaseClient) return;
     clearTimeout(syncPlannerTimer);
     syncPlannerTimer = setTimeout(async () => {
+      if (!appState.supabaseClient) return;
       try {
         const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
         const plannerSyncId = 'active_planner_' + userSyncId;
@@ -955,14 +1067,14 @@
       } catch (e) {
         console.warn('Realtime planner push error:', e);
       }
-    }, 350);
+    }, 250);
   }
 
   let syncSettingsTimer = null;
   function pushUserSettingsToCloud() {
-    if (!appState.supabaseClient) return;
     clearTimeout(syncSettingsTimer);
     syncSettingsTimer = setTimeout(async () => {
+      if (!appState.supabaseClient) return;
       try {
         const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
         await appState.supabaseClient.from('user_settings').upsert({
@@ -974,27 +1086,39 @@
       } catch (e) {
         console.warn('Realtime settings push error:', e);
       }
-    }, 400);
+    }, 300);
   }
 
   function saveCart(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.CART), JSON.stringify(appState.cart));
-    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
-      pushActiveCartToCloud();
+    if (!skipCloud) {
+      broadcastRealtimeUpdate('cart', { cart: appState.cart, budgetLimit: appState.budgetLimit });
+      if (appState.supabaseClient) {
+        pushActiveCartToCloud();
+      }
     }
   }
+
   function savePlanner(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.PLANNER), JSON.stringify(appState.planner));
-    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
-      pushActivePlannerToCloud();
+    if (!skipCloud) {
+      broadcastRealtimeUpdate('planner', { planner: appState.planner });
+      if (appState.supabaseClient) {
+        pushActivePlannerToCloud();
+      }
     }
   }
+
   function saveBudget(skipCloud = false) {
     localStorage.setItem(getUserKey(STORAGE_KEYS.BUDGET), appState.budgetLimit.toString());
-    if (!skipCloud && appState.supabaseClient && appState.hasInitialCloudPulled) {
-      pushUserSettingsToCloud();
+    if (!skipCloud) {
+      broadcastRealtimeUpdate('budget', { budgetLimit: appState.budgetLimit, soundEnabled: appState.soundEnabled });
+      if (appState.supabaseClient) {
+        pushUserSettingsToCloud();
+      }
     }
   }
+
   function saveHistory() {
     localStorage.setItem(getUserKey(STORAGE_KEYS.HISTORY), JSON.stringify(appState.history));
   }
@@ -1020,6 +1144,8 @@
         appState.isCloudConnected = true;
         updateCloudStatusUI(true);
         subscribeToRealtimeChanges();
+        startRealtimeHeartbeat();
+
         // Listen to official Supabase Auth state changes (Google OAuth callback)
         appState.supabaseClient.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_OUT' || localStorage.getItem('sg_explicit_logout') === 'true') {
@@ -1066,21 +1192,70 @@
   function subscribeToRealtimeChanges() {
     if (!appState.supabaseClient) return;
     try {
-      appState.supabaseClient
-        .channel('public:groceries_realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'receipts' }, (payload) => {
+      if (appState.realtimeChannel) {
+        try {
+          appState.supabaseClient.removeChannel(appState.realtimeChannel);
+        } catch (e) {}
+      }
+
+      const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
+      const channelName = 'room_' + userSyncId;
+
+      appState.realtimeChannel = appState.supabaseClient
+        .channel(channelName, {
+          config: {
+            broadcast: { self: false }
+          }
+        })
+        .on('broadcast', { event: 'MULTIDEVICE_SYNC' }, (payload) => {
+          if (payload && payload.payload) {
+            handleIncomingRealtimePayload(payload.payload);
+          }
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'receipts' }, () => {
           pullDataFromSupabase(true);
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'master_products' }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'master_products' }, () => {
           pullDataFromSupabase(true);
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings' }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings' }, () => {
           pullDataFromSupabase(true);
         })
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            updateCloudStatusUI(true);
+          }
+        });
     } catch (e) {
       console.warn('Realtime channel error:', e);
     }
+  }
+
+  // Active Realtime Heartbeat Polling: syncs every 2.5s if visible
+  let realtimeHeartbeatTimer = null;
+  function startRealtimeHeartbeat() {
+    if (realtimeHeartbeatTimer) clearInterval(realtimeHeartbeatTimer);
+    realtimeHeartbeatTimer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && appState.supabaseClient && appState.isCloudConnected) {
+        pullDataFromSupabase(true);
+      }
+    }, 2500);
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && appState.supabaseClient) {
+        pullDataFromSupabase(true);
+      }
+    });
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('focus', () => {
+      if (appState.supabaseClient) {
+        pullDataFromSupabase(true);
+      }
+    });
   }
 
   function updateCloudStatusUI(isConnected) {
@@ -6273,8 +6448,9 @@
     // Render all components
     renderAll();
 
-    // Immediately pull latest real-time cloud data (cart, planner, budget)
+    // Immediately pull latest real-time cloud data (cart, planner, budget) and subscribe to user channel
     if (appState.supabaseClient) {
+      subscribeToRealtimeChanges();
       pullDataFromSupabase(true).then(() => {
         appState.hasInitialCloudPulled = true;
       });
