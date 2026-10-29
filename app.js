@@ -493,9 +493,6 @@
 
   // Default Shopping Planner (Kebutuhan yang Direncanakan Sebelum ke Supermarket)
   const DEFAULT_SAMPLE_PLANNER = [
-    { id: 'plan-1', name: 'Beras 5kg', category: 'Bahan Pokok', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 3600000 },
-    { id: 'plan-2', name: 'Telur 1kg', category: 'Bahan Pokok', unit: 'kg', qty: 1, isPurchased: true, createdAt: Date.now() - 3000000 },
-    { id: 'plan-3', name: 'Garam 500g', category: 'Dapur & Bumbu', unit: 'pack', qty: 1, isPurchased: true, createdAt: Date.now() - 2400000 },
     { id: 'plan-4', name: 'Minyak Goreng SunCo 2L', category: 'Bahan Pokok', unit: 'pouch', qty: 1, isPurchased: false, createdAt: Date.now() - 1800000 },
     { id: 'plan-5', name: 'Mie Instan Goreng Spesial', category: 'Makanan & Minuman', unit: 'pcs', qty: 5, isPurchased: false, createdAt: Date.now() - 1200000 },
     { id: 'plan-6', name: 'Kecap Manis Refill 520ml', category: 'Dapur & Bumbu', unit: 'pouch', qty: 1, isPurchased: false, createdAt: Date.now() - 600000 },
@@ -583,6 +580,8 @@
     searchQuery: '',
     astroCategory: 'ALL',
     astroSearchQuery: '',
+    astroPage: 1,
+    astroItemsPerPage: 6,
     editingItemId: null,
     soundEnabled: true,
     supabaseUrl: '',
@@ -843,7 +842,7 @@
         const legacyMaster = localStorage.getItem(STORAGE_KEYS.MASTER);
 
         appState.cart = legacyCart ? JSON.parse(legacyCart) : DEFAULT_SAMPLE_CART;
-        appState.planner = legacyPlanner ? JSON.parse(legacyPlanner) : DEFAULT_SAMPLE_PLANNER;
+        appState.planner = (legacyPlanner ? JSON.parse(legacyPlanner) : DEFAULT_SAMPLE_PLANNER).filter(p => !p.isPurchased);
         appState.budgetLimit = legacyBudget ? Number(legacyBudget) : 350000;
         appState.history = legacyHistory ? JSON.parse(legacyHistory) : [];
         appState.masterItems = legacyMaster ? JSON.parse(legacyMaster) : DEFAULT_MASTER_ITEMS;
@@ -856,10 +855,25 @@
       } else if (savedCart !== null) {
         // User already has isolated data saved
         appState.cart = JSON.parse(savedCart);
-        appState.planner = savedPlanner ? JSON.parse(savedPlanner) : [];
+        appState.planner = (savedPlanner ? JSON.parse(savedPlanner) : []).filter(p => !p.isPurchased);
         appState.budgetLimit = savedBudget ? Number(savedBudget) : 350000;
         appState.history = savedHistory ? JSON.parse(savedHistory) : [];
         appState.masterItems = savedMaster ? JSON.parse(savedMaster) : DEFAULT_MASTER_ITEMS;
+
+        // Sanitize history to prevent foreign receipts leakage across accounts
+        const currentSlug = appState.currentUser ? appState.currentUser.slug : 'rian';
+        const isRianUser = currentSlug === 'rian';
+        if (Array.isArray(appState.history)) {
+          const originalLen = appState.history.length;
+          appState.history = appState.history.filter(rcp => {
+            if (rcp.userSlug) return rcp.userSlug === currentSlug;
+            if (rcp.id && rcp.id.startsWith('rcp_')) return rcp.id.startsWith('rcp_' + currentSlug + '_');
+            return isRianUser;
+          });
+          if (appState.history.length !== originalLen) {
+            saveHistory();
+          }
+        }
       } else {
         // Brand new user (e.g. Budi, Siti, etc.) -> Clean slate! No data pollution
         appState.cart = [];
@@ -1318,20 +1332,33 @@
         await appState.supabaseClient.from('master_products').upsert(masterPayload, { onConflict: 'name' });
       }
 
-      // 3. Sync Receipts (excluding active carts/planners)
-      if (appState.history.length > 0) {
-        const receiptsPayload = appState.history
-          .filter(rcp => !rcp.id.startsWith('active_cart_') && !rcp.id.startsWith('active_planner_'))
-          .map(rcp => ({
-            id: rcp.id,
+      // 3. Sync Receipts (excluding active carts/planners, strictly isolated for this user)
+      const userSlug = appState.currentUser ? appState.currentUser.slug : 'rian';
+      const myReceipts = appState.history.filter(rcp => {
+        if (rcp.id.startsWith('active_cart_') || rcp.id.startsWith('active_planner_')) return false;
+        if (rcp.userSlug) return rcp.userSlug === userSlug;
+        if (rcp.id.startsWith('rcp_')) return rcp.id.startsWith('rcp_' + userSlug + '_');
+        return userSlug === 'rian';
+      });
+
+      if (myReceipts.length > 0) {
+        const receiptsPayload = myReceipts.map(rcp => {
+          const syncId = rcp.id.startsWith('rcp_') ? rcp.id : ('rcp_' + userSlug + '_' + rcp.id);
+          return {
+            id: syncId,
             date_label: rcp.date,
             budget_limit: rcp.budgetLimit,
             grand_total: rcp.grandTotal,
             total_saved: rcp.totalSaved,
             item_count: rcp.itemCount,
-            items: rcp.items,
+            items: {
+              userSlug: userSlug,
+              customerName: rcp.customerName || (appState.currentUser ? (appState.currentUser.displayName || appState.currentUser.username) : 'Pelanggan'),
+              lines: Array.isArray(rcp.items) ? rcp.items : []
+            },
             created_at: new Date().toISOString()
-          }));
+          };
+        });
         if (receiptsPayload.length > 0) {
           await appState.supabaseClient.from('receipts').upsert(receiptsPayload, { onConflict: 'id' });
         }
@@ -1406,18 +1433,49 @@
         .order('created_at', { ascending: false });
 
       if (!rcpErr && receiptsData && receiptsData.length > 0) {
-        // Struk riwayat transaksi selesai (filter out active cart / planner)
-        const actualReceipts = receiptsData.filter(r => !r.id.startsWith('active_cart_') && !r.id.startsWith('active_planner_'));
-        appState.history = actualReceipts.map(r => ({
-          id: r.id,
-          date: r.date_label,
-          budgetLimit: Number(r.budget_limit),
-          grandTotal: Number(r.grand_total),
-          totalSaved: Number(r.total_saved),
-          itemCount: Number(r.item_count),
-          items: r.items
-        }));
+        // Struk riwayat transaksi selesai (HANYA milik akun yang sedang aktif)
+        const userSlug = appState.currentUser ? appState.currentUser.slug : 'rian';
+        const isRianAccount = userSlug === 'rian';
+        const userPrefix = 'rcp_' + userSlug + '_';
+
+        const myReceiptRows = receiptsData.filter(r => {
+          if (r.id.startsWith('active_cart_') || r.id.startsWith('active_planner_')) return false;
+          // Match receipt ID yang terisolasi dengan user prefix
+          if (r.id.startsWith('rcp_')) {
+            return r.id.startsWith(userPrefix);
+          }
+          // Match jika di payload items terdapat userSlug
+          if (r.items && !Array.isArray(r.items) && r.items.userSlug) {
+            return r.items.userSlug === userSlug;
+          }
+          // Struk bawaan lama hanya untuk akun rian
+          return isRianAccount;
+        });
+
+        appState.history = myReceiptRows.map(r => {
+          let itemsList = [];
+          let custName = '';
+          if (Array.isArray(r.items)) {
+            itemsList = r.items;
+          } else if (r.items && Array.isArray(r.items.lines)) {
+            itemsList = r.items.lines;
+            custName = r.items.customerName || '';
+          }
+
+          return {
+            id: r.id,
+            userSlug: userSlug,
+            customerName: custName,
+            date: r.date_label,
+            budgetLimit: Number(r.budget_limit),
+            grandTotal: Number(r.grand_total),
+            totalSaved: Number(r.total_saved),
+            itemCount: Number(r.item_count),
+            items: itemsList
+          };
+        });
         saveHistory();
+        renderHistoryList();
 
         // Sinkronisasi Troli Aktif Pengguna dari Cloud
         const userSyncId = 'user_' + (appState.currentUser ? appState.currentUser.slug : 'rian');
@@ -1820,6 +1878,8 @@
     const headerCount = document.getElementById('cartHeaderPillCount');
     if (headerCount) headerCount.textContent = `${appState.cart.length} LOT`;
 
+    renderShoppingPlannerSection();
+
     let filteredItems = appState.cart.filter(item => {
       const matchCat = appState.activeCategory === 'ALL' || item.category === appState.activeCategory;
       const matchSearch = appState.searchQuery === '' || item.name.toLowerCase().includes(appState.searchQuery.toLowerCase());
@@ -2014,6 +2074,7 @@
     AudioEngine.playTap();
     saveCart();
     renderCart();
+    renderShoppingPlannerSection();
     showToast(`"${item.name}" dihapus dari troli`, 'warning');
   };
 
@@ -2611,7 +2672,7 @@
       saveCart();
       renderCart();
       AudioEngine.playSuccess();
-      showToast('Data kebutuhan Rian dimuat', 'success');
+      showToast('Contoh kebutuhan belanja dimuat', 'success');
     });
 
     // Header Utility Buttons
@@ -3752,7 +3813,7 @@
   };
 
   // ==========================================================================
-  // ASTRO OFFICIAL CATALOG SHELF MODULE
+  // ASTRO OFFICIAL CATALOG SHELF MODULE (WITH TACTILE PAGINATION)
   // ==========================================================================
   function initAstroCatalogModule() {
     // 1. Astro Category Filter Chips
@@ -3767,6 +3828,7 @@
         chip.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
 
         appState.astroCategory = chip.getAttribute('data-astro-cat') || 'ALL';
+        appState.astroPage = 1; // Reset to page 1 on category change
         AudioEngine.playTap();
         renderAstroCatalog();
       });
@@ -3778,6 +3840,7 @@
     if (searchInput) {
       searchInput.addEventListener('input', () => {
         appState.astroSearchQuery = searchInput.value.trim().toLowerCase();
+        appState.astroPage = 1; // Reset to page 1 on search
         if (clearBtn) {
           clearBtn.classList.toggle('hidden', appState.astroSearchQuery === '');
         }
@@ -3789,6 +3852,7 @@
       clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         appState.astroSearchQuery = '';
+        appState.astroPage = 1; // Reset to page 1 on clear
         clearBtn.classList.add('hidden');
         renderAstroCatalog();
       });
@@ -3806,6 +3870,7 @@
 
   function renderAstroCatalog() {
     const grid = document.getElementById('astroCatalogGrid');
+    const paginationContainer = document.getElementById('astroCatalogPagination');
     if (!grid) return;
 
     let items = ASTRO_OFFICIAL_CATALOG;
@@ -3832,10 +3897,28 @@
           <p class="text-[11px] text-outline">Coba kata kunci lain seperti "Beras", "Minyak", atau "Susu"</p>
         </div>
       `;
+      if (paginationContainer) paginationContainer.innerHTML = '';
       return;
     }
 
-    grid.innerHTML = items.map(prod => {
+    // Pagination calculations (6 items per page for clean mobile grid without long scrolling)
+    const itemsPerPage = appState.astroItemsPerPage || 6;
+    const totalItems = items.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+    // Ensure valid page range
+    if (!appState.astroPage || appState.astroPage < 1) {
+      appState.astroPage = 1;
+    } else if (appState.astroPage > totalPages) {
+      appState.astroPage = totalPages;
+    }
+
+    const currentPage = appState.astroPage;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const paginatedItems = items.slice(startIndex, endIndex);
+
+    grid.innerHTML = paginatedItems.map(prod => {
       // Check if product is already in active cart
       const inCart = appState.cart.find(c => c.astroId === prod.id || c.name.toLowerCase() === prod.name.toLowerCase());
       const inCartQty = inCart ? inCart.qty : 0;
@@ -3881,7 +3964,108 @@
         </div>
       `;
     }).join('');
+
+    // Render tactile pagination controls
+    if (paginationContainer) {
+      if (totalPages <= 1) {
+        paginationContainer.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] font-mono text-stone-500 py-1 px-1">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Menampilkan seluruh <strong>${totalItems}</strong> produk</span>
+            </span>
+          </div>
+        `;
+      } else {
+        let pageButtonsHtml = '';
+        for (let p = 1; p <= totalPages; p++) {
+          const isActive = p === currentPage;
+          pageButtonsHtml += `
+            <button type="button"
+              class="w-8 h-8 rounded-xl font-mono text-xs font-black transition-all flex items-center justify-center cursor-pointer select-none ${
+                isActive
+                  ? 'bg-ink text-citrus border-2 border-stone-900 shadow-pos-key scale-105'
+                  : 'bg-white text-stone-700 border border-stone-300 hover:bg-stone-100 hover:border-stone-400 active:scale-95'
+              }"
+              onclick="window.changeAstroPage(${p})"
+              title="Ke Halaman ${p}">
+              ${p}
+            </button>
+          `;
+        }
+
+        const isFirst = currentPage === 1;
+        const isLast = currentPage === totalPages;
+
+        paginationContainer.innerHTML = `
+          <div class="flex flex-col gap-2 pt-1">
+            <!-- Row 1: Item Range & Page Count Summary -->
+            <div class="flex items-center justify-between text-[11px] font-mono text-stone-600 px-0.5">
+              <span class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-citrus animate-pulse"></span>
+                <span>Produk <strong>${startIndex + 1}-${endIndex}</strong> dari <strong>${totalItems}</strong></span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200 text-stone-700 font-bold text-[10px]">
+                Halaman <strong>${currentPage}</strong> / ${totalPages}
+              </span>
+            </div>
+
+            <!-- Row 2: Tactile Pagination Bar with Prev, Numeric Buttons, Next -->
+            <div class="flex items-center justify-between gap-1.5 bg-[#F4EFEA] p-1.5 rounded-2xl border border-stone-300/80 shadow-2xs">
+              <!-- Prev Button -->
+              <button type="button"
+                class="px-2.5 py-1.5 rounded-xl font-mono text-xs font-bold flex items-center gap-1 transition-all select-none ${
+                  isFirst
+                    ? 'opacity-35 cursor-not-allowed bg-stone-200/50 text-stone-400 border border-transparent'
+                    : 'bg-white text-stone-800 border border-stone-300 shadow-xs hover:bg-stone-50 active:scale-95 cursor-pointer'
+                }"
+                ${isFirst ? 'disabled' : `onclick="window.changeAstroPage(${currentPage - 1})"`}
+                title="Halaman Sebelumnya">
+                <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                <span class="text-[11px] font-bold">Prev</span>
+              </button>
+
+              <!-- Page Number Buttons -->
+              <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+                ${pageButtonsHtml}
+              </div>
+
+              <!-- Next Button -->
+              <button type="button"
+                class="px-2.5 py-1.5 rounded-xl font-mono text-xs font-bold flex items-center gap-1 transition-all select-none ${
+                  isLast
+                    ? 'opacity-35 cursor-not-allowed bg-stone-200/50 text-stone-400 border border-transparent'
+                    : 'bg-white text-stone-800 border border-stone-300 shadow-xs hover:bg-stone-50 active:scale-95 cursor-pointer'
+                }"
+                ${isLast ? 'disabled' : `onclick="window.changeAstroPage(${currentPage + 1})"`}
+                title="Halaman Selanjutnya">
+                <span class="text-[11px] font-bold">Next</span>
+                <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
   }
+
+  // Window helper for page change
+  window.changeAstroPage = function (page) {
+    if (typeof page !== 'number') page = parseInt(page, 10);
+    if (isNaN(page)) return;
+    appState.astroPage = page;
+    AudioEngine.playTap();
+    renderAstroCatalog();
+
+    // Smooth scroll back to top of catalog section so user sees the new page products immediately
+    const catalogContainer = document.getElementById('sectionAstroCatalog');
+    if (catalogContainer) {
+      const rect = catalogContainer.getBoundingClientRect();
+      if (rect.top < 60) {
+        catalogContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   // 1-Click add to cart from Astro Catalog
   window.addAstroToCart = function (astroId, delta = 1) {
@@ -4439,7 +4623,11 @@
     const serviceFee = astroCheckoutState.voucherCode === 'ONGKIRGRATIS' ? 0 : 1000;
     const grandTotal = Math.max(0, subtotal - discount + serviceFee);
 
-    const trxId = 'LOTTE-20261026-' + Math.floor(10000 + Math.random() * 90000);
+    const customerName = appState.currentUser?.displayName || appState.currentUser?.username || 'Rian Pratama';
+    const userSlug = (appState.currentUser && appState.currentUser.slug) ? appState.currentUser.slug : 'rian';
+
+    const rawTrxId = 'LOTTE-20261026-' + Math.floor(10000 + Math.random() * 90000);
+    const isolatedTrxId = 'rcp_' + userSlug + '_' + rawTrxId;
     const nowStr = new Date().toLocaleDateString('id-ID', {
       weekday: 'long',
       year: 'numeric',
@@ -4448,8 +4636,6 @@
       hour: '2-digit',
       minute: '2-digit'
     }) + ' WIB';
-
-    const customerName = appState.currentUser?.displayName || appState.currentUser?.username || 'Rian Pratama';
 
     const methodLabels = {
       'qris': 'QRIS Lotte Mart Instant (LUNAS)',
@@ -4472,7 +4658,7 @@
     const elCashDetail = document.getElementById('receiptCashDetailRow');
     const elCashChange = document.getElementById('receiptCashChangeText');
 
-    if (elTrx) elTrx.textContent = trxId;
+    if (elTrx) elTrx.textContent = rawTrxId;
     if (elTime) elTime.textContent = nowStr;
     if (elCust) elCust.textContent = customerName;
     if (elMethod) elMethod.textContent = paymentMethodLabel;
@@ -4520,7 +4706,10 @@
 
     // Save to user's isolated history
     const newReceipt = {
-      id: trxId,
+      id: isolatedTrxId,
+      rawTrxId: rawTrxId,
+      userSlug: userSlug,
+      customerName: customerName,
       date: nowStr,
       budgetLimit: appState.budgetLimit,
       grandTotal,
@@ -4539,8 +4728,9 @@
 
     renderCart();
     renderAstroCatalog();
+    renderHistoryList();
 
-    // Auto push receipt to Supabase if connected
+    // Auto push receipt to Supabase if connected (strictly isolated per user)
     if (appState.supabaseClient) {
       appState.supabaseClient.from('receipts').insert({
         id: newReceipt.id,
@@ -4549,7 +4739,11 @@
         grand_total: newReceipt.grandTotal,
         total_saved: newReceipt.totalSaved,
         item_count: newReceipt.itemCount,
-        items: newReceipt.items,
+        items: {
+          userSlug: userSlug,
+          customerName: customerName,
+          lines: receiptItems
+        },
         created_at: new Date().toISOString()
       }).then(() => { });
     }
@@ -4591,33 +4785,52 @@
     const container = document.getElementById('historyListContainer');
     if (!container) return;
 
-    if (appState.history.length === 0) {
+    const currentSlug = appState.currentUser ? appState.currentUser.slug : 'rian';
+    const isRian = currentSlug === 'rian';
+
+    const visibleHistory = (appState.history || []).filter(rcp => {
+      if (rcp.userSlug) return rcp.userSlug === currentSlug;
+      if (rcp.id && rcp.id.startsWith('rcp_')) return rcp.id.startsWith('rcp_' + currentSlug + '_');
+      return isRian;
+    });
+
+    if (visibleHistory.length === 0) {
+      const activeName = appState.currentUser ? (appState.currentUser.displayName || appState.currentUser.username) : 'Rian';
       container.innerHTML = `
-        <div class="neo-empty-box">
-          <div class="empty-glyph">🧾</div>
-          <h3>Belum Ada Struk Riwayat</h3>
-          <p>Setelah belanja selesai, klik "Selesaikan Belanja" untuk menyimpan struk digital di sini.</p>
+        <div class="neo-empty-box p-6 text-center bg-white rounded-2xl border border-stone-200 shadow-sm">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-2.5 text-2xl">🧾</div>
+          <h3 class="font-headline-sm text-sm font-bold text-ink mb-1">Belum Ada Struk untuk Akun ${escapeHtml(activeName)}</h3>
+          <p class="font-body-sm text-xs text-stone-500 max-w-xs mx-auto leading-relaxed">
+            Struk belanja tersimpan secara privat per akun. Setelah menyelesaikan belanja di kasir, struk digital milik kamu akan otomatis tercatat di sini.
+          </p>
         </div>
       `;
       return;
     }
 
     let html = '';
-    appState.history.forEach(rcp => {
+    visibleHistory.forEach(rcp => {
+      const displayTrx = rcp.rawTrxId || (rcp.id.startsWith('rcp_') ? rcp.id.split('_').slice(2).join('_') : rcp.id);
       html += `
-        <div class="neo-history-card">
-          <div class="h-top">
-            <span class="h-date">
-              <i data-lucide="calendar"></i> ${escapeHtml(rcp.date)}
+        <div class="neo-history-card bg-white p-4 rounded-2xl border border-stone-200 shadow-xs hover:border-stone-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-xs text-stone-500 flex items-center gap-1 font-semibold">
+              <span class="material-symbols-outlined text-[15px] text-stone-400">calendar_month</span>
+              ${escapeHtml(rcp.date)}
             </span>
-            <span class="h-price">Rp ${formatNumber(rcp.grandTotal)}</span>
+            <span class="font-mono text-sm font-extrabold text-ink">Rp ${formatNumber(rcp.grandTotal)}</span>
           </div>
-          <div class="h-sub">
-            ${rcp.itemCount} Jenis • Hemat Promo: Rp ${formatNumber(rcp.totalSaved)}
+          <div class="flex items-center justify-between text-xs text-stone-600 mb-3 pb-2 border-b border-stone-100 font-mono">
+            <span>${rcp.itemCount} Jenis Barang</span>
+            <span class="text-emerald-700 font-bold">Hemat: Rp ${formatNumber(rcp.totalSaved)}</span>
           </div>
-          <button class="btn-neo-secondary full-w" onclick="window.showReceiptModal('${rcp.id}')">
-            <i data-lucide="file-text"></i> BUKA STRUK DIGITAL
-          </button>
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-mono text-[10px] text-stone-400 truncate">No: ${escapeHtml(displayTrx)}</span>
+            <button class="px-3 py-1.5 rounded-xl bg-ink text-citrus font-mono text-xs font-bold flex items-center gap-1 shadow-pos-key hover:bg-stone-800 active:scale-95 transition-all cursor-pointer" onclick="window.showReceiptModal('${rcp.id}')">
+              <span class="material-symbols-outlined text-[15px]">receipt_long</span>
+              <span>Buka Struk</span>
+            </button>
+          </div>
         </div>
       `;
     });
@@ -4627,37 +4840,55 @@
   }
 
   window.showReceiptModal = function (receiptId) {
-    const rcp = appState.history.find(h => h.id === receiptId);
-    if (!rcp) return;
+    const currentSlug = appState.currentUser ? appState.currentUser.slug : 'rian';
+    const isRian = currentSlug === 'rian';
+
+    const rcp = appState.history.find(h => {
+      if (h.id !== receiptId) return false;
+      if (h.userSlug) return h.userSlug === currentSlug;
+      if (h.id.startsWith('rcp_')) return h.id.startsWith('rcp_' + currentSlug + '_');
+      return isRian;
+    });
+
+    if (!rcp) {
+      showToast('Akses ditolak: Struk ini tidak terdaftar pada akun kamu.', 'danger');
+      return;
+    }
 
     const body = document.getElementById('receiptModalBody');
     let itemsHtml = '';
 
-    rcp.items.forEach(item => {
+    const items = Array.isArray(rcp.items) ? rcp.items : [];
+    items.forEach(item => {
+      const linePrice = item.lineTotal || ((item.finalUnitPrice || item.price || 0) * (item.qty || 1));
       itemsHtml += `
-        <div class="receipt-line-split">
-          <span>${escapeHtml(item.name)} (${item.qty} ${escapeHtml(item.unit)})</span>
-          <span>Rp ${formatNumber(item.lineTotal)}</span>
+        <div class="receipt-line-split flex justify-between text-xs py-1 border-b border-stone-100">
+          <span>${escapeHtml(item.name)} (${item.qty} ${escapeHtml(item.unit || 'pcs')})</span>
+          <span class="font-mono font-bold">Rp ${formatNumber(linePrice)}</span>
         </div>
       `;
     });
 
+    const displayTrx = rcp.rawTrxId || (rcp.id.startsWith('rcp_') ? rcp.id.split('_').slice(2).join('_') : rcp.id);
+    const ownerName = rcp.customerName || (appState.currentUser ? (appState.currentUser.displayName || appState.currentUser.username) : 'Pelanggan');
+
     body.innerHTML = `
-      <div class="receipt-paper-slip">
-        <div class="receipt-slip-top">
-          <div class="receipt-market-name">SUPERMARKET GROSIR</div>
-          <small>Struk Belanja Mandiri Kos Rian</small>
-          <div class="receipt-meta-row">${escapeHtml(rcp.date)}</div>
+      <div class="receipt-paper-slip font-mono text-ink">
+        <div class="receipt-slip-top text-center pb-3 border-b border-dashed border-stone-300">
+          <div class="font-black text-sm tracking-tight text-ink">LOTTE MART GROCERY - PURI INDAH</div>
+          <small class="text-stone-500 text-[11px] block mt-0.5">Struk Resmi • Pelanggan: <strong>${escapeHtml(ownerName)}</strong></small>
+          <div class="text-[10px] text-stone-400 mt-1">No. TRX: ${escapeHtml(displayTrx)}</div>
+          <div class="receipt-meta-row text-[10px] text-stone-500 mt-0.5">${escapeHtml(rcp.date)}</div>
         </div>
-        <div class="receipt-lines-list">
+        <div class="receipt-lines-list py-2.5 space-y-1">
           ${itemsHtml}
         </div>
-        <div class="receipt-slip-total">
-          <span>TOTAL:</span>
-          <span>Rp ${formatNumber(rcp.grandTotal)}</span>
+        <div class="receipt-slip-total flex justify-between pt-2.5 border-t border-dashed border-stone-300 font-bold text-sm">
+          <span>TOTAL BAYAR:</span>
+          <span class="font-mono text-emerald-800">Rp ${formatNumber(rcp.grandTotal)}</span>
         </div>
-        <div class="receipt-savings-banner">
-          Hemat Promo: Rp ${formatNumber(rcp.totalSaved)}
+        <div class="receipt-savings-banner text-center text-xs text-amber-700 font-bold bg-amber-50 p-2 rounded-lg mt-2.5 border border-amber-200/60">
+          Total Hemat Promo: Rp ${formatNumber(rcp.totalSaved)}
         </div>
       </div>
     `;
@@ -4926,10 +5157,15 @@
     const pill = document.getElementById('plannerProgressPill');
 
     const pendingItems = appState.planner.filter(p => !p.isPurchased);
-    const purchasedItems = appState.planner.filter(p => p.isPurchased);
+    const purchasedInCartCount = appState.cart.filter(item => item.isPlanned).length;
+    const totalPlannedCount = purchasedInCartCount + pendingItems.length;
 
     if (pill) {
-      pill.textContent = `${purchasedItems.length}/${appState.planner.length} Terbeli`;
+      if (totalPlannedCount > 0) {
+        pill.textContent = `${purchasedInCartCount}/${totalPlannedCount} Terbeli`;
+      } else {
+        pill.textContent = `0 Terencana`;
+      }
     }
 
     const plannerBadge = document.getElementById('navPlannerBadge');
@@ -4944,12 +5180,20 @@
 
     if (shelfContainer) {
       if (pendingItems.length === 0) {
-        shelfContainer.innerHTML = `
-          <div class="p-3 bg-secondary-fixed/20 rounded-2xl text-center text-secondary font-label-sm text-label-sm font-semibold flex items-center justify-center gap-2 border border-secondary/20">
-            <span class="material-symbols-outlined text-[18px]">verified</span>
-            <span>Semua kebutuhan terencana sudah dimasukkan ke troli! 🎉</span>
-          </div>
-        `;
+        if (purchasedInCartCount > 0) {
+          shelfContainer.innerHTML = `
+            <div class="p-3 bg-secondary-fixed/20 rounded-2xl text-center text-secondary font-label-sm text-label-sm font-semibold flex items-center justify-center gap-2 border border-secondary/20">
+              <span class="material-symbols-outlined text-[18px]">verified</span>
+              <span>Semua kebutuhan terencana sudah dimasukkan ke troli! 🎉</span>
+            </div>
+          `;
+        } else {
+          shelfContainer.innerHTML = `
+            <div class="p-3 bg-surface-container-low rounded-2xl text-center text-on-surface-variant font-body-sm text-xs border border-outline-variant/30">
+              Belum ada rencana kebutuhan. Tekan <strong>+ Atur Daftar Kebutuhan</strong> di bawah untuk mencatat barang dari rumah.
+            </div>
+          `;
+        }
       } else {
         let html = '';
         pendingItems.forEach(item => {
@@ -4987,20 +5231,20 @@
     const badgeCount = document.getElementById('plannerActiveCountBadge');
     const estCostEl = document.getElementById('plannerEstimatedCostTotal');
 
-    if (badgeCount) badgeCount.textContent = `${appState.planner.length} Item`;
+    if (badgeCount) badgeCount.textContent = `${pendingItems.length} Item`;
 
     let totalEstCost = 0;
-    appState.planner.forEach(p => {
+    pendingItems.forEach(p => {
       const master = appState.masterItems.find(m => m.name.toLowerCase() === p.name.toLowerCase());
       if (master) totalEstCost += master.lastPrice * p.qty;
     });
 
     if (estCostEl) {
-      estCostEl.textContent = `Estimasi acuan belanja bulan lalu: Rp ${formatNumber(totalEstCost)}`;
+      estCostEl.textContent = `Estimasi acuan belanja: Rp ${formatNumber(totalEstCost)}`;
     }
 
     if (fullContainer) {
-      if (appState.planner.length === 0) {
+      if (pendingItems.length === 0) {
         fullContainer.innerHTML = `
           <div class="p-4 bg-surface-container-low rounded-xl text-center text-on-surface-variant font-body-sm text-body-sm">
             Belum ada rencana kebutuhan. Gunakan form di atas untuk mencatat barang sebelum ke supermarket.
@@ -5008,19 +5252,18 @@
         `;
       } else {
         let html = '';
-        appState.planner.forEach(item => {
+        pendingItems.forEach(item => {
           const master = appState.masterItems.find(m => m.name.toLowerCase() === item.name.toLowerCase());
           const estPrice = master ? master.lastPrice : 0;
-          const isDone = item.isPurchased;
 
           html += `
-            <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 border border-outline-variant/30 ${isDone ? 'opacity-70 bg-surface-container' : ''}">
+            <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 border border-outline-variant/30">
               <div class="flex items-center gap-2 flex-1 min-w-0">
-                <span class="w-6 h-6 rounded-full ${isDone ? 'bg-secondary text-white' : 'bg-surface-container-highest text-outline'} flex items-center justify-center text-[13px] font-bold">
-                  ${isDone ? '✓' : '•'}
+                <span class="w-6 h-6 rounded-full bg-surface-container-highest text-secondary flex items-center justify-center text-[13px] font-bold">
+                  •
                 </span>
                 <div class="min-w-0">
-                  <h4 class="font-headline-sm text-[14px] text-primary font-bold truncate ${isDone ? 'line-through text-outline' : ''}">${escapeHtml(item.name)}</h4>
+                  <h4 class="font-headline-sm text-[14px] text-primary font-bold truncate">${escapeHtml(item.name)}</h4>
                   <div class="flex items-center gap-2 font-body-sm text-[11px] text-on-surface-variant">
                     <span>${item.qty} ${escapeHtml(item.unit)}</span>
                     <span>•</span>
@@ -5029,10 +5272,12 @@
                   </div>
                 </div>
               </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <span class="font-label-sm text-[11px] font-bold px-2 py-0.5 rounded-full ${isDone ? 'bg-secondary-fixed/30 text-secondary' : 'bg-surface-container-highest text-outline'}">
-                  ${isDone ? 'Sudah di Troli' : 'Direncanakan'}
-                </span>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button class="px-2.5 py-1 rounded-full bg-primary text-on-primary font-label-sm text-[11px] font-bold flex items-center gap-1 shadow-xs hover:bg-primary-container cursor-pointer"
+                  onclick="window.openShelfPriceModal('${item.id}')" title="Input harga di rak & masukkan ke troli">
+                  <span class="material-symbols-outlined text-[14px]">price_change</span>
+                  <span>Beli</span>
+                </button>
                 <button class="w-7 h-7 rounded-full text-error hover:bg-red-50 flex items-center justify-center cursor-pointer"
                   onclick="window.deletePlannerItem('${item.id}')" title="Hapus dari Rencana">
                   <span class="material-symbols-outlined text-[16px]">delete</span>
@@ -5151,7 +5396,12 @@
     };
 
     appState.cart.unshift(newCartItem);
-    currentShelfModalPlannerItem.isPurchased = true;
+
+    // Hapus barang dari daftar rencana kebutuhan karena sudah dimasukkan ke keranjang
+    const removedPlannerId = currentShelfModalPlannerItem.id;
+    const addedItemName = currentShelfModalPlannerItem.name;
+    appState.planner = appState.planner.filter(p => p.id !== removedPlannerId);
+    currentShelfModalPlannerItem = null;
 
     saveCart();
     savePlanner();
@@ -5162,7 +5412,7 @@
     renderShoppingPlannerSection();
 
     AudioEngine.playSuccess();
-    showToast(`"${newCartItem.name}" dimasukkan ke troli sesuai rencana!`, 'success');
+    showToast(`"${addedItemName}" dimasukkan ke troli dan dihapus dari daftar rencana!`, 'success');
   }
 
   function addPlannerItemFromForm(e) {
@@ -5217,6 +5467,15 @@
       savePlanner();
       renderShoppingPlannerSection();
       showToast('Item yang sudah terbeli dibersihkan', 'info');
+    } else if (appState.planner.length > 0) {
+      if (confirm('Kosongkan seluruh daftar rencana kebutuhan belanja?')) {
+        appState.planner = [];
+        savePlanner();
+        renderShoppingPlannerSection();
+        showToast('Seluruh daftar rencana telah dikosongkan', 'warning');
+      }
+    } else {
+      showToast('Daftar rencana kebutuhan sudah kosong', 'info');
     }
   }
 
