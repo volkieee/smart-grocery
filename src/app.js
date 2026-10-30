@@ -1880,8 +1880,6 @@
 
     renderShoppingPlannerSection();
 
-    renderShoppingPlannerSection();
-
     let filteredItems = appState.cart.filter(item => {
       const matchCat = appState.activeCategory === 'ALL' || item.category === appState.activeCategory;
       const matchSearch = appState.searchQuery === '' || item.name.toLowerCase().includes(appState.searchQuery.toLowerCase());
