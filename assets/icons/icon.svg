@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#181512" rx="112"/>
+  <rect x="8" y="8" width="496" height="496" fill="none" stroke="#292524" stroke-width="16" rx="104"/>
+  <!-- Handle -->
+  <path d="M204 225 V 172 C 204 139 227 112 256 112 C 285 112 308 139 308 172 V 225" fill="none" stroke="#f59e0b" stroke-width="26" stroke-linecap="round"/>
+  <!-- Bag Body -->
+  <path d="M148 195 H 364 C 374 195 382 203 381 213 L 368 385 C 367 396 357 405 346 405 H 166 C 155 405 145 396 144 385 L 131 213 C 130 203 138 195 148 195 Z" fill="#f59e0b"/>
+  <!-- Handle attachment cutouts -->
+  <line x1="204" y1="230" x2="204" y2="245" stroke="#181512" stroke-width="9" stroke-linecap="round"/>
+  <line x1="308" y1="230" x2="308" y2="245" stroke="#181512" stroke-width="9" stroke-linecap="round"/>
+</svg>

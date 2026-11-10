@@ -9,11 +9,14 @@
   <title>Smart Grocery Budget Companion</title>
 
   <!-- PWA Settings -->
-  <link rel="manifest" href="manifest.json?v=5.3">
-  <meta name="theme-color" content="#f0fdf1">
+  <link rel="manifest" href="manifest.json?v=6.0">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#181512">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="SmartGrocery">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KeranjangPintar">
 
   <!-- Typography: Plus Jakarta Sans, Space Grotesk, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -300,10 +303,9 @@
 
         <!-- 3 Lines Stacked Info -->
         <div class="flex flex-col min-w-0">
-          <!-- Line 1: Title & PRO Badge -->
+          <!-- Line 1: Title -->
           <div class="flex items-center gap-1.5 leading-none">
             <span class="font-headline-sm text-[15px] font-black text-ink tracking-tight whitespace-nowrap">KeranjangPintar</span>
-            <span class="px-1.5 py-0.5 rounded bg-amber-500/15 text-citrus-dark font-mono text-[9px] font-black border border-amber-500/30">PRO</span>
           </div>
 
           <!-- Line 2: Store Selector with Dropdown Arrow -->
@@ -2611,20 +2613,15 @@
     <span id="toastMessage">Pesan</span>
   </div>
 
-  <script src="app.js?v=6.8.8"></script>
+  <script src="app.js?v=6.8.9"></script>
   <script>
-    // Unregister service worker lama agar kode terbaru selalu dimuat seketika
+    // Register PWA Service Worker (Clean Network-First)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        for (let reg of regs) {
-          reg.unregister();
-        }
-      });
-      if ('caches' in window) {
-        caches.keys().then(keys => {
-          keys.forEach(k => caches.delete(k));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js?v=6.0').catch(err => {
+          console.debug('SW reg info:', err);
         });
-      }
+      });
     }
 
     // Direct In-App Safeguard for Login Validation
