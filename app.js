@@ -6644,8 +6644,16 @@
 
     // 10. Logout Button
     if (btnLogoutUser) {
-      btnLogoutUser.addEventListener('click', () => {
+      btnLogoutUser.addEventListener('click', (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         AudioEngine.playTap();
+        if (modalProfile) {
+          modalProfile.classList.add('hidden');
+          modalProfile.style.display = 'none';
+        }
         logoutUser();
       });
     }
@@ -6727,6 +6735,13 @@
   }
 
   async function logoutUser() {
+    // Tutup popup profil seketika secara sinkron
+    const modalProfile = document.getElementById('modalUserProfileBackdrop');
+    if (modalProfile) {
+      modalProfile.classList.add('hidden');
+      modalProfile.style.display = 'none';
+    }
+
     try {
       localStorage.removeItem(AUTH_STORAGE_KEYS.CURRENT_USER);
       localStorage.removeItem('sg_oauth_sync_user');
@@ -6752,8 +6767,10 @@
 
     appState.currentUser = null;
 
-    const modalProfile = document.getElementById('modalUserProfileBackdrop');
-    if (modalProfile) modalProfile.classList.add('hidden');
+    if (modalProfile) {
+      modalProfile.classList.add('hidden');
+      modalProfile.style.display = 'none';
+    }
 
     const loginScreen = document.getElementById('loginScreen');
     if (loginScreen) {
