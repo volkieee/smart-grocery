@@ -1,5 +1,5 @@
-// KeranjangPintar Lightweight Service Worker (PWA Enabled, Zero-Stale Cache)
-const CACHE_NAME = 'keranjangpintar-v6.0';
+// Vocery Lightweight Service Worker (PWA Enabled, Zero-Stale Cache)
+const CACHE_NAME = 'vocery-v6.1';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

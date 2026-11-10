@@ -1,7 +1,7 @@
 {
-  "name": "Keranjang Pintar",
-  "short_name": "KeranjangPintar",
-  "description": "Smart Grocery & Budget Safety Tracker untuk Belanja Supermarket Cerdas",
+  "name": "Vocery",
+  "short_name": "Vocery",
+  "description": "Vocery - Smart Grocery & Budget Safety Tracker",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

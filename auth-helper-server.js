@@ -13,7 +13,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
   <div class="spinner"></div>
-  <div style="font-size: 15px; font-weight: 500;">Menghubungkan akun Google ke KeranjangPintar...</div>
+  <div style="font-size: 15px; font-weight: 500;">Menghubungkan akun Google ke Vocery...</div>
   <script>
     const hash = window.location.hash || '';
     const search = window.location.search || '';
@@ -41,5 +41,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(3000, '0.0.0.0', () => {
-  console.log('KeranjangPintar OAuth Helper listening on http://localhost:3000');
+  console.log('Vocery OAuth Helper listening on http://localhost:3000');
 });

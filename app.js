@@ -5887,7 +5887,7 @@
         hideLoginAlert();
         loginAsUser(userObj, true);
         AudioEngine.playSuccess();
-        showToast(`Akun ${rawUsername} berhasil dibuat! Selamat datang di KeranjangPintar.`, 'success');
+        showToast(`Akun ${rawUsername} berhasil dibuat! Selamat datang di Vocery.`, 'success');
         if (window.confetti) {
           window.confetti({ particleCount: 50, spread: 70, origin: { y: 0.2 } });
         }
